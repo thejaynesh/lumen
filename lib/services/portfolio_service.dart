@@ -225,7 +225,13 @@ class PortfolioService {
     if (snapshot.docs.isEmpty) return null;
 
     final doc = snapshot.docs.first;
-    return JobPosting.fromMap(doc.data(), doc.id);
+    final job = JobPosting.fromMap(doc.data(), doc.id);
+
+    if (job.expiresAt != null && job.expiresAt!.isBefore(DateTime.now())) {
+      return null;
+    }
+
+    return job;
   }
 
   Future<bool> isSlugAvailable(String slug, {String? excludeId}) async {

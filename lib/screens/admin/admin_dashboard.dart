@@ -352,9 +352,14 @@ class JobsTab extends StatelessWidget {
           items: jobs,
           emptyMessage: 'No job postings yet',
           onAdd: () => _showJobDialog(context),
-          itemBuilder: (job) => _AdminCard(
+          itemBuilder: (job) {
+            final isExpired = job.expiresAt != null &&
+                job.expiresAt!.isBefore(DateTime.now());
+            return _AdminCard(
             title: job.title,
-            subtitle: '${job.company} • Views: ${job.viewCount}',
+            subtitle: isExpired
+                ? '${job.company} • Views: ${job.viewCount} • EXPIRED'
+                : '${job.company} • Views: ${job.viewCount}',
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -373,10 +378,10 @@ class JobsTab extends StatelessWidget {
             ),
             onTap: () => _showJobDialog(context, job: job),
             onDelete: () => service.deleteJob(job.id),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    });
   }
 
   void _showJobDialog(BuildContext context, {JobPosting? job}) {

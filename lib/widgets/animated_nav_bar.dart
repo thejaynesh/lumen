@@ -9,6 +9,7 @@ class AnimatedNavBar extends StatefulWidget {
   final List<String> items;
   final List<GlobalKey>? sectionKeys;
   final VoidCallback? onLogoTap;
+  final VoidCallback? onContactTap;
 
   const AnimatedNavBar({
     super.key,
@@ -16,6 +17,7 @@ class AnimatedNavBar extends StatefulWidget {
     this.items = const ['Work', 'Projects', 'About', 'Contact'],
     this.sectionKeys,
     this.onLogoTap,
+    this.onContactTap,
   });
 
   @override
@@ -146,7 +148,7 @@ class _AnimatedNavBarState extends State<AnimatedNavBar> {
 
                 // CTA Button
                 FilledButton(
-                  onPressed: () {},
+                  onPressed: onContactTap,
                   child: const Text('Get in Touch'),
                 ).animate(delay: 400.ms).fadeIn().scale(),
               ],
