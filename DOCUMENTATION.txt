@@ -1,0 +1,676 @@
+================================================================================
+                              LUMEN PORTFOLIO
+                       Complete Application Documentation
+================================================================================
+
+Last Updated: February 4, 2026
+Version: 1.0.0
+
+
+================================================================================
+                              TABLE OF CONTENTS
+================================================================================
+
+1. PROJECT OVERVIEW
+2. TECHNOLOGY STACK
+3. ARCHITECTURE & PROJECT STRUCTURE
+4. FEATURES
+5. DATA MODELS
+6. SERVICES & BUSINESS LOGIC
+7. USER INTERFACE COMPONENTS
+8. THEMING SYSTEM
+9. ROUTING & NAVIGATION
+10. FIREBASE INTEGRATION
+11. ADMIN DASHBOARD
+12. DEVELOPMENT & RUNNING LOCALLY
+13. FUTURE ENHANCEMENTS
+
+
+================================================================================
+                           1. PROJECT OVERVIEW
+================================================================================
+
+Lumen is a dynamic, high-performance personal portfolio website built with 
+Flutter Web. It is designed for software developers to showcase their work, 
+experience, and skills in a visually stunning and modern interface.
+
+KEY HIGHLIGHTS:
+- Single-page application with smooth scrolling
+- Light/Dark mode theme switching
+- Parallax scrolling effects
+- Animated UI elements with glow effects
+- Job-specific portfolio customization
+- Firebase-powered backend with real-time updates
+- Admin dashboard for content management
+- Responsive design for all screen sizes
+
+
+================================================================================
+                          2. TECHNOLOGY STACK
+================================================================================
+
+FRONTEND:
+---------
+- Flutter Web (Dart) - Cross-platform UI framework
+- Google Fonts - Typography (Inter font family)
+- Flutter Animate - Animation library for smooth transitions
+- Font Awesome Flutter - Icon library
+- Provider - State management
+
+BACKEND & DATABASE:
+-------------------
+- Firebase Core - Firebase initialization
+- Firebase Auth - User authentication for admin access
+- Cloud Firestore - NoSQL database for portfolio content
+
+ROUTING:
+--------
+- Go Router - Declarative routing for Flutter web
+
+UTILITIES:
+----------
+- URL Launcher - Opening external links (email, social media)
+
+
+================================================================================
+                    3. ARCHITECTURE & PROJECT STRUCTURE
+================================================================================
+
+The application follows a modular, layered architecture:
+
+lib/
+├── main.dart                    # App entry point
+├── router.dart                  # Route configuration
+├── firebase_options.dart        # Firebase config (auto-generated)
+│
+├── models/                      # Data models
+│   └── portfolio_data.dart      # All data classes
+│
+├── providers/                   # State management
+│   ├── auth_provider.dart       # Authentication state
+│   └── theme_provider.dart      # Theme (light/dark) state
+│
+├── services/                    # Business logic
+│   └── portfolio_service.dart   # Firebase CRUD operations
+│
+├── theme/                       # UI theming
+│   └── app_theme.dart           # Colors, typography, styles
+│
+├── screens/                     # Application screens
+│   ├── home/                    # Public portfolio (modular)
+│   │   ├── home.dart            # Barrel export
+│   │   ├── home_screen.dart     # Main screen coordinator
+│   │   ├── sections/            # Page sections
+│   │   │   ├── hero_section.dart
+│   │   │   ├── projects_section.dart
+│   │   │   ├── experience_section.dart
+│   │   │   ├── skills_section.dart
+│   │   │   ├── contact_section.dart
+│   │   │   └── footer_section.dart
+│   │   ├── widgets/             # Reusable widgets
+│   │   │   ├── background_glow.dart
+│   │   │   ├── theme_toggle.dart
+│   │   │   ├── project_card.dart
+│   │   │   └── experience_card.dart
+│   │   └── utils/               # Utilities
+│   │       └── mock_data.dart
+│   │
+│   └── admin/                   # Admin dashboard
+│       ├── admin_dashboard.dart # Main admin screen
+│       └── login_screen.dart    # Admin login
+│
+└── widgets/                     # Shared widgets
+    └── [additional widgets]
+
+
+================================================================================
+                               4. FEATURES
+================================================================================
+
+PUBLIC PORTFOLIO FEATURES:
+--------------------------
+
+1. HERO SECTION
+   - Large animated name display with glow effect
+   - Tagline with electric blue accent
+   - About/bio text
+   - "View Work" call-to-action button
+   - Resume download button
+
+2. PROJECTS CAROUSEL
+   - Horizontal scrolling showcase
+   - Project cards with hover effects:
+     * Lift animation on hover
+     * Border color change to blue
+     * Glow shadow effect
+   - Each card displays:
+     * Project title
+     * Category (e.g., "Web Application")
+     * Description
+     * Technology stack tags
+
+3. EXPERIENCE CAROUSEL
+   - Horizontal scrolling timeline
+   - Experience cards with:
+     * Role/position title
+     * Company name
+     * Time period
+     * Description
+     * Skill highlights
+
+4. SKILLS SECTION
+   - Grid of skill tags
+   - Staggered animation on scroll
+   - Visual skill representation
+
+5. CONTACT SECTION
+   - Email link with glow effect
+   - Social media links (GitHub, LinkedIn, Twitter)
+   - Opens in new tab/email client
+
+6. FOOTER
+   - Copyright notice
+   - "Built with Flutter" credit
+
+7. THEME TOGGLE
+   - Light/Dark mode switch
+   - Persistent sun/moon icon button
+   - Smooth transition animation
+
+8. PARALLAX EFFECTS
+   - Hero section moves slower than scroll
+   - Projects section has subtle parallax offset
+   - Background glow follows scroll position
+
+9. JOB-SPECIFIC PORTFOLIOS
+   - Custom URL parameter: /?job=<slug>
+   - Per-job project/experience selection
+   - Custom tagline and about text per job
+   - View count tracking
+
+
+ADMIN DASHBOARD FEATURES:
+-------------------------
+
+1. AUTHENTICATION
+   - Email/password login
+   - Session persistence
+   - Protected routes
+
+2. CONTENT MANAGEMENT
+   - Projects CRUD (Create, Read, Update, Delete)
+   - Experience CRUD
+   - Job postings management
+   - Portfolio settings
+
+3. DATA SEEDING
+   - One-click sample data generation
+   - Initial setup helper
+
+
+================================================================================
+                             5. DATA MODELS
+================================================================================
+
+All data models are defined in: lib/models/portfolio_data.dart
+
+1. PORTFOLIO SETTINGS
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ Field                  │ Type           │ Description           │
+   ├─────────────────────────────────────────────────────────────────┤
+   │ name                   │ String         │ Your full name        │
+   │ tagline                │ String         │ Professional title    │
+   │ about                  │ String         │ Bio/description       │
+   │ email                  │ String         │ Contact email         │
+   │ github                 │ String?        │ GitHub URL            │
+   │ linkedin               │ String?        │ LinkedIn URL          │
+   │ twitter                │ String?        │ Twitter URL           │
+   │ instagram              │ String?        │ Instagram URL         │
+   │ resumeUrl              │ String?        │ Resume download link  │
+   │ defaultProjectIds      │ List<String>   │ Featured project IDs  │
+   │ defaultExperienceIds   │ List<String>   │ Featured exp IDs      │
+   │ skills                 │ List<Skill>    │ Skill list            │
+   │ stats                  │ List<Stat>     │ Statistics            │
+   └─────────────────────────────────────────────────────────────────┘
+
+2. PROJECT
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ Field                  │ Type           │ Description           │
+   ├─────────────────────────────────────────────────────────────────┤
+   │ id                     │ String         │ Firestore document ID │
+   │ title                  │ String         │ Project name          │
+   │ category               │ String         │ Category label        │
+   │ description            │ String         │ Project description   │
+   │ techStack              │ List<String>   │ Technologies used     │
+   │ link                   │ String?        │ Live/repo link        │
+   │ imageUrl               │ String?        │ Preview image         │
+   │ colorHex               │ int            │ Accent color          │
+   │ tags                   │ List<String>   │ Filter tags           │
+   │ order                  │ int            │ Display order         │
+   │ isActive               │ bool           │ Visibility toggle     │
+   │ createdAt              │ DateTime       │ Creation timestamp    │
+   │ updatedAt              │ DateTime       │ Last update           │
+   └─────────────────────────────────────────────────────────────────┘
+
+3. EXPERIENCE
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ Field                  │ Type           │ Description           │
+   ├─────────────────────────────────────────────────────────────────┤
+   │ id                     │ String         │ Firestore document ID │
+   │ role                   │ String         │ Job title             │
+   │ company                │ String         │ Company name          │
+   │ period                 │ String         │ Time period           │
+   │ description            │ String         │ Role description      │
+   │ highlights             │ List<String>   │ Skills/technologies   │
+   │ tags                   │ List<String>   │ Filter tags           │
+   │ order                  │ int            │ Display order         │
+   │ isActive               │ bool           │ Visibility toggle     │
+   │ createdAt              │ DateTime       │ Creation timestamp    │
+   │ updatedAt              │ DateTime       │ Last update           │
+   └─────────────────────────────────────────────────────────────────┘
+
+4. JOB POSTING
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ Field                  │ Type           │ Description           │
+   ├─────────────────────────────────────────────────────────────────┤
+   │ id                     │ String         │ Firestore document ID │
+   │ slug                   │ String         │ URL-friendly ID       │
+   │ title                  │ String         │ Job title             │
+   │ company                │ String         │ Company name          │
+   │ description            │ String?        │ Application notes     │
+   │ projectIds             │ List<String>   │ Selected projects     │
+   │ experienceIds          │ List<String>   │ Selected experience   │
+   │ customTagline          │ String?        │ Override tagline      │
+   │ customAbout            │ String?        │ Override about        │
+   │ isActive               │ bool           │ Active status         │
+   │ viewCount              │ int            │ Profile view count    │
+   │ createdAt              │ DateTime       │ Creation timestamp    │
+   │ updatedAt              │ DateTime       │ Last update           │
+   │ expiresAt              │ DateTime?      │ Expiration date       │
+   └─────────────────────────────────────────────────────────────────┘
+
+5. SKILL
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ name                   │ String         │ Skill name            │
+   │ level                  │ double         │ Proficiency (0.0-1.0) │
+   └─────────────────────────────────────────────────────────────────┘
+
+6. STAT
+   ┌─────────────────────────────────────────────────────────────────┐
+   │ value                  │ String         │ Metric value          │
+   │ label                  │ String         │ Metric label          │
+   └─────────────────────────────────────────────────────────────────┘
+
+7. PORTFOLIO VIEW DATA
+   - Container class for public portfolio view
+   - Combines settings, projects, experiences
+   - Handles job-specific customizations
+
+
+================================================================================
+                       6. SERVICES & BUSINESS LOGIC
+================================================================================
+
+PORTFOLIO SERVICE (lib/services/portfolio_service.dart)
+--------------------------------------------------------
+
+The PortfolioService handles all Firebase interactions:
+
+AUTHENTICATION:
+- signIn(email, password) - Admin login
+- signOut() - Logout
+- currentUser - Get current user
+- authStateChanges - Auth state stream
+
+SETTINGS:
+- getSettings() - Fetch portfolio settings
+- watchSettings() - Real-time settings stream
+- updateSettings(settings) - Save settings
+
+PROJECTS:
+- getAllProjects() - Get all projects
+- watchProjects() - Real-time projects stream
+- getActiveProjects() - Get visible projects
+- getProjectsByIds(ids) - Get specific projects
+- addProject(project) - Create project
+- updateProject(project) - Update project
+- deleteProject(id) - Delete project
+
+EXPERIENCE:
+- getAllExperience() - Get all experience
+- watchExperience() - Real-time experience stream
+- getActiveExperience() - Get visible experience
+- getExperienceByIds(ids) - Get specific experience
+- addExperience(experience) - Create experience
+- updateExperience(experience) - Update experience
+- deleteExperience(id) - Delete experience
+
+JOBS:
+- getAllJobs() - Get all job postings
+- watchJobs() - Real-time jobs stream
+- getJobBySlug(slug) - Get job by URL slug
+- isSlugAvailable(slug) - Check slug uniqueness
+- addJob(job) - Create job posting
+- updateJob(job) - Update job posting
+- deleteJob(id) - Delete job posting
+- incrementJobViewCount(jobId) - Track views
+
+PORTFOLIO VIEW:
+- getPortfolioViewData(jobSlug?) - Aggregated data for display
+
+DATA SEEDING:
+- seedInitialData() - Initialize with sample data
+
+
+================================================================================
+                       7. USER INTERFACE COMPONENTS
+================================================================================
+
+HOME SCREEN SECTIONS:
+---------------------
+
+1. BackgroundGlow (widgets/background_glow.dart)
+   - Animated radial gradient
+   - Follows scroll position
+   - Fade-in animation
+
+2. ThemeToggleButton (widgets/theme_toggle.dart)
+   - Positioned top-right
+   - Sun/moon icon toggle
+   - Smooth icon transition
+   - Glass-like container
+
+3. HeroSection (sections/hero_section.dart)
+   - Full viewport height
+   - Parallax scrolling effect
+   - Name with glow shadow
+   - Animated tagline and about
+   - CTA and resume buttons
+
+4. ProjectsSection (sections/projects_section.dart)
+   - Section header "SELECTED WORK"
+   - Horizontal scrolling ListView
+   - ProjectCard widgets
+
+5. ExperienceSection (sections/experience_section.dart)
+   - Section header "EXPERIENCE"
+   - Rounded container with surface color
+   - Horizontal scrolling ListView
+   - ExperienceCard widgets
+
+6. SkillsSection (sections/skills_section.dart)
+   - Section header "SKILLS"
+   - Wrapped grid layout
+   - Staggered fade-in animation
+   - Rounded skill tags
+
+7. ContactSection (sections/contact_section.dart)
+   - Section header "GET IN TOUCH"
+   - Large email link with glow
+   - Social media buttons
+   - Rounded container
+
+8. FooterSection (sections/footer_section.dart)
+   - Copyright text
+   - "Built with Flutter" credit
+
+
+CARD WIDGETS:
+-------------
+
+1. ProjectCard (widgets/project_card.dart)
+   - Hover state management
+   - AnimatedContainer for smooth transitions
+   - Features:
+     * Image placeholder area
+     * Category tag
+     * Title
+     * Description (3 line max)
+     * Tech stack pills
+   - Animations:
+     * Lift on hover (-8px)
+     * Border color change
+     * Glow shadow on hover
+     * Staggered fade-in
+
+2. ExperienceCard (widgets/experience_card.dart)
+   - Hover state management
+   - Features:
+     * Period badge
+     * Role title
+     * Company name
+     * Description
+     * Highlight/skill tags
+   - Same animations as ProjectCard
+
+
+================================================================================
+                            8. THEMING SYSTEM
+================================================================================
+
+Theme configuration: lib/theme/app_theme.dart
+
+COLOR PALETTE:
+--------------
+Primary (Electric Blue): #0066FF
+Primary Light: #3388FF
+Accent: #00A3FF
+
+DARK MODE COLORS:
+- Background: #000000
+- Background Alt: #0A0A0A
+- Surface: #111111
+- Surface Light: #1A1A1A
+- Text Primary: #FFFFFF
+- Text Secondary: #AAAAAA
+- Text Muted: #666666
+
+LIGHT MODE COLORS:
+- Background: #FAFAFA
+- Background Alt: #FFFFFF
+- Surface: #FFFFFF
+- Surface Light: #F0F0F0
+- Text Primary: #000000
+- Text Secondary: #555555
+- Text Muted: #999999
+
+BORDER RADII:
+- Small: 12px
+- Medium: 20px
+- Large: 28px
+- XL: 40px
+
+EFFECTS:
+- Glow Shadow: Blue glow for emphasis
+- Soft Shadow: Subtle depth shadow
+- Accent Gradient: Primary to Accent gradient
+
+THEME-AWARE HELPERS:
+- AppTheme.background(isDark) - Returns theme-aware color
+- AppTheme.textPrimary(isDark) - Returns theme-aware color
+- AppTheme.glowShadow(isDark) - Returns theme-aware shadow
+- etc.
+
+
+================================================================================
+                         9. ROUTING & NAVIGATION
+================================================================================
+
+Routes are defined in: lib/router.dart
+
+DEFINED ROUTES:
+---------------
+┌─────────────┬─────────────────────────────────────────────────────────┐
+│ Path        │ Description                                             │
+├─────────────┼─────────────────────────────────────────────────────────┤
+│ /           │ Public portfolio homepage                               │
+│ /?job=slug  │ Job-specific portfolio view                             │
+│ /login      │ Admin login page                                        │
+│ /admin      │ Admin dashboard (protected)                             │
+└─────────────┴─────────────────────────────────────────────────────────┘
+
+ROUTE PROTECTION:
+- /admin route requires authentication
+- Unauthenticated users redirected to /login
+- Public routes (/, /login) always accessible
+
+
+================================================================================
+                        10. FIREBASE INTEGRATION
+================================================================================
+
+FIRESTORE COLLECTIONS:
+----------------------
+
+1. settings/main (Document)
+   - Single document storing PortfolioSettings
+
+2. projects (Collection)
+   - Documents storing Project data
+   - Indexed by 'order' field
+
+3. experience (Collection)
+   - Documents storing Experience data
+   - Indexed by 'order' field
+
+4. jobs (Collection)
+   - Documents storing JobPosting data
+   - Indexed by 'createdAt' (descending)
+
+REQUIRED FIREBASE SERVICES:
+---------------------------
+1. Firebase Authentication
+   - Email/Password provider enabled
+
+2. Cloud Firestore
+   - Database in production mode
+   - Indexes for queries
+
+SECURITY RULES (Recommended):
+-----------------------------
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public read access
+    match /settings/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    match /projects/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    match /experience/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    match /jobs/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
+```
+
+
+================================================================================
+                          11. ADMIN DASHBOARD
+================================================================================
+
+The admin dashboard provides content management:
+
+ACCESS:
+- URL: /admin
+- Requires email/password authentication
+- Protected by route guard
+
+TABS:
+1. Projects - Manage portfolio projects
+2. Experience - Manage work experience
+3. Jobs - Manage job-specific portfolios
+4. Settings - Portfolio settings
+
+FEATURES:
+- View all items in each category
+- Add new items
+- Edit existing items
+- Delete items
+- Toggle active/inactive status
+- Seed sample data (first-time setup)
+- View portfolio (opens public site)
+
+
+================================================================================
+                   12. DEVELOPMENT & RUNNING LOCALLY
+================================================================================
+
+PREREQUISITES:
+--------------
+- Flutter SDK (3.10.1+)
+- Dart SDK (3.10.1+)
+- Firebase CLI
+- A Firebase project
+
+SETUP:
+------
+1. Clone the repository
+2. Run: flutter pub get
+3. Configure Firebase:
+   - Run: flutterfire configure
+   - Select your Firebase project
+   - This generates firebase_options.dart
+
+4. Enable Firebase services:
+   - Authentication (Email/Password)
+   - Cloud Firestore
+
+RUNNING LOCALLY:
+----------------
+flutter run -d chrome --web-port=50164
+
+Access at: http://localhost:50164
+
+BUILDING FOR PRODUCTION:
+------------------------
+flutter build web --release
+
+Output: build/web/
+
+HOT RELOAD:
+-----------
+During development:
+- Press 'r' for hot reload
+- Press 'R' for hot restart
+
+
+================================================================================
+                        13. FUTURE ENHANCEMENTS
+================================================================================
+
+PLANNED FEATURES:
+-----------------
+1. Image upload for project thumbnails
+2. Blog/writing section
+3. Testimonials section
+4. Analytics dashboard (view counts, engagement)
+5. Multiple portfolio themes
+6. PDF resume generation
+7. Contact form with email notifications
+8. Project filtering by technology
+9. Search functionality
+10. Internationalization (i18n)
+11. SEO optimization
+12. PWA support
+
+
+================================================================================
+                               END OF DOCUMENT
+================================================================================
+
+For questions or contributions, please contact the repository owner.
+
+Built with ❤️ using Flutter
