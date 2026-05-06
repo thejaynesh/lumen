@@ -16,7 +16,11 @@ class MockPortfolioData {
         Skill(name: 'React', level: 0.70),
         Skill(name: 'Python', level: 0.85),
       ],
-      stats: [],
+      stats: [
+        Stat(value: '5+', label: 'Years Experience'),
+        Stat(value: '20+', label: 'Projects'),
+        Stat(value: '100K+', label: 'Lines of Code'),
+      ],
       github: 'https://github.com/yourusername',
       linkedin: 'https://linkedin.com/in/yourusername',
       resumeUrl: 'https://example.com/resume.pdf',

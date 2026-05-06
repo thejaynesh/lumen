@@ -9,12 +9,14 @@ class HeroSection extends StatelessWidget {
   final PortfolioViewData data;
   final bool isDark;
   final double scrollOffset;
+  final VoidCallback? onViewWorkTap;
 
   const HeroSection({
     super.key,
     required this.data,
     required this.isDark,
     required this.scrollOffset,
+    this.onViewWorkTap,
   });
 
   @override
@@ -43,6 +45,11 @@ class HeroSection extends StatelessWidget {
 
             // About
             _buildAbout(),
+
+            const SizedBox(height: 60),
+
+            // Stats row
+            _buildStats(),
 
             const SizedBox(height: 60),
 
@@ -113,13 +120,51 @@ class HeroSection extends StatelessWidget {
     ).animate(delay: 400.ms).fadeIn(duration: 600.ms);
   }
 
+  Widget _buildStats() {
+    final stats = data.settings.stats;
+    if (stats.isEmpty) return const SizedBox.shrink();
+    return Wrap(
+      spacing: 48,
+      runSpacing: 20,
+      children: stats.asMap().entries.map((entry) {
+        final stat = entry.value;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              stat.value,
+              style: GoogleFonts.inter(
+                fontSize: 36,
+                fontWeight: FontWeight.w900,
+                color: AppTheme.primary,
+                height: 1,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              stat.label.toUpperCase(),
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textSecondary(isDark),
+                letterSpacing: 1.5,
+              ),
+            ),
+          ],
+        )
+            .animate(delay: Duration(milliseconds: 600 + 80 * entry.key))
+            .fadeIn(duration: 500.ms)
+            .slideY(begin: 0.2, end: 0);
+      }).toList(),
+    );
+  }
+
   Widget _buildCTAButton() {
     return MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
-            onTap: () {
-              // Scroll to projects
-            },
+            onTap: onViewWorkTap,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 20),
               decoration: BoxDecoration(

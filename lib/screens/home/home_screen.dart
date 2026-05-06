@@ -21,6 +21,7 @@ import 'widgets/background_glow.dart';
 import 'widgets/theme_toggle.dart';
 import 'widgets/narrator_progress_bar.dart';
 import 'widgets/narrator_floating_controls.dart';
+import '../../widgets/animated_nav_bar.dart';
 
 // Utils
 import 'utils/mock_data.dart';
@@ -77,6 +78,16 @@ class _HomeScreenState extends State<HomeScreen> {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollToKey(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx == null) return;
+    Scrollable.ensureVisible(
+      ctx,
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   /// Boot or tear down narrator based on selected experience mode.
@@ -179,6 +190,22 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // Always-interactive overlays (must remain outside the IgnorePointer).
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: AnimatedNavBar(
+              scrollController: _scrollController,
+              sectionKeys: [
+                _heroKey,
+                _projectsKey,
+                _experienceKey,
+                _contactKey,
+              ],
+              onLogoTap: () => _scrollToKey(_heroKey),
+              onContactTap: () => _scrollToKey(_contactKey),
+            ),
+          ),
           ThemeToggleButton(themeProvider: themeProvider, isDark: isDark),
           _buildModeIndicator(experienceProvider, isDark),
           NarratorProgressBar(isDark: isDark),
@@ -203,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Positioned(
-      top: 20,
+      top: 90,
       left: 20,
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
@@ -266,6 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
               data: data,
               isDark: isDark,
               scrollOffset: _scrollOffset,
+              onViewWorkTap: () => _scrollToKey(_projectsKey),
             ),
           ),
         ),
