@@ -39,14 +39,14 @@ class _ProjectCardState extends State<ProjectCard> {
               borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
               border: Border.all(
                 color: _isHovered
-                    ? AppTheme.primary.withOpacity(0.5)
-                    : AppTheme.textMuted(widget.isDark).withOpacity(0.1),
+                    ? AppTheme.primary.withValues(alpha: 0.5)
+                    : AppTheme.textMuted(widget.isDark).withValues(alpha: 0.1),
                 width: _isHovered ? 2 : 1,
               ),
               boxShadow: _isHovered ? AppTheme.glowShadow(widget.isDark) : [],
             ),
             transform: _isHovered
-                ? (Matrix4.identity()..translate(0.0, -8.0))
+                ? Matrix4.translationValues(0.0, -8.0, 0.0)
                 : Matrix4.identity(),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -61,7 +61,7 @@ class _ProjectCardState extends State<ProjectCard> {
                     boxShadow: _isHovered
                         ? [
                             BoxShadow(
-                              color: AppTheme.primary.withOpacity(0.1),
+                              color: AppTheme.primary.withValues(alpha: 0.1),
                               blurRadius: 20,
                               spreadRadius: -5,
                             ),
@@ -123,7 +123,7 @@ class _ProjectCardState extends State<ProjectCard> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.primary.withOpacity(0.1),
+                        color: AppTheme.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(
                           AppTheme.radiusSmall,
                         ),

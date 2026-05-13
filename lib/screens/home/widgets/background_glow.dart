@@ -24,7 +24,7 @@ class BackgroundGlow extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: RadialGradient(
             colors: [
-              AppTheme.primary.withOpacity(isDark ? 0.15 : 0.08),
+              AppTheme.primary.withValues(alpha: isDark ? 0.15 : 0.08),
               Colors.transparent,
             ],
           ),

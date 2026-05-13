@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../models/portfolio_data.dart';
 import '../../services/portfolio_service.dart';
 import '../../theme/app_theme.dart';
@@ -194,22 +195,53 @@ class _HomeScreenState extends State<HomeScreen> {
             top: 0,
             left: 0,
             right: 0,
-            child: AnimatedNavBar(
-              scrollController: _scrollController,
-              sectionKeys: [
-                _heroKey,
-                _projectsKey,
-                _experienceKey,
-                _contactKey,
-              ],
-              onLogoTap: () => _scrollToKey(_heroKey),
-              onContactTap: () => _scrollToKey(_contactKey),
+            child: FutureBuilder<PortfolioViewData>(
+              future: _dataFuture,
+              builder: (context, snapshot) {
+                final name = (snapshot.hasData && snapshot.data != null)
+                    ? snapshot.data!.settings.name
+                    : 'Lumen';
+                return AnimatedNavBar(
+                  name: name,
+                  scrollController: _scrollController,
+                  sectionKeys: [
+                    _heroKey,
+                    _projectsKey,
+                    _experienceKey,
+                    _contactKey,
+                  ],
+                  onLogoTap: () => _scrollToKey(_heroKey),
+                  onContactTap: () => _scrollToKey(_contactKey),
+                  actions: [
+                    _buildModeIndicator(experienceProvider, isDark),
+                    const SizedBox(width: 16),
+                    ThemeToggleButton(themeProvider: themeProvider, isDark: isDark),
+                  ],
+                );
+              },
             ),
           ),
-          ThemeToggleButton(themeProvider: themeProvider, isDark: isDark),
-          _buildModeIndicator(experienceProvider, isDark),
           NarratorProgressBar(isDark: isDark),
           NarratorFloatingControls(isDark: isDark),
+          
+          // Get in Touch floating button
+          Positioned(
+            bottom: 40,
+            right: 40,
+            child: FilledButton(
+              onPressed: () => _scrollToKey(_contactKey),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
+                elevation: 8,
+              ),
+              child: const Text(
+                'Get in Touch',
+                style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
+              ),
+            ).animate(delay: 400.ms).fadeIn().scale(),
+          ),
         ],
       ),
     );
@@ -229,24 +261,21 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
     }
 
-    return Positioned(
-      top: 90,
-      left: 20,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () {
-            // Going back to selector — make sure narrator is torn down first.
-            context.read<NarratorProvider>().stop();
-            provider.reset();
-            _lastBootedMode = null;
-          },
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          // Going back to selector — make sure narrator is torn down first.
+          context.read<NarratorProvider>().stop();
+          provider.reset();
+          _lastBootedMode = null;
+        },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              color: (isDark ? Colors.white : Colors.black).withOpacity(0.1),
+              color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: modeColor.withOpacity(0.5)),
+              border: Border.all(color: modeColor.withValues(alpha: 0.5)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -276,18 +305,17 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildContent(PortfolioViewData data, bool isDark) {
     final screenHeight = MediaQuery.of(context).size.height;
 
-    return CustomScrollView(
+    return SingleChildScrollView(
       controller: _scrollController,
-      slivers: [
-        SliverToBoxAdapter(
-          child: KeyedSubtree(
+      child: Column(
+        children: [
+          KeyedSubtree(
             key: _heroKey,
             child: HeroSection(
               data: data,
@@ -296,10 +324,8 @@ class _HomeScreenState extends State<HomeScreen> {
               onViewWorkTap: () => _scrollToKey(_projectsKey),
             ),
           ),
-        ),
-        if (data.projects.isNotEmpty)
-          SliverToBoxAdapter(
-            child: KeyedSubtree(
+          if (data.projects.isNotEmpty)
+            KeyedSubtree(
               key: _projectsKey,
               child: ProjectsSection(
                 projects: data.projects,
@@ -308,31 +334,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 screenHeight: screenHeight,
               ),
             ),
-          ),
-        if (data.experiences.isNotEmpty)
-          SliverToBoxAdapter(
-            child: KeyedSubtree(
+          if (data.experiences.isNotEmpty)
+            KeyedSubtree(
               key: _experienceKey,
               child: ExperienceSection(
                 experiences: data.experiences,
                 isDark: isDark,
               ),
             ),
-          ),
-        SliverToBoxAdapter(
-          child: KeyedSubtree(
+          KeyedSubtree(
             key: _skillsKey,
             child: SkillsSection(settings: data.settings, isDark: isDark),
           ),
-        ),
-        SliverToBoxAdapter(
-          child: KeyedSubtree(
+          KeyedSubtree(
             key: _contactKey,
             child: ContactSection(settings: data.settings, isDark: isDark),
           ),
-        ),
-        SliverToBoxAdapter(child: FooterSection(isDark: isDark)),
-      ],
+          FooterSection(isDark: isDark),
+        ],
+      ),
     );
   }
 }

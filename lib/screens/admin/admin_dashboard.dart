@@ -133,8 +133,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
             padding: const EdgeInsets.all(16),
             child: TextButton.icon(
               onPressed: () async {
+                final router = GoRouter.of(context);
                 await context.read<AuthProvider>().signOut();
-                if (context.mounted) context.go('/login');
+                if (mounted) router.go('/login');
               },
               icon: const Icon(Icons.logout, size: 20),
               label: const Text('Sign Out'),
@@ -258,6 +259,11 @@ class ProjectsTab extends StatelessWidget {
     return StreamBuilder(
       stream: service.watchProjects(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Error loading projects: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
+          );
+        }
         if (!snapshot.hasData)
           return const Center(child: CircularProgressIndicator());
         final projects = snapshot.data!;
@@ -273,7 +279,7 @@ class ProjectsTab extends StatelessWidget {
               value: project.isActive,
               onChanged: (v) =>
                   service.updateProject(project.copyWith(isActive: v)),
-              activeColor: AppTheme.primary,
+              activeThumbColor: AppTheme.primary,
             ),
             onTap: () => _showProjectDialog(context, project: project),
             onDelete: () => service.deleteProject(project.id),
@@ -301,6 +307,11 @@ class ExperienceTab extends StatelessWidget {
     return StreamBuilder(
       stream: service.watchExperience(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Error loading experience: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
+          );
+        }
         if (!snapshot.hasData)
           return const Center(child: CircularProgressIndicator());
         final experiences = snapshot.data!;
@@ -316,7 +327,7 @@ class ExperienceTab extends StatelessWidget {
               value: exp.isActive,
               onChanged: (v) =>
                   service.updateExperience(exp.copyWith(isActive: v)),
-              activeColor: AppTheme.primary,
+              activeThumbColor: AppTheme.primary,
             ),
             onTap: () => _showExpDialog(context, experience: exp),
             onDelete: () => service.deleteExperience(exp.id),
@@ -344,6 +355,11 @@ class JobsTab extends StatelessWidget {
     return StreamBuilder(
       stream: service.watchJobs(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Error loading jobs: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
+          );
+        }
         if (!snapshot.hasData)
           return const Center(child: CircularProgressIndicator());
         final jobs = snapshot.data!;
@@ -372,7 +388,7 @@ class JobsTab extends StatelessWidget {
                   value: job.isActive,
                   onChanged: (v) =>
                       service.updateJob(job.copyWith(isActive: v)),
-                  activeColor: AppTheme.primary,
+                  activeThumbColor: AppTheme.primary,
                 ),
               ],
             ),
@@ -412,6 +428,11 @@ class SettingsTab extends StatelessWidget {
     return StreamBuilder(
       stream: service.watchSettings(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Error loading settings: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
+          );
+        }
         if (!snapshot.hasData)
           return const Center(child: CircularProgressIndicator());
         final settings = snapshot.data!;
@@ -420,9 +441,19 @@ class SettingsTab extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Profile Settings',
-                style: Theme.of(context).textTheme.headlineSmall,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Profile Settings',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  FilledButton.icon(
+                    onPressed: () => _showSettingsDialog(context, settings),
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Edit Profile'),
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
               _SettingsCard(settings: settings),
@@ -461,6 +492,13 @@ class SettingsTab extends StatelessWidget {
   void _showDefaultsDialog(BuildContext context, dynamic settings) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Defaults editor coming soon!')),
+    );
+  }
+
+  void _showSettingsDialog(BuildContext context, dynamic settings) {
+    showDialog(
+      context: context,
+      builder: (_) => SettingsFormDialog(settings: settings),
     );
   }
 }

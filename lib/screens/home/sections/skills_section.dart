@@ -47,7 +47,7 @@ class SkillsSection extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AppTheme.surface(isDark),
                       border: Border.all(
-                        color: AppTheme.textMuted(isDark).withOpacity(0.2),
+                        color: AppTheme.textMuted(isDark).withValues(alpha: 0.2),
                       ),
                       borderRadius: BorderRadius.circular(
                         AppTheme.radiusMedium,

@@ -319,7 +319,7 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                   contentPadding: EdgeInsets.zero,
                   title: const Text('Active'),
                   value: _isActive,
-                  activeColor: AppTheme.primary,
+                  activeThumbColor: AppTheme.primary,
                   onChanged: (v) => setState(() => _isActive = v),
                 ),
               ],
@@ -492,7 +492,7 @@ class _ExperienceFormDialogState extends State<ExperienceFormDialog> {
                   contentPadding: EdgeInsets.zero,
                   title: const Text('Active'),
                   value: _isActive,
-                  activeColor: AppTheme.primary,
+                  activeThumbColor: AppTheme.primary,
                   onChanged: (v) => setState(() => _isActive = v),
                 ),
               ],
@@ -768,7 +768,7 @@ class _JobFormDialogState extends State<JobFormDialog> {
                   contentPadding: EdgeInsets.zero,
                   title: const Text('Active'),
                   value: _isActive,
-                  activeColor: AppTheme.primary,
+                  activeThumbColor: AppTheme.primary,
                   onChanged: (v) => setState(() => _isActive = v),
                 ),
               ],
@@ -860,6 +860,165 @@ class _MultiSelectStream<T> extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+// ============== SETTINGS FORM ==============
+
+class SettingsFormDialog extends StatefulWidget {
+  final PortfolioSettings settings;
+  const SettingsFormDialog({super.key, required this.settings});
+
+  @override
+  State<SettingsFormDialog> createState() => _SettingsFormDialogState();
+}
+
+class _SettingsFormDialogState extends State<SettingsFormDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _name;
+  late final TextEditingController _tagline;
+  late final TextEditingController _about;
+  late final TextEditingController _email;
+  late final TextEditingController _github;
+  late final TextEditingController _linkedin;
+  late final TextEditingController _twitter;
+  late final TextEditingController _instagram;
+  late final TextEditingController _resumeUrl;
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final s = widget.settings;
+    _name = TextEditingController(text: s.name);
+    _tagline = TextEditingController(text: s.tagline);
+    _about = TextEditingController(text: s.about);
+    _email = TextEditingController(text: s.email);
+    _github = TextEditingController(text: s.github ?? '');
+    _linkedin = TextEditingController(text: s.linkedin ?? '');
+    _twitter = TextEditingController(text: s.twitter ?? '');
+    _instagram = TextEditingController(text: s.instagram ?? '');
+    _resumeUrl = TextEditingController(text: s.resumeUrl ?? '');
+  }
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _tagline.dispose();
+    _about.dispose();
+    _email.dispose();
+    _github.dispose();
+    _linkedin.dispose();
+    _twitter.dispose();
+    _instagram.dispose();
+    _resumeUrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _saving = true);
+    final svc = context.read<PortfolioService>();
+    try {
+      await svc.updateSettings(
+        widget.settings.copyWith(
+          name: _name.text.trim(),
+          tagline: _tagline.text.trim(),
+          about: _about.text.trim(),
+          email: _email.text.trim(),
+          github: _github.text.trim().isEmpty ? null : _github.text.trim(),
+          linkedin: _linkedin.text.trim().isEmpty ? null : _linkedin.text.trim(),
+          twitter: _twitter.text.trim().isEmpty ? null : _twitter.text.trim(),
+          instagram: _instagram.text.trim().isEmpty ? null : _instagram.text.trim(),
+          resumeUrl: _resumeUrl.text.trim().isEmpty ? null : _resumeUrl.text.trim(),
+        ),
+      );
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Save failed: $e')));
+        setState(() => _saving = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Edit Profile Settings'),
+      content: SizedBox(
+        width: 540,
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _LabeledTextField(
+                  controller: _name,
+                  label: 'Name',
+                  required: true,
+                ),
+                _LabeledTextField(
+                  controller: _tagline,
+                  label: 'Tagline',
+                  required: true,
+                ),
+                _LabeledTextField(
+                  controller: _about,
+                  label: 'About',
+                  required: true,
+                  maxLines: 4,
+                ),
+                _LabeledTextField(
+                  controller: _email,
+                  label: 'Email',
+                  required: true,
+                ),
+                _LabeledTextField(
+                  controller: _github,
+                  label: 'GitHub URL (optional)',
+                ),
+                _LabeledTextField(
+                  controller: _linkedin,
+                  label: 'LinkedIn URL (optional)',
+                ),
+                _LabeledTextField(
+                  controller: _twitter,
+                  label: 'Twitter URL (optional)',
+                ),
+                _LabeledTextField(
+                  controller: _instagram,
+                  label: 'Instagram URL (optional)',
+                ),
+                _LabeledTextField(
+                  controller: _resumeUrl,
+                  label: 'Resume URL (optional)',
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _saving ? null : () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: _saving ? null : _save,
+          child: _saving
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Save'),
+        ),
+      ],
     );
   }
 }

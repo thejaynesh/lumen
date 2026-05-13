@@ -70,7 +70,7 @@ class ContactSection extends StatelessWidget {
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: AppTheme.primary.withOpacity(isDark ? 0.2 : 0.1),
+                color: AppTheme.primary.withValues(alpha: isDark ? 0.2 : 0.1),
                 blurRadius: 40,
                 spreadRadius: -10,
               ),
@@ -107,7 +107,7 @@ class ContactSection extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
             border: Border.all(
-              color: AppTheme.textMuted(isDark).withOpacity(0.2),
+              color: AppTheme.textMuted(isDark).withValues(alpha: 0.2),
             ),
           ),
           child: Text(

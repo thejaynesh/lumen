@@ -15,32 +15,28 @@ class ThemeToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      top: 40,
-      right: 40,
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.surface(isDark).withOpacity(0.8),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          border: Border.all(
-            color: isDark
-                ? Colors.white.withOpacity(0.1)
-                : Colors.black.withOpacity(0.1),
-          ),
-          boxShadow: AppTheme.softShadow(isDark),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.surface(isDark).withValues(alpha: 0.8),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : Colors.black.withValues(alpha: 0.1),
         ),
-        child: IconButton(
-          onPressed: () => themeProvider.toggleTheme(),
-          icon: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            child: Icon(
-              isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-              key: ValueKey(isDark),
-              color: AppTheme.textPrimary(isDark),
-            ),
+        boxShadow: AppTheme.softShadow(isDark),
+      ),
+      child: IconButton(
+        onPressed: () => themeProvider.toggleTheme(),
+        icon: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: Icon(
+            isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+            key: ValueKey(isDark),
+            color: AppTheme.textPrimary(isDark),
           ),
-          tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
         ),
+        tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
       ),
     ).animate().fadeIn(delay: 300.ms).slideX(begin: 0.2, end: 0);
   }

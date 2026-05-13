@@ -95,11 +95,11 @@ class _ControlButtonState extends State<_ControlButton> {
     final bgColor = widget.big
         ? null
         : (widget.isDark ? Colors.white : Colors.black)
-            .withOpacity(_hover ? 0.18 : 0.10);
+            .withValues(alpha: _hover ? 0.18 : 0.10);
     final gradient = widget.big ? AppTheme.accentGradient : null;
     final borderColor = widget.big
         ? Colors.transparent
-        : AppTheme.primary.withOpacity(0.5);
+        : AppTheme.primary.withValues(alpha: 0.5);
 
     return Tooltip(
       message: widget.tooltip,
@@ -121,8 +121,8 @@ class _ControlButtonState extends State<_ControlButton> {
               boxShadow: (widget.big || _hover)
                   ? [
                       BoxShadow(
-                        color: AppTheme.primary.withOpacity(
-                          widget.big ? 0.55 : 0.35,
+                        color: AppTheme.primary.withValues(alpha:
+                        widget.big ? 0.55 : 0.35,
                         ),
                         blurRadius: widget.big ? 24 : 14,
                         spreadRadius: widget.big ? 2 : 0,

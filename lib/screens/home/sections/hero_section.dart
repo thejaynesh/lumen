@@ -72,7 +72,7 @@ class HeroSection extends StatelessWidget {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primary.withOpacity(isDark ? 0.2 : 0.1),
+            color: AppTheme.primary.withValues(alpha: isDark ? 0.2 : 0.1),
             blurRadius: 100,
             spreadRadius: 20,
           ),
@@ -207,7 +207,7 @@ class HeroSection extends StatelessWidget {
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                 border: Border.all(
-                  color: AppTheme.textMuted(isDark).withOpacity(0.3),
+                  color: AppTheme.textMuted(isDark).withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),

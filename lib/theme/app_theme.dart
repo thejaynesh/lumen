@@ -27,9 +27,9 @@ class AppTheme {
 
   // Glow/Halo colors
   static Color glowColor(bool isDark) =>
-      primary.withOpacity(isDark ? 0.3 : 0.2);
+      primary.withValues(alpha: isDark ? 0.3 : 0.2);
   static Color softGlow(bool isDark) =>
-      primary.withOpacity(isDark ? 0.15 : 0.1);
+      primary.withValues(alpha: isDark ? 0.15 : 0.1);
 
   // Border radius
   static const double radiusSmall = 12.0;
@@ -55,7 +55,7 @@ class AppTheme {
   // Box shadows with glow effect
   static List<BoxShadow> glowShadow(bool isDark) => [
     BoxShadow(
-      color: primary.withOpacity(isDark ? 0.3 : 0.15),
+      color: primary.withValues(alpha: isDark ? 0.3 : 0.15),
       blurRadius: 30,
       spreadRadius: -5,
     ),
@@ -63,7 +63,7 @@ class AppTheme {
 
   static List<BoxShadow> softShadow(bool isDark) => [
     BoxShadow(
-      color: (isDark ? Colors.black : Colors.black.withOpacity(0.1)),
+      color: (isDark ? Colors.black : Colors.black.withValues(alpha: 0.1)),
       blurRadius: 20,
       offset: const Offset(0, 10),
     ),
@@ -177,8 +177,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(radiusLarge),
           side: BorderSide(
             color: isDark
-                ? Colors.white.withOpacity(0.05)
-                : Colors.black.withOpacity(0.05),
+                ? Colors.white.withValues(alpha: 0.05)
+                : Colors.black.withValues(alpha: 0.05),
           ),
         ),
       ),
@@ -203,8 +203,8 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
           side: BorderSide(
             color: isDark
-                ? Colors.white.withOpacity(0.2)
-                : Colors.black.withOpacity(0.2),
+                ? Colors.white.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.2),
           ),
           textStyle: GoogleFonts.montserrat(
             fontSize: 16,

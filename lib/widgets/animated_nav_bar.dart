@@ -6,18 +6,22 @@ import '../theme/app_theme.dart';
 
 class AnimatedNavBar extends StatefulWidget {
   final ScrollController? scrollController;
+  final String name;
   final List<String> items;
   final List<GlobalKey>? sectionKeys;
   final VoidCallback? onLogoTap;
   final VoidCallback? onContactTap;
+  final List<Widget>? actions;
 
   const AnimatedNavBar({
     super.key,
     this.scrollController,
+    this.name = 'Lumen',
     this.items = const ['Work', 'Projects', 'About', 'Contact'],
     this.sectionKeys,
     this.onLogoTap,
     this.onContactTap,
+    this.actions,
   });
 
   @override
@@ -26,6 +30,7 @@ class AnimatedNavBar extends StatefulWidget {
 
 class _AnimatedNavBarState extends State<AnimatedNavBar> {
   bool _isScrolled = false;
+  bool _isNameVisible = false;
   int _hoveredIndex = -1;
 
   @override
@@ -41,9 +46,15 @@ class _AnimatedNavBarState extends State<AnimatedNavBar> {
   }
 
   void _onScroll() {
-    final isScrolled = (widget.scrollController?.offset ?? 0) > 50;
-    if (isScrolled != _isScrolled) {
-      setState(() => _isScrolled = isScrolled);
+    final offset = widget.scrollController?.offset ?? 0;
+    final isScrolled = offset > 50;
+    final isNameVisible = offset > 300;
+    
+    if (isScrolled != _isScrolled || isNameVisible != _isNameVisible) {
+      setState(() {
+        _isScrolled = isScrolled;
+        _isNameVisible = isNameVisible;
+      });
     }
   }
 
@@ -89,46 +100,62 @@ class _AnimatedNavBarState extends State<AnimatedNavBar> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Logo
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: widget.onLogoTap,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            gradient: AppTheme.accentGradient,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'T',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: IgnorePointer(
+                      ignoring: !_isNameVisible,
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 400),
+                        opacity: _isNameVisible ? 1.0 : 0.0,
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: widget.onLogoTap,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    gradient: AppTheme.accentGradient,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      widget.name.isNotEmpty ? widget.name[0].toUpperCase() : 'L',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                if (widget.name.isNotEmpty) ...[
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    widget.name,
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.textPrimary(true),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'theja',
-                          style: GoogleFonts.spaceGrotesk(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ).animate().fadeIn(duration: 600.ms).slideX(begin: -0.2),
+                      ),
+                    ),
                   ),
                 ),
 
                 // Nav items
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: List.generate(widget.items.length, (index) {
                     return _NavItem(
                           label: widget.items[index],
@@ -146,11 +173,13 @@ class _AnimatedNavBarState extends State<AnimatedNavBar> {
                   }),
                 ),
 
-                // CTA Button
-                FilledButton(
-                  onPressed: onContactTap,
-                  child: const Text('Get in Touch'),
-                ).animate(delay: 400.ms).fadeIn().scale(),
+                // Actions (Mode Selector, Theme Toggle, etc.)
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: widget.actions ?? [],
+                  ),
+                ),
               ],
             ),
           ),

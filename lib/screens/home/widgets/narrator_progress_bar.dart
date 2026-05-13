@@ -58,7 +58,7 @@ class NarratorProgressBar extends StatelessWidget {
                                 height: 2,
                                 decoration: BoxDecoration(
                                   color: (isDark ? Colors.white : Colors.black)
-                                      .withOpacity(0.12),
+                                      .withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(1),
                                 ),
                               ),
@@ -74,7 +74,7 @@ class NarratorProgressBar extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(1),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppTheme.primary.withOpacity(0.5),
+                                    color: AppTheme.primary.withValues(alpha: 0.5),
                                     blurRadius: 8,
                                     spreadRadius: 0,
                                   ),
@@ -170,7 +170,7 @@ class _SectionDotState extends State<_SectionDot> {
                   boxShadow: widget.isCurrent || _hover
                       ? [
                           BoxShadow(
-                            color: AppTheme.primary.withOpacity(0.7),
+                            color: AppTheme.primary.withValues(alpha: 0.7),
                             blurRadius: 14,
                             spreadRadius: 1,
                           ),
