@@ -1,0 +1,183 @@
+{
+  "settings": {
+    "name": "Jaynesh Bhandari",
+    "initials": "JB",
+    "role": "Software Engineer",
+    "tagline": "Full-stack developer. Three-time hackathon winner. Quiet builder of useful things.",
+    "location": "Portland, Maine",
+    "about": "",
+    "summary": "Master's student in CS at Northeastern with a back-end & full-stack core. I like the moment a hard problem gets boring — when the abstraction finally clicks and the system just works. Java, Python, Flutter, SQL, and whatever the next idea calls for.",
+    "email": "thejaynesh@gmail.com",
+    "phone": "+1 207·313·7210",
+    "github": "github.com/thejaynesh",
+    "linkedin": "linkedin.com/in/thejaynesh",
+    "twitter": "",
+    "instagram": "",
+    "resumeUrl": "",
+    "highlights": [
+      { "label": "Years coding", "value": "5+", "note": "since 2018" },
+      { "label": "Hackathons won", "value": "3×", "note": "Roux Institute · Start Summit ×2" },
+      { "label": "Code-review time cut", "value": "−40%", "note": "at TCS" },
+      { "label": "Testing time cut", "value": "−30%", "note": "Java simulator, TCS" }
+    ],
+    "skillGroups": [
+      { "category": "Languages", "items": ["Java", "Python", "Dart", "JavaScript", "SQL", "HTML/CSS"] },
+      { "category": "Frameworks", "items": ["Flutter", "React", "Spring", "Firebase", "Node.js"] },
+      { "category": "Practice", "items": ["REST APIs", "Back-end Systems", "Full-stack Apps", "Code Review", "Mentoring"] }
+    ],
+    "awards": [
+      "2nd Place — Roux Institute Hackathon",
+      "1st Place — Start Summit (Bowdoin × Roux)",
+      "Selected — TEDx Medi-Caps organizing team (7 of cohort)"
+    ],
+    "education": [
+      { "when": "2024–25", "where": "Northeastern University", "what": "M.S. Computer Science" },
+      { "when": "2025", "where": "CodePath", "what": "Technical Interview Prep" },
+      { "when": "2018–22", "where": "Medi-Caps University", "what": "B.Tech. Computer Science" }
+    ],
+    "quiz": [
+      {
+        "q": "What's Jaynesh's go-to language for a quick prototype?",
+        "options": ["Java", "Python", "Dart", "COBOL"],
+        "answer": 1,
+        "funFact": "Python for speed, Java for scale. COBOL… no."
+      },
+      {
+        "q": "How many hackathons has Jaynesh won?",
+        "options": ["0 — he just vibes", "1", "3", "Lost count"],
+        "answer": 2,
+        "funFact": "Three. Two at Start Summit, one at Roux Institute. The trick? Sleep is overrated."
+      },
+      {
+        "q": "What did Jaynesh replace at a local business?",
+        "options": ["The CEO", "A spreadsheet nobody trusted", "The WiFi router", "A Post-it note system"],
+        "answer": 1,
+        "funFact": "A Flutter + Firebase app replaced a spreadsheet that had been 'temporarily' in use for 2 years."
+      },
+      {
+        "q": "What role did Jaynesh play at TEDx?",
+        "options": ["Speaker", "Backstage coordinator", "Audience member", "Catering"],
+        "answer": 1,
+        "funFact": "One of 7 freshers selected. Ran the backstage on event day — improvising under pressure is a transferable skill."
+      },
+      {
+        "q": "What does Jaynesh like about hard problems?",
+        "options": ["The overtime pay", "When they finally get boring", "Complaining about them", "The Stack Overflow karma"],
+        "answer": 1,
+        "funFact": "\"I like the moment a hard problem gets boring — when the abstraction finally clicks and the system just works.\""
+      }
+    ],
+    "personality": [
+      { "label": "Debugging style", "value": "Print statements first, debugger never" },
+      { "label": "Favorite error", "value": "NullPointerException — an old friend" },
+      { "label": "Coffee order", "value": "Black, no sugar, no patience" },
+      { "label": "IDE", "value": "VS Code, but IntelliJ when Java gets serious" },
+      { "label": "Unpopular opinion", "value": "Spreadsheets are underrated databases" },
+      { "label": "Superpower", "value": "Making a working MVP before the pitch deck is done" },
+      { "label": "Biggest flex", "value": "Won a hackathon with 3 hours of sleep" },
+      { "label": "Currently learning", "value": "Whatever the next project demands" }
+    ],
+    "defaultProjectIds": [],
+    "defaultExperienceIds": []
+  },
+  "projects": [
+    {
+      "title": "Inventory & Order Management",
+      "category": "",
+      "description": "A custom system for a local business — stock, orders, invoicing in one Flutter app, with a Firebase back end. Replaced a spreadsheet that nobody trusted anymore.",
+      "techStack": ["Flutter", "Dart", "Firebase", "Cloud Functions"],
+      "tag": "Freelance · 2023",
+      "kpi": "End-to-end build · solo",
+      "tags": ["flutter", "dart", "firebase"],
+      "imageUrl": null,
+      "colorHex": 16737845,
+      "order": 0,
+      "isActive": true
+    },
+    {
+      "title": "Roux Institute Hackathon",
+      "category": "",
+      "description": "2nd place. Built a tool for a healthcare partner in 36 hours — data ingestion, dashboard, and a demo that landed.",
+      "techStack": ["Python", "REST APIs", "React"],
+      "tag": "Hackathon · 2024",
+      "kpi": "2nd of ~40 teams",
+      "tags": ["python", "react", "rest apis"],
+      "imageUrl": null,
+      "colorHex": 16737845,
+      "order": 1,
+      "isActive": true
+    },
+    {
+      "title": "Start Summit · Eco-Entrepreneur",
+      "category": "",
+      "description": "1st place at the Bowdoin × Roux Institute hackathon — sustainability brief, a pitch that pitched itself, and a working MVP by Sunday morning.",
+      "techStack": ["Concept", "MVP", "Pitch"],
+      "tag": "Hackathon · 2024",
+      "kpi": "1st place",
+      "tags": ["mvp", "pitch", "concept"],
+      "imageUrl": null,
+      "colorHex": 16737845,
+      "order": 2,
+      "isActive": true
+    },
+    {
+      "title": "Telecom Test Simulator",
+      "category": "",
+      "description": "Java-based mock-API generator running against historical traffic. Turned a manual test cycle into a one-command run.",
+      "techStack": ["Java", "Spring", "JUnit"],
+      "tag": "Enterprise · 2022",
+      "kpi": "−30% test time",
+      "tags": ["java", "spring", "junit"],
+      "imageUrl": null,
+      "colorHex": 16737845,
+      "order": 3,
+      "isActive": true
+    }
+  ],
+  "experience": [
+    {
+      "role": "Teaching Assistant",
+      "company": "Northeastern University",
+      "period": "2025",
+      "description": "Two semesters guiding undergrads through CS fundamentals — algorithms, data structures, the conversation you have with code at 2 a.m.",
+      "city": "Portland, ME",
+      "highlights": [],
+      "tags": ["Mentoring", "CS Fundamentals"],
+      "order": 0,
+      "isActive": true
+    },
+    {
+      "role": "Assistant System Engineer",
+      "company": "Tata Consultancy Services",
+      "period": "2022–24",
+      "description": "Built a Java testing simulator that mocked telecom-client APIs from historical data — 30% less testing time, 15 critical bugs caught pre-release. Rewrote review workflows for a 40% faster cycle.",
+      "city": "Mumbai, India",
+      "highlights": [],
+      "tags": ["Java", "API Mocking", "Process Design"],
+      "order": 1,
+      "isActive": true
+    },
+    {
+      "role": "Backstage Coordinator",
+      "company": "TEDx Medi-Caps University",
+      "period": "2018–19",
+      "description": "One of seven freshers selected. Helped on web & graphic teams in the lead-up, then ran the backstage on event day — improvising under pressure.",
+      "city": "Indore, India",
+      "highlights": [],
+      "tags": ["Live Ops", "Design"],
+      "order": 2,
+      "isActive": true
+    },
+    {
+      "role": "Marketing Team Member",
+      "company": "AIESEC in India",
+      "period": "2018–19",
+      "description": "Strategy + content for the national team. Seven cross-platform campaigns, six pieces of content a week, and a 20k follower bump.",
+      "city": "Indore, India",
+      "highlights": [],
+      "tags": ["Content", "Campaigns"],
+      "order": 3,
+      "isActive": true
+    }
+  ]
+}
