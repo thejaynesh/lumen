@@ -26,9 +26,15 @@ class BroadsideStats extends StatelessWidget {
           bottom: BorderSide(color: Broadside.rule(dark)),
         ),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: List.generate(highlights.length, (i) {
+      // IntrinsicHeight bounds the Row's cross-axis (height) so that
+      // CrossAxisAlignment.stretch is valid. Without it, the Row sits under
+      // the SingleChildScrollView's UNBOUNDED vertical constraint and stretch
+      // resolves to an infinite tight height → RenderFlex layout throw, which
+      // (in a release web build) silently blanks the entire scroll subtree.
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: List.generate(highlights.length, (i) {
           final h = highlights[i];
           final isFirst = i == 0;
           final isLast = i == highlights.length - 1;
@@ -86,7 +92,8 @@ class BroadsideStats extends StatelessWidget {
               ),
             ),
           );
-        }),
+          }),
+        ),
       ),
     );
   }
