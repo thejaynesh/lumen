@@ -9,7 +9,6 @@ import 'services/portfolio_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/experience_provider.dart';
-import 'providers/narrator_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,9 +37,6 @@ class LumenApp extends StatelessWidget {
         ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
         ChangeNotifierProvider<ExperienceProvider>(
           create: (_) => ExperienceProvider(),
-        ),
-        ChangeNotifierProvider<NarratorProvider>(
-          create: (_) => NarratorProvider(),
         ),
       ],
       child: Consumer<ThemeProvider>(

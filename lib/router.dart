@@ -1,43 +1,45 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/experience_provider.dart';
-import 'screens/home/home_screen.dart';
-import 'screens/experience_selector/experience_selector_screen.dart';
+import 'screens/mode_selector/mode_selector_screen.dart';
+import 'screens/manual/manual_page.dart';
+import 'screens/automated/automated_mode.dart';
+import 'screens/lucky/lucky_mode.dart';
 import 'screens/admin/login_screen.dart';
 import 'screens/admin/admin_dashboard.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
   routes: [
-    // Experience selector (landing page)
+    // Mode selector / main entry
     GoRoute(
       path: '/',
       builder: (context, state) {
         final experienceProvider = context.watch<ExperienceProvider>();
 
-        // If user hasn't selected a mode, show selector
         if (!experienceProvider.hasSelectedMode) {
-          return const ExperienceSelectorScreen();
+          return const ModeSelectorScreen();
         }
 
-        // Otherwise show home with selected mode
-        final jobSlug = state.uri.queryParameters['job'];
-        return HomeScreen(jobId: jobSlug);
+        switch (experienceProvider.mode) {
+          case ExperienceMode.automated:
+            return const AutomatedMode();
+          case ExperienceMode.lucky:
+            return const LuckyMode();
+          case ExperienceMode.manual:
+            return ManualPage(jobId: state.uri.queryParameters['job']);
+        }
       },
     ),
     // Direct portfolio access (bypasses selector for job-specific links)
     GoRoute(
       path: '/portfolio',
       builder: (context, state) {
-        final jobSlug = state.uri.queryParameters['job'];
-        // Set manual mode if not already set
-        final experienceProvider = context.read<ExperienceProvider>();
-        if (!experienceProvider.hasSelectedMode) {
-          experienceProvider.setMode(ExperienceMode.manual);
+        if (!context.read<ExperienceProvider>().hasSelectedMode) {
+          context.read<ExperienceProvider>().setMode(ExperienceMode.manual);
         }
-        return HomeScreen(jobId: jobSlug);
+        return ManualPage(jobId: state.uri.queryParameters['job']);
       },
     ),
     // Admin login

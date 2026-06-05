@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lumen/models/portfolio_data.dart';
 import 'package:lumen/providers/experience_provider.dart';
-import 'package:lumen/providers/narrator_provider.dart';
 
 void main() {
   group('Broadside model serialization', () {
@@ -121,46 +120,20 @@ void main() {
   });
 
   group('ExperienceProvider', () {
-    test('starts with manual mode and no selection', () {
-      final provider = ExperienceProvider();
-      expect(provider.mode, equals(ExperienceMode.manual));
-      expect(provider.hasSelectedMode, isFalse);
+    test('starts unselected in manual', () {
+      final p = ExperienceProvider();
+      expect(p.mode, ExperienceMode.manual);
+      expect(p.hasSelectedMode, isFalse);
     });
-
-    test('setMode updates mode and marks selection', () {
-      final provider = ExperienceProvider();
-      provider.setMode(ExperienceMode.narrator);
-      expect(provider.mode, equals(ExperienceMode.narrator));
-      expect(provider.hasSelectedMode, isTrue);
+    test('setMode selects automated', () {
+      final p = ExperienceProvider()..setMode(ExperienceMode.automated);
+      expect(p.mode, ExperienceMode.automated);
+      expect(p.hasSelectedMode, isTrue);
     });
-
-    test('reset clears hasSelectedMode', () {
-      final provider = ExperienceProvider();
-      provider.setMode(ExperienceMode.narrator);
-      provider.reset();
-      expect(provider.hasSelectedMode, isFalse);
-    });
-  });
-
-  group('NarratorProvider', () {
-    test('starts inactive and not playing', () {
-      final provider = NarratorProvider();
-      expect(provider.isActive, isFalse);
-      expect(provider.isPlaying, isFalse);
-    });
-
-    test('stop resets all state', () {
-      final provider = NarratorProvider();
-      provider.stop();
-      expect(provider.isActive, isFalse);
-      expect(provider.isPlaying, isFalse);
-      expect(provider.currentIndex, equals(0));
-      expect(provider.sectionProgress, equals(0.0));
-    });
-
-    test('totalProgress is 0 when no sections registered', () {
-      final provider = NarratorProvider();
-      expect(provider.totalProgress, equals(0.0));
+    test('reset returns to selector', () {
+      final p = ExperienceProvider()..setMode(ExperienceMode.lucky);
+      p.reset();
+      expect(p.hasSelectedMode, isFalse);
     });
   });
 }
