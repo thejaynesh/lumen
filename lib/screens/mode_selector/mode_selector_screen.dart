@@ -93,100 +93,92 @@ class _ModeSelectorScreenState extends State<ModeSelectorScreen> {
         final email = settings?.email ?? '';
         final location = settings?.location ?? '';
 
-        return Container(
-          color: Broadside.paper(dark),
-          constraints: const BoxConstraints(minHeight: double.infinity),
-          child: Column(
+        final grid = Container(
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: Broadside.rule(dark))),
+          ),
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ── Top bar ──────────────────────────────────────────────────
-              _TopBar(
-                dark: dark,
-                name: name,
-                email: email,
-                onToggle: () => context.read<ThemeProvider>().toggleTheme(),
-              ),
+            children: List.generate(_modes.length, (i) {
+              final m = _modes[i];
+              final isLast = i == _modes.length - 1;
+              return Expanded(
+                child: _DoorCell(
+                  mode: m,
+                  dark: dark,
+                  hovered: _hoveredId == m.id,
+                  isLast: isLast,
+                  onEnter: () => setState(() => _hoveredId = m.id),
+                  onExit: () => setState(() => _hoveredId = null),
+                  onTap: () => _pick(context, m.id),
+                ),
+              );
+            }),
+          ),
+        );
 
-              // ── Center hero + grid ────────────────────────────────────────
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        final title = Padding(
+          padding: const EdgeInsets.fromLTRB(48, 56, 48, 56),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Kicker('↓ Select your route', dark: dark),
+              const SizedBox(height: 18),
+              RichText(
+                text: TextSpan(
                   children: [
-                    // Hero text
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 48),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Kicker('↓ Select your route', dark: dark),
-                          const SizedBox(height: 18),
-                          RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: 'THREE\n',
-                                  style: BroadsideText.serif(
-                                    size: 160,
-                                    height: 0.84,
-                                    letterSpacing: -0.045,
-                                    color: Broadside.ink(dark),
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: 'doors.',
-                                  style: BroadsideText.serif(
-                                    size: 160,
-                                    height: 0.84,
-                                    letterSpacing: -0.045,
-                                    color: Broadside.accent(dark),
-                                    style: FontStyle.italic,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                    TextSpan(
+                      text: 'THREE\n',
+                      style: BroadsideText.serif(
+                        size: 150,
+                        height: 0.84,
+                        letterSpacing: -0.045,
+                        color: Broadside.ink(dark),
                       ),
                     ),
-
-                    const SizedBox(height: 40),
-
-                    // ── 3-column doors ──────────────────────────────────────
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          top: BorderSide(color: Broadside.rule(dark)),
-                        ),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: List.generate(_modes.length, (i) {
-                          final m = _modes[i];
-                          final isLast = i == _modes.length - 1;
-                          return Expanded(
-                            child: _DoorCell(
-                              mode: m,
-                              dark: dark,
-                              hovered: _hoveredId == m.id,
-                              isLast: isLast,
-                              onEnter: () =>
-                                  setState(() => _hoveredId = m.id),
-                              onExit: () =>
-                                  setState(() => _hoveredId = null),
-                              onTap: () => _pick(context, m.id),
-                            ),
-                          );
-                        }),
+                    TextSpan(
+                      text: 'doors.',
+                      style: BroadsideText.serif(
+                        size: 150,
+                        height: 0.84,
+                        letterSpacing: -0.045,
+                        color: Broadside.accent(dark),
+                        style: FontStyle.italic,
                       ),
                     ),
                   ],
                 ),
               ),
-
-              // ── Bottom bar ───────────────────────────────────────────────
-              _BottomBar(dark: dark, location: location),
             ],
+          ),
+        );
+
+        return Container(
+          color: Broadside.paper(dark),
+          constraints: const BoxConstraints.expand(),
+          child: SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _TopBar(
+                    dark: dark,
+                    name: name,
+                    email: email,
+                    onToggle: () =>
+                        context.read<ThemeProvider>().toggleTheme(),
+                  ),
+                  title,
+                  const SizedBox(height: 40),
+                  grid,
+                  _BottomBar(dark: dark, location: location),
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -304,7 +296,7 @@ class _DoorCell extends StatelessWidget {
             ),
           ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Top row: num / icon
@@ -332,6 +324,8 @@ class _DoorCell extends StatelessWidget {
                   ),
                 ],
               ),
+
+              const SizedBox(height: 72),
 
               // Bottom block: name + long + sub row
               Column(
