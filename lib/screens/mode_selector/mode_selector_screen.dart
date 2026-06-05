@@ -97,23 +97,29 @@ class _ModeSelectorScreenState extends State<ModeSelectorScreen> {
           decoration: BoxDecoration(
             border: Border(top: BorderSide(color: Broadside.rule(dark))),
           ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: List.generate(_modes.length, (i) {
-              final m = _modes[i];
-              final isLast = i == _modes.length - 1;
-              return Expanded(
-                child: _DoorCell(
-                  mode: m,
-                  dark: dark,
-                  hovered: _hoveredId == m.id,
-                  isLast: isLast,
-                  onEnter: () => setState(() => _hoveredId = m.id),
-                  onExit: () => setState(() => _hoveredId = null),
-                  onTap: () => _pick(context, m.id),
-                ),
-              );
-            }),
+          // IntrinsicHeight bounds the Row's height so CrossAxisAlignment.stretch
+          // (equal-height cells + full-height dividers) is valid under the
+          // SingleChildScrollView's unbounded height. Without it, stretch forces
+          // infinite height and throws in debug builds.
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: List.generate(_modes.length, (i) {
+                final m = _modes[i];
+                final isLast = i == _modes.length - 1;
+                return Expanded(
+                  child: _DoorCell(
+                    mode: m,
+                    dark: dark,
+                    hovered: _hoveredId == m.id,
+                    isLast: isLast,
+                    onEnter: () => setState(() => _hoveredId = m.id),
+                    onExit: () => setState(() => _hoveredId = null),
+                    onTap: () => _pick(context, m.id),
+                  ),
+                );
+              }),
+            ),
           ),
         );
 
