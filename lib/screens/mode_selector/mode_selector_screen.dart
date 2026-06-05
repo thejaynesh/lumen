@@ -371,14 +371,21 @@ class _DoorCell extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        mode.sub.toUpperCase(),
-                        style: BroadsideText.mono(
-                          size: 10,
-                          color: contentColor,
-                          trackingEm: 0.18,
+                      // Flexible + ellipsis so the sub label can't overflow the
+                      // narrow cell width and trip a horizontal RenderFlex error.
+                      Flexible(
+                        child: Text(
+                          mode.sub.toUpperCase(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: BroadsideText.mono(
+                            size: 10,
+                            color: contentColor,
+                            trackingEm: 0.18,
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Text(
                         'ENTER →',
                         style: BroadsideText.mono(
