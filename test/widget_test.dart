@@ -94,6 +94,30 @@ void main() {
       expect(updated.category, equals('Web'));
       expect(updated.title, equals('Updated'));
     });
+
+    test('Project carries Broadside tag + kpi', () {
+      final p = Project(
+        id: 'p1', title: 'Inventory System', category: '', description: 'blurb',
+        techStack: ['Flutter', 'Dart'], tag: 'Freelance · 2023', kpi: 'End-to-end · solo',
+      );
+      final r = Project.fromMap(p.toMap(), 'p1');
+      expect(r.tag, 'Freelance · 2023');
+      expect(r.kpi, 'End-to-end · solo');
+      expect(r.techStack, ['Flutter', 'Dart']);
+    });
+
+    test('Experience carries city + when/org mapping', () {
+      final e = Experience(
+        id: 'e1', role: 'Assistant System Engineer', company: 'TCS',
+        period: '2022–24', description: 'blurb', city: 'Mumbai, India',
+        tags: ['Java', 'API Mocking'],
+      );
+      final r = Experience.fromMap(e.toMap(), 'e1');
+      expect(r.city, 'Mumbai, India');
+      expect(r.period, '2022–24');
+      expect(r.company, 'TCS');
+      expect(r.tags, ['Java', 'API Mocking']);
+    });
   });
 
   group('ExperienceProvider', () {

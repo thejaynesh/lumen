@@ -204,6 +204,8 @@ class Project {
   final int colorHex; // Accent color for the card
   final List<String>
   tags; // Tags for filtering (e.g., 'flutter', 'web', 'mobile', 'ai')
+  final String tag; // Broadside badge label (e.g. "Hackathon · 2024")
+  final String kpi; // Broadside KPI line (e.g. "2nd of ~40 teams")
   final int order; // Display order
   final bool isActive;
   final DateTime createdAt;
@@ -219,6 +221,8 @@ class Project {
     this.imageUrl,
     this.colorHex = 0xFFFF6B35,
     this.tags = const [],
+    this.tag = '',
+    this.kpi = '',
     this.order = 0,
     this.isActive = true,
     DateTime? createdAt,
@@ -237,10 +241,12 @@ class Project {
       imageUrl: map['imageUrl'],
       colorHex: map['colorHex'] ?? 0xFFFF6B35,
       tags: List<String>.from(map['tags'] ?? []),
+      tag: map['tag'] ?? '',
+      kpi: map['kpi'] ?? '',
       order: map['order'] ?? 0,
       isActive: map['isActive'] ?? true,
-      createdAt: map['createdAt']?.toDate() ?? DateTime.now(),
-      updatedAt: map['updatedAt']?.toDate() ?? DateTime.now(),
+      createdAt: map['createdAt'] is DateTime ? map['createdAt'] as DateTime : (map['createdAt']?.toDate() ?? DateTime.now()),
+      updatedAt: map['updatedAt'] is DateTime ? map['updatedAt'] as DateTime : (map['updatedAt']?.toDate() ?? DateTime.now()),
     );
   }
 
@@ -254,6 +260,8 @@ class Project {
       'imageUrl': imageUrl,
       'colorHex': colorHex,
       'tags': tags,
+      'tag': tag,
+      'kpi': kpi,
       'order': order,
       'isActive': isActive,
       'createdAt': createdAt,
@@ -271,6 +279,8 @@ class Project {
     String? imageUrl,
     int? colorHex,
     List<String>? tags,
+    String? tag,
+    String? kpi,
     int? order,
     bool? isActive,
   }) {
@@ -284,6 +294,8 @@ class Project {
       imageUrl: imageUrl ?? this.imageUrl,
       colorHex: colorHex ?? this.colorHex,
       tags: tags ?? this.tags,
+      tag: tag ?? this.tag,
+      kpi: kpi ?? this.kpi,
       order: order ?? this.order,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt,
@@ -299,6 +311,7 @@ class Experience {
   final String description;
   final List<String> highlights; // Skills/tech used
   final List<String> tags; // Tags for filtering
+  final String city; // Broadside location (e.g. "Mumbai, India")
   final int order;
   final bool isActive;
   final DateTime createdAt;
@@ -312,6 +325,7 @@ class Experience {
     required this.description,
     this.highlights = const [],
     this.tags = const [],
+    this.city = '',
     this.order = 0,
     this.isActive = true,
     DateTime? createdAt,
@@ -328,10 +342,11 @@ class Experience {
       description: map['description'] ?? '',
       highlights: List<String>.from(map['highlights'] ?? []),
       tags: List<String>.from(map['tags'] ?? []),
+      city: map['city'] ?? '',
       order: map['order'] ?? 0,
       isActive: map['isActive'] ?? true,
-      createdAt: map['createdAt']?.toDate() ?? DateTime.now(),
-      updatedAt: map['updatedAt']?.toDate() ?? DateTime.now(),
+      createdAt: map['createdAt'] is DateTime ? map['createdAt'] as DateTime : (map['createdAt']?.toDate() ?? DateTime.now()),
+      updatedAt: map['updatedAt'] is DateTime ? map['updatedAt'] as DateTime : (map['updatedAt']?.toDate() ?? DateTime.now()),
     );
   }
 
@@ -343,6 +358,7 @@ class Experience {
       'description': description,
       'highlights': highlights,
       'tags': tags,
+      'city': city,
       'order': order,
       'isActive': isActive,
       'createdAt': createdAt,
@@ -358,6 +374,7 @@ class Experience {
     String? description,
     List<String>? highlights,
     List<String>? tags,
+    String? city,
     int? order,
     bool? isActive,
   }) {
@@ -369,6 +386,7 @@ class Experience {
       description: description ?? this.description,
       highlights: highlights ?? this.highlights,
       tags: tags ?? this.tags,
+      city: city ?? this.city,
       order: order ?? this.order,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt,
