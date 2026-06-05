@@ -264,8 +264,9 @@ class ProjectsTab extends StatelessWidget {
             child: Text('Error loading projects: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
           );
         }
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final projects = snapshot.data!;
         return _buildListWithAdd(
           context: context,
@@ -312,8 +313,9 @@ class ExperienceTab extends StatelessWidget {
             child: Text('Error loading experience: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
           );
         }
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final experiences = snapshot.data!;
         return _buildListWithAdd(
           context: context,
@@ -360,8 +362,9 @@ class JobsTab extends StatelessWidget {
             child: Text('Error loading jobs: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
           );
         }
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final jobs = snapshot.data!;
         return _buildListWithAdd(
           context: context,
@@ -433,8 +436,9 @@ class SettingsTab extends StatelessWidget {
             child: Text('Error loading settings: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
           );
         }
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final settings = snapshot.data!;
         return SingleChildScrollView(
           padding: const EdgeInsets.all(32),

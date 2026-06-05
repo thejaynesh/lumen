@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/portfolio_data.dart';
@@ -146,6 +147,8 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
   late final TextEditingController _imageUrl;
   late final TextEditingController _colorHex;
   late final TextEditingController _order;
+  late final TextEditingController _tag;
+  late final TextEditingController _kpi;
   late List<String> _techStack;
   late List<String> _tags;
   late bool _isActive;
@@ -165,6 +168,8 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
           '#${(p?.colorHex ?? 0xFFFF6B35).toRadixString(16).padLeft(8, '0').toUpperCase()}',
     );
     _order = TextEditingController(text: (p?.order ?? 0).toString());
+    _tag = TextEditingController(text: p?.tag ?? '');
+    _kpi = TextEditingController(text: p?.kpi ?? '');
     _techStack = List.of(p?.techStack ?? const []);
     _tags = List.of(p?.tags ?? const []);
     _isActive = p?.isActive ?? true;
@@ -179,6 +184,8 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
     _imageUrl.dispose();
     _colorHex.dispose();
     _order.dispose();
+    _tag.dispose();
+    _kpi.dispose();
     super.dispose();
   }
 
@@ -203,6 +210,8 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
             _imageUrl.text.trim().isEmpty ? null : _imageUrl.text.trim(),
         'colorHex': _parseHex(_colorHex.text),
         'tags': _tags,
+        'tag': _tag.text.trim(),
+        'kpi': _kpi.text.trim(),
         'order': int.tryParse(_order.text) ?? 0,
         'isActive': _isActive,
       };
@@ -219,6 +228,8 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
             imageUrl: fields['imageUrl'] as String?,
             colorHex: fields['colorHex'] as int,
             tags: fields['tags'] as List<String>,
+            tag: fields['tag'] as String,
+            kpi: fields['kpi'] as String,
             order: fields['order'] as int,
             isActive: fields['isActive'] as bool,
           ),
@@ -234,6 +245,8 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
             imageUrl: fields['imageUrl'] as String?,
             colorHex: fields['colorHex'] as int,
             tags: fields['tags'] as List<String>,
+            tag: fields['tag'] as String,
+            kpi: fields['kpi'] as String,
             order: fields['order'] as int,
             isActive: fields['isActive'] as bool,
           ),
@@ -288,6 +301,16 @@ class _ProjectFormDialogState extends State<ProjectFormDialog> {
                   values: _tags,
                   label: 'Tags (lowercase, e.g. flutter, web)',
                   onChanged: (v) => setState(() => _tags = v),
+                ),
+                _LabeledTextField(
+                  controller: _tag,
+                  label: 'Badge label (e.g. "Hackathon · 2024")',
+                  hint: 'Hackathon · 2024',
+                ),
+                _LabeledTextField(
+                  controller: _kpi,
+                  label: 'KPI line (e.g. "2nd of ~40 teams")',
+                  hint: '2nd of ~40 teams',
                 ),
                 _LabeledTextField(
                   controller: _link,
@@ -364,6 +387,7 @@ class _ExperienceFormDialogState extends State<ExperienceFormDialog> {
   late final TextEditingController _period;
   late final TextEditingController _description;
   late final TextEditingController _order;
+  late final TextEditingController _city;
   late List<String> _highlights;
   late List<String> _tags;
   late bool _isActive;
@@ -378,6 +402,7 @@ class _ExperienceFormDialogState extends State<ExperienceFormDialog> {
     _period = TextEditingController(text: e?.period ?? '');
     _description = TextEditingController(text: e?.description ?? '');
     _order = TextEditingController(text: (e?.order ?? 0).toString());
+    _city = TextEditingController(text: e?.city ?? '');
     _highlights = List.of(e?.highlights ?? const []);
     _tags = List.of(e?.tags ?? const []);
     _isActive = e?.isActive ?? true;
@@ -390,6 +415,7 @@ class _ExperienceFormDialogState extends State<ExperienceFormDialog> {
     _period.dispose();
     _description.dispose();
     _order.dispose();
+    _city.dispose();
     super.dispose();
   }
 
@@ -408,6 +434,7 @@ class _ExperienceFormDialogState extends State<ExperienceFormDialog> {
             description: _description.text.trim(),
             highlights: _highlights,
             tags: _tags,
+            city: _city.text.trim(),
             order: int.tryParse(_order.text) ?? 0,
             isActive: _isActive,
           ),
@@ -421,6 +448,7 @@ class _ExperienceFormDialogState extends State<ExperienceFormDialog> {
             description: _description.text.trim(),
             highlights: _highlights,
             tags: _tags,
+            city: _city.text.trim(),
             order: int.tryParse(_order.text) ?? 0,
             isActive: _isActive,
           ),
@@ -466,6 +494,11 @@ class _ExperienceFormDialogState extends State<ExperienceFormDialog> {
                   label: 'Period',
                   hint: '2023 - Present',
                   required: true,
+                ),
+                _LabeledTextField(
+                  controller: _city,
+                  label: 'City (e.g. Mumbai, India)',
+                  hint: 'Mumbai, India',
                 ),
                 _LabeledTextField(
                   controller: _description,
@@ -876,62 +909,247 @@ class SettingsFormDialog extends StatefulWidget {
 
 class _SettingsFormDialogState extends State<SettingsFormDialog> {
   final _formKey = GlobalKey<FormState>();
+
+  // Basic profile fields
   late final TextEditingController _name;
+  late final TextEditingController _initials;
+  late final TextEditingController _role;
   late final TextEditingController _tagline;
+  late final TextEditingController _location;
   late final TextEditingController _about;
+  late final TextEditingController _summary;
   late final TextEditingController _email;
+  late final TextEditingController _phone;
   late final TextEditingController _github;
   late final TextEditingController _linkedin;
   late final TextEditingController _twitter;
   late final TextEditingController _instagram;
   late final TextEditingController _resumeUrl;
+
+  // List fields as structured text
+  // highlights: one per line "label | value | note"
+  late final TextEditingController _highlights;
+  // skillGroups: one group per line "Category: item1, item2, item3"
+  late final TextEditingController _skillGroups;
+  // awards: one per line
+  late final TextEditingController _awards;
+  // education: one per line "when | where | what"
+  late final TextEditingController _education;
+
+  // JSON fields
+  // quiz: JSON array of {q, options[], answer, funFact}
+  late final TextEditingController _quiz;
+  // personality: JSON array of {label, value}
+  late final TextEditingController _personality;
+
   bool _saving = false;
+
+  // Helper to pretty-print a list of toMap objects as JSON
+  String _toJson(List<Map<String, dynamic>> items) {
+    const encoder = JsonEncoder.withIndent('  ');
+    return encoder.convert(items);
+  }
 
   @override
   void initState() {
     super.initState();
     final s = widget.settings;
+
     _name = TextEditingController(text: s.name);
+    _initials = TextEditingController(text: s.initials);
+    _role = TextEditingController(text: s.role);
     _tagline = TextEditingController(text: s.tagline);
+    _location = TextEditingController(text: s.location);
     _about = TextEditingController(text: s.about);
+    _summary = TextEditingController(text: s.summary);
     _email = TextEditingController(text: s.email);
+    _phone = TextEditingController(text: s.phone);
     _github = TextEditingController(text: s.github ?? '');
     _linkedin = TextEditingController(text: s.linkedin ?? '');
     _twitter = TextEditingController(text: s.twitter ?? '');
     _instagram = TextEditingController(text: s.instagram ?? '');
     _resumeUrl = TextEditingController(text: s.resumeUrl ?? '');
+
+    // highlights → "label | value | note" per line
+    _highlights = TextEditingController(
+      text: s.highlights
+          .map((h) => '${h.label} | ${h.value} | ${h.note}')
+          .join('\n'),
+    );
+
+    // skillGroups → "Category: item1, item2" per line
+    _skillGroups = TextEditingController(
+      text: s.skillGroups
+          .map((sg) => '${sg.category}: ${sg.items.join(', ')}')
+          .join('\n'),
+    );
+
+    // awards → one per line
+    _awards = TextEditingController(text: s.awards.join('\n'));
+
+    // education → "when | where | what" per line
+    _education = TextEditingController(
+      text: s.education
+          .map((e) => '${e.when} | ${e.where} | ${e.what}')
+          .join('\n'),
+    );
+
+    // quiz and personality as JSON
+    _quiz = TextEditingController(
+      text: _toJson(s.quiz.map((q) => q.toMap()).toList()),
+    );
+    _personality = TextEditingController(
+      text: _toJson(s.personality.map((p) => p.toMap()).toList()),
+    );
   }
 
   @override
   void dispose() {
     _name.dispose();
+    _initials.dispose();
+    _role.dispose();
     _tagline.dispose();
+    _location.dispose();
     _about.dispose();
+    _summary.dispose();
     _email.dispose();
+    _phone.dispose();
     _github.dispose();
     _linkedin.dispose();
     _twitter.dispose();
     _instagram.dispose();
     _resumeUrl.dispose();
+    _highlights.dispose();
+    _skillGroups.dispose();
+    _awards.dispose();
+    _education.dispose();
+    _quiz.dispose();
+    _personality.dispose();
     super.dispose();
+  }
+
+  // Parse "label | value | note" lines into Highlight list
+  List<Highlight> _parseHighlights(String raw) {
+    return raw
+        .split('\n')
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .map((line) {
+          final parts = line.split('|').map((p) => p.trim()).toList();
+          return Highlight(
+            label: parts.isNotEmpty ? parts[0] : '',
+            value: parts.length > 1 ? parts[1] : '',
+            note: parts.length > 2 ? parts[2] : '',
+          );
+        })
+        .toList();
+  }
+
+  // Parse "Category: item1, item2" lines into SkillGroup list
+  List<SkillGroup> _parseSkillGroups(String raw) {
+    return raw
+        .split('\n')
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .map((line) {
+          final colonIdx = line.indexOf(':');
+          if (colonIdx == -1) {
+            return SkillGroup(category: line, items: const []);
+          }
+          final category = line.substring(0, colonIdx).trim();
+          final itemsStr = line.substring(colonIdx + 1).trim();
+          final items = itemsStr.isEmpty
+              ? <String>[]
+              : itemsStr.split(',').map((i) => i.trim()).where((i) => i.isNotEmpty).toList();
+          return SkillGroup(category: category, items: items);
+        })
+        .toList();
+  }
+
+  // Parse one-per-line into String list
+  List<String> _parseLines(String raw) {
+    return raw
+        .split('\n')
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .toList();
+  }
+
+  // Parse "when | where | what" lines into EducationEntry list
+  List<EducationEntry> _parseEducation(String raw) {
+    return raw
+        .split('\n')
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .map((line) {
+          final parts = line.split('|').map((p) => p.trim()).toList();
+          return EducationEntry(
+            when: parts.isNotEmpty ? parts[0] : '',
+            where: parts.length > 1 ? parts[1] : '',
+            what: parts.length > 2 ? parts[2] : '',
+          );
+        })
+        .toList();
   }
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Parse JSON fields before saving — show SnackBar on error
+    List<QuizQuestion> quizList;
+    List<PersonalityItem> personalityList;
+    try {
+      final quizRaw = jsonDecode(_quiz.text.trim().isEmpty ? '[]' : _quiz.text.trim());
+      quizList = (quizRaw as List<dynamic>)
+          .map((e) => QuizQuestion.fromMap(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Quiz JSON is invalid — fix and retry.')),
+        );
+      }
+      return;
+    }
+    try {
+      final pRaw = jsonDecode(_personality.text.trim().isEmpty ? '[]' : _personality.text.trim());
+      personalityList = (pRaw as List<dynamic>)
+          .map((e) => PersonalityItem.fromMap(Map<String, dynamic>.from(e as Map)))
+          .toList();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Personality JSON is invalid — fix and retry.')),
+        );
+      }
+      return;
+    }
+
     setState(() => _saving = true);
     final svc = context.read<PortfolioService>();
     try {
       await svc.updateSettings(
         widget.settings.copyWith(
           name: _name.text.trim(),
+          initials: _initials.text.trim(),
+          role: _role.text.trim(),
           tagline: _tagline.text.trim(),
+          location: _location.text.trim(),
           about: _about.text.trim(),
+          summary: _summary.text.trim(),
           email: _email.text.trim(),
+          phone: _phone.text.trim(),
           github: _github.text.trim().isEmpty ? null : _github.text.trim(),
           linkedin: _linkedin.text.trim().isEmpty ? null : _linkedin.text.trim(),
           twitter: _twitter.text.trim().isEmpty ? null : _twitter.text.trim(),
           instagram: _instagram.text.trim().isEmpty ? null : _instagram.text.trim(),
           resumeUrl: _resumeUrl.text.trim().isEmpty ? null : _resumeUrl.text.trim(),
+          highlights: _parseHighlights(_highlights.text),
+          skillGroups: _parseSkillGroups(_skillGroups.text),
+          awards: _parseLines(_awards.text),
+          education: _parseEducation(_education.text),
+          quiz: quizList,
+          personality: personalityList,
         ),
       );
       if (mounted) Navigator.pop(context);
@@ -945,22 +1163,58 @@ class _SettingsFormDialogState extends State<SettingsFormDialog> {
     }
   }
 
+  Widget _sectionHeader(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: AppTheme.primary,
+          fontWeight: FontWeight.w600,
+          fontSize: 13,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Edit Profile Settings'),
       content: SizedBox(
-        width: 540,
+        width: 600,
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                _sectionHeader('Identity'),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: _LabeledTextField(
+                        controller: _name,
+                        label: 'Name',
+                        required: true,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 1,
+                      child: _LabeledTextField(
+                        controller: _initials,
+                        label: 'Initials',
+                        hint: 'JB',
+                      ),
+                    ),
+                  ],
+                ),
                 _LabeledTextField(
-                  controller: _name,
-                  label: 'Name',
-                  required: true,
+                  controller: _role,
+                  label: 'Role / headline (e.g. "Software Engineer")',
+                  hint: 'Software Engineer',
                 ),
                 _LabeledTextField(
                   controller: _tagline,
@@ -968,15 +1222,30 @@ class _SettingsFormDialogState extends State<SettingsFormDialog> {
                   required: true,
                 ),
                 _LabeledTextField(
-                  controller: _about,
-                  label: 'About',
-                  required: true,
-                  maxLines: 4,
+                  controller: _location,
+                  label: 'Location (e.g. "Boston, MA")',
+                  hint: 'Boston, MA',
                 ),
+                _sectionHeader('Bio'),
+                _LabeledTextField(
+                  controller: _about,
+                  label: 'About (legacy / job fallback)',
+                  maxLines: 3,
+                ),
+                _LabeledTextField(
+                  controller: _summary,
+                  label: 'Summary',
+                  maxLines: 3,
+                ),
+                _sectionHeader('Contact'),
                 _LabeledTextField(
                   controller: _email,
                   label: 'Email',
                   required: true,
+                ),
+                _LabeledTextField(
+                  controller: _phone,
+                  label: 'Phone (optional)',
                 ),
                 _LabeledTextField(
                   controller: _github,
@@ -997,6 +1266,46 @@ class _SettingsFormDialogState extends State<SettingsFormDialog> {
                 _LabeledTextField(
                   controller: _resumeUrl,
                   label: 'Resume URL (optional)',
+                ),
+                _sectionHeader('Highlights'),
+                _LabeledTextField(
+                  controller: _highlights,
+                  label: 'Highlights (one per line: label | value | note)',
+                  hint: 'Projects | 20+ | shipped\nYears | 3 | of experience',
+                  maxLines: 5,
+                ),
+                _sectionHeader('Skills'),
+                _LabeledTextField(
+                  controller: _skillGroups,
+                  label: 'Skill Groups (one group per line: Category: item1, item2)',
+                  hint: 'Languages: Dart, Python, TypeScript\nFrameworks: Flutter, FastAPI',
+                  maxLines: 6,
+                ),
+                _sectionHeader('Awards'),
+                _LabeledTextField(
+                  controller: _awards,
+                  label: 'Awards (one per line)',
+                  hint: '2nd Place — HackMIT 2024\nDean\'s List — Northeastern University',
+                  maxLines: 4,
+                ),
+                _sectionHeader('Education'),
+                _LabeledTextField(
+                  controller: _education,
+                  label: 'Education (one per line: when | where | what)',
+                  hint: '2024–2026 | Northeastern University | MS Computer Science',
+                  maxLines: 4,
+                ),
+                _sectionHeader('Quiz (JSON)'),
+                _LabeledTextField(
+                  controller: _quiz,
+                  label: 'Quiz — JSON array of {q, options[], answer, funFact}',
+                  maxLines: 8,
+                ),
+                _sectionHeader('Personality (JSON)'),
+                _LabeledTextField(
+                  controller: _personality,
+                  label: 'Personality — JSON array of {label, value}',
+                  maxLines: 6,
                 ),
               ],
             ),
