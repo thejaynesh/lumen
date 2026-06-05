@@ -97,11 +97,12 @@ class _ModeSelectorScreenState extends State<ModeSelectorScreen> {
           decoration: BoxDecoration(
             border: Border(top: BorderSide(color: Broadside.rule(dark))),
           ),
-          // IntrinsicHeight bounds the Row's height so CrossAxisAlignment.stretch
-          // (equal-height cells + full-height dividers) is valid under the
-          // SingleChildScrollView's unbounded height. Without it, stretch forces
-          // infinite height and throws in debug builds.
-          child: IntrinsicHeight(
+          // Fixed-height row: gives CrossAxisAlignment.stretch a bounded height
+          // (equal-height cells + full-height dividers) WITHOUT IntrinsicHeight,
+          // which mis-measures wrapping description text (sizes it as one line)
+          // and caused a vertical overflow.
+          child: SizedBox(
+            height: 340,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: List.generate(_modes.length, (i) {
@@ -305,7 +306,7 @@ class _DoorCell extends StatelessWidget {
             ),
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Top row: num / icon
@@ -334,7 +335,7 @@ class _DoorCell extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 72),
+              const Spacer(),
 
               // Bottom block: name + long + sub row
               Column(
