@@ -94,10 +94,14 @@ class _ManualPageState extends State<ManualPage> {
     return AnimatedContainer(
       duration: Broadside.themeAnim,
       color: Broadside.paper(dark),
+      constraints: const BoxConstraints.expand(),
       child: Stack(
         children: [
-          // ── Scrollable content ──
-          FutureBuilder<PortfolioViewData>(
+          // ── Scrollable content (fills the stack so the scroll view gets a
+          // bounded height; a non-positioned child would get loose 0-min
+          // constraints and collapse). ──
+          Positioned.fill(
+            child: FutureBuilder<PortfolioViewData>(
             future: _dataFuture,
             builder: (context, snapshot) {
               final PortfolioViewData data;
@@ -125,7 +129,8 @@ class _ManualPageState extends State<ManualPage> {
 
               return SingleChildScrollView(
                 controller: _scroll,
-                child: Center(
+                child: Align(
+                  alignment: Alignment.topCenter,
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(
                       maxWidth: Broadside.maxWidth,
@@ -194,6 +199,7 @@ class _ManualPageState extends State<ManualPage> {
                 ),
               );
             },
+            ),
           ),
 
           // ── Fixed Nav ──
