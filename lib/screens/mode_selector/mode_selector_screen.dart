@@ -123,36 +123,47 @@ class _ModeSelectorScreenState extends State<ModeSelectorScreen> {
           ),
         );
 
-        final title = Padding(
-          padding: const EdgeInsets.fromLTRB(48, 56, 48, 56),
+        // Title fills the free space between the top bar and the grid and is
+        // vertically centered. Flexible+FittedBox lets the huge serif shrink
+        // instead of overflowing on short viewports — so the whole screen fits
+        // without scrolling.
+        final titleBlock = Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Kicker('↓ Select your route', dark: dark),
               const SizedBox(height: 18),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'THREE\n',
-                      style: BroadsideText.serif(
-                        size: 150,
-                        height: 0.84,
-                        letterSpacing: -0.045,
-                        color: Broadside.ink(dark),
-                      ),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'THREE\n',
+                          style: BroadsideText.serif(
+                            size: 150,
+                            height: 0.84,
+                            letterSpacing: -0.045,
+                            color: Broadside.ink(dark),
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'doors.',
+                          style: BroadsideText.serif(
+                            size: 150,
+                            height: 0.84,
+                            letterSpacing: -0.045,
+                            color: Broadside.accent(dark),
+                            style: FontStyle.italic,
+                          ),
+                        ),
+                      ],
                     ),
-                    TextSpan(
-                      text: 'doors.',
-                      style: BroadsideText.serif(
-                        size: 150,
-                        height: 0.84,
-                        letterSpacing: -0.045,
-                        color: Broadside.accent(dark),
-                        style: FontStyle.italic,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
@@ -162,29 +173,21 @@ class _ModeSelectorScreenState extends State<ModeSelectorScreen> {
         return Container(
           color: Broadside.paper(dark),
           constraints: const BoxConstraints.expand(),
-          child: SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _TopBar(
+                dark: dark,
+                name: name,
+                email: email,
+                onToggle: () => context.read<ThemeProvider>().toggleTheme(),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _TopBar(
-                    dark: dark,
-                    name: name,
-                    email: email,
-                    onToggle: () =>
-                        context.read<ThemeProvider>().toggleTheme(),
-                  ),
-                  title,
-                  const SizedBox(height: 40),
-                  grid,
-                  _BottomBar(dark: dark, location: location),
-                ],
-              ),
-            ),
+              // Title grows to fill the gap and centers; grid + bottom bar pin
+              // to the bottom. No scroll.
+              Expanded(child: titleBlock),
+              grid,
+              _BottomBar(dark: dark, location: location),
+            ],
           ),
         );
       },
