@@ -24,9 +24,6 @@ import 'widgets/narrator_progress_bar.dart';
 import 'widgets/narrator_floating_controls.dart';
 import '../../widgets/animated_nav_bar.dart';
 
-// Utils
-import 'utils/mock_data.dart';
-
 class HomeScreen extends StatefulWidget {
   final String? jobId;
   const HomeScreen({super.key, this.jobId});
@@ -171,13 +168,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
-                final data = (snapshot.hasError || snapshot.data == null)
-                    ? MockPortfolioData.getMockData()
-                    : snapshot.data!;
-
+                // No mock fallback: Firestore is the sole source of truth.
+                // On error/empty, render an empty view (blank sections) rather
+                // than fabricated data.
                 if (snapshot.hasError) {
                   debugPrint('Error loading portfolio: ${snapshot.error}');
                 }
+
+                final data = (snapshot.hasError || snapshot.data == null)
+                    ? PortfolioViewData(
+                        settings: PortfolioSettings.empty(),
+                        projects: const [],
+                        experiences: const [],
+                      )
+                    : snapshot.data!;
 
                 // Sync narrator to selected mode now that data is ready.
                 WidgetsBinding.instance.addPostFrameCallback((_) {

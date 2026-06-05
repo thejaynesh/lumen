@@ -473,15 +473,6 @@ class SettingsTab extends StatelessWidget {
                 icon: const Icon(Icons.edit),
                 label: const Text('Edit Defaults'),
               ),
-              const SizedBox(height: 48),
-              FilledButton.icon(
-                onPressed: () => service.seedInitialData(),
-                icon: const Icon(Icons.refresh),
-                label: const Text('Seed Sample Data'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppTheme.darkTextSecondary,
-                ),
-              ),
             ],
           ),
         );

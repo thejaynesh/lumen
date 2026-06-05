@@ -14,6 +14,3 @@ export 'widgets/background_glow.dart';
 export 'widgets/theme_toggle.dart';
 export 'widgets/project_card.dart';
 export 'widgets/experience_card.dart';
-
-// Utils
-export 'utils/mock_data.dart';

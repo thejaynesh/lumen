@@ -2,12 +2,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lumen/models/portfolio_data.dart';
 import 'package:lumen/providers/experience_provider.dart';
 import 'package:lumen/providers/narrator_provider.dart';
-import 'package:lumen/screens/home/utils/mock_data.dart';
 
 void main() {
   group('PortfolioSettings serialization', () {
-    test('defaultSettings round-trips through toMap/fromMap', () {
-      final original = PortfolioSettings.defaultSettings();
+    test('settings round-trip through toMap/fromMap', () {
+      final original = PortfolioSettings(
+        name: 'Jaynesh Bhandari',
+        tagline: 'SOFTWARE ENGINEER',
+        about: 'About.',
+        email: 'contact@jaynesh.dev',
+        stats: [Stat(value: '15+', label: 'Projects')],
+        defaultProjectIds: ['p1', 'p2'],
+      );
       final restored = PortfolioSettings.fromMap(original.toMap());
       expect(restored.name, equals(original.name));
       expect(restored.tagline, equals(original.tagline));
@@ -17,6 +23,15 @@ void main() {
         restored.defaultProjectIds,
         equals(original.defaultProjectIds),
       );
+    });
+
+    test('empty() contains no fabricated data', () {
+      final empty = PortfolioSettings.empty();
+      expect(empty.name, isEmpty);
+      expect(empty.tagline, isEmpty);
+      expect(empty.email, isEmpty);
+      expect(empty.stats, isEmpty);
+      expect(empty.skills, isEmpty);
     });
 
     test('Stat serializes and deserializes correctly', () {
@@ -84,20 +99,6 @@ void main() {
     test('totalProgress is 0 when no sections registered', () {
       final provider = NarratorProvider();
       expect(provider.totalProgress, equals(0.0));
-    });
-  });
-
-  group('MockPortfolioData', () {
-    test('returns non-empty projects and experiences', () {
-      final data = MockPortfolioData.getMockData();
-      expect(data.projects, isNotEmpty);
-      expect(data.experiences, isNotEmpty);
-      expect(data.settings.name, isNotEmpty);
-    });
-
-    test('mock data stats are populated', () {
-      final data = MockPortfolioData.getMockData();
-      expect(data.settings.stats, isNotEmpty);
     });
   });
 }

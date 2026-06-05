@@ -110,28 +110,16 @@ class PortfolioSettings {
     );
   }
 
-  static PortfolioSettings defaultSettings() {
+  /// Non-null placeholder used only when Firestore has no `settings/main`
+  /// doc yet. Contains NO fake data — real content lives in Firestore and is
+  /// loaded via the seed script or admin dashboard. Empty fields render as
+  /// blank/loading rather than shipping fabricated identity.
+  static PortfolioSettings empty() {
     return PortfolioSettings(
-      name: 'Theja',
-      tagline: 'SOFTWARE DEVELOPER',
-      about:
-          'Crafting exceptional digital experiences through elegant code and innovative solutions.',
-      email: 'theja@example.com',
-      github: 'https://github.com/theja',
-      linkedin: 'https://linkedin.com/in/theja',
-      skills: [
-        Skill(name: 'Flutter & Dart', level: 0.95),
-        Skill(name: 'Python', level: 0.90),
-        Skill(name: 'JavaScript/TypeScript', level: 0.85),
-        Skill(name: 'Cloud & DevOps', level: 0.80),
-        Skill(name: 'UI/UX Design', level: 0.75),
-      ],
-      stats: [
-        Stat(value: '5+', label: 'Years Experience'),
-        Stat(value: '50+', label: 'Projects Completed'),
-        Stat(value: '20+', label: 'Happy Clients'),
-        Stat(value: '100K+', label: 'Lines of Code'),
-      ],
+      name: '',
+      tagline: '',
+      about: '',
+      email: '',
     );
   }
 }

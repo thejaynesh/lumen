@@ -37,7 +37,7 @@ class PortfolioService {
     if (doc.exists && doc.data() != null) {
       return PortfolioSettings.fromMap(doc.data()!);
     }
-    return PortfolioSettings.defaultSettings();
+    return PortfolioSettings.empty();
   }
 
   Stream<PortfolioSettings> watchSettings() {
@@ -45,7 +45,7 @@ class PortfolioService {
       if (doc.exists && doc.data() != null) {
         return PortfolioSettings.fromMap(doc.data()!);
       }
-      return PortfolioSettings.defaultSettings();
+      return PortfolioSettings.empty();
     });
   }
 
@@ -326,121 +326,4 @@ class PortfolioService {
     return getActiveExperience();
   }
 
-  // ============== SEED DATA ==============
-
-  /// Initialize database with sample data (call once)
-  Future<void> seedInitialData() async {
-    // Check if already seeded
-    final settingsDoc = await _firestore.doc(_settingsDoc).get();
-    if (settingsDoc.exists) return;
-
-    // Create settings
-    await updateSettings(PortfolioSettings.defaultSettings());
-
-    // Create sample projects
-    final projectIds = <String>[];
-
-    final sampleProjects = [
-      Project(
-        id: '',
-        title: 'Lumen Portfolio',
-        category: 'WEB APPLICATION',
-        description:
-            'A dynamic, high-performance portfolio website built with Flutter Web. Features stunning animations and responsive design.',
-        techStack: ['Flutter', 'Firebase', 'Dart'],
-        tags: ['flutter', 'web', 'firebase'],
-        colorHex: 0xFFFF6B35,
-        order: 0,
-      ),
-      Project(
-        id: '',
-        title: 'EcoTrack',
-        category: 'MOBILE APP',
-        description:
-            'Sustainability tracking application with real-time analytics, gamification elements, and social features.',
-        techStack: ['Flutter', 'Node.js', 'MongoDB'],
-        tags: ['flutter', 'mobile', 'nodejs'],
-        colorHex: 0xFF00D9FF,
-        order: 1,
-      ),
-      Project(
-        id: '',
-        title: 'CloudScale Platform',
-        category: 'ENTERPRISE',
-        description:
-            'Enterprise-grade scaling solution for legacy applications. Automated migration and monitoring tools.',
-        techStack: ['Kubernetes', 'Go', 'GCP'],
-        tags: ['cloud', 'devops', 'enterprise'],
-        colorHex: 0xFFFFD93D,
-        order: 2,
-      ),
-      Project(
-        id: '',
-        title: 'AI Vision Lab',
-        category: 'MACHINE LEARNING',
-        description:
-            'Computer vision platform for object detection and image classification. Real-time processing with edge deployment.',
-        techStack: ['Python', 'TensorFlow', 'OpenCV'],
-        tags: ['ai', 'ml', 'python'],
-        colorHex: 0xFFE879F9,
-        order: 3,
-      ),
-    ];
-
-    for (final project in sampleProjects) {
-      final id = await addProject(project);
-      projectIds.add(id);
-    }
-
-    // Create sample experience
-    final experienceIds = <String>[];
-
-    final sampleExperience = [
-      Experience(
-        id: '',
-        role: 'Senior Software Developer',
-        company: 'Tech Innovations Inc.',
-        period: '2023 - Present',
-        description:
-            'Leading development of enterprise Flutter applications serving 1M+ users. Architecting scalable solutions and mentoring junior developers.',
-        highlights: ['Flutter', 'Firebase', 'GCP', 'Team Lead'],
-        tags: ['flutter', 'leadership', 'enterprise'],
-        order: 0,
-      ),
-      Experience(
-        id: '',
-        role: 'Full Stack Developer',
-        company: 'Digital Agency',
-        period: '2021 - 2023',
-        description:
-            'Built and deployed 20+ web and mobile applications. Implemented CI/CD pipelines and improved deployment efficiency by 40%.',
-        highlights: ['React', 'Node.js', 'AWS', 'Docker'],
-        tags: ['fullstack', 'web', 'devops'],
-        order: 1,
-      ),
-      Experience(
-        id: '',
-        role: 'Software Engineer',
-        company: 'Startup Labs',
-        period: '2019 - 2021',
-        description:
-            'Developed the flagship mobile app from concept to 100K+ downloads. Collaborated with design team to create pixel-perfect UIs.',
-        highlights: ['Flutter', 'Python', 'PostgreSQL'],
-        tags: ['flutter', 'mobile', 'startup'],
-        order: 2,
-      ),
-    ];
-
-    for (final exp in sampleExperience) {
-      final id = await addExperience(exp);
-      experienceIds.add(id);
-    }
-
-    // Update settings with default IDs
-    final updatedSettings = PortfolioSettings.defaultSettings().copyWith(
-      defaultProjectIds: projectIds,
-      defaultExperienceIds: experienceIds,
-    );
-    await updateSettings(updatedSettings);
-  }
 }
