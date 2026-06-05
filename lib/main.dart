@@ -48,6 +48,9 @@ class LumenApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.themeMode,
             routerConfig: appRouter,
+            // Hide scrollbars globally (Broadside design has none); scrolling
+            // via wheel/drag still works.
+            scrollBehavior: const _NoScrollbarBehavior(),
             // Every Broadside screen returns a bare Container (no Scaffold), so
             // wrap each route in a transparent Material to provide the required
             // Material ancestor for text — without it Flutter paints debug
@@ -61,4 +64,18 @@ class LumenApp extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Removes scrollbars app-wide while keeping wheel/drag scrolling, matching the
+/// Broadside design (which hides scrollbars).
+class _NoScrollbarBehavior extends MaterialScrollBehavior {
+  const _NoScrollbarBehavior();
+
+  @override
+  Widget buildScrollbar(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) =>
+      child;
 }
