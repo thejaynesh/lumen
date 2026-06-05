@@ -83,6 +83,7 @@ class _AutomatedModeState extends State<AutomatedMode> {
         builder: (context, snapshot) {
           return Container(
             color: Broadside.paper(dark),
+            constraints: const BoxConstraints.expand(),
             child: Stack(
               children: [
                 // ── Stage (tap-to-advance layer, bottommost) ──────────────

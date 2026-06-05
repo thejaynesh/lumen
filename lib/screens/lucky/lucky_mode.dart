@@ -94,6 +94,7 @@ class _LuckyModeState extends State<LuckyMode> {
 
         return Container(
           color: Broadside.paper(dark),
+          constraints: const BoxConstraints.expand(),
           child: Column(
             children: [
               _TopBar(name: name, dark: dark, onExit: _exit),
