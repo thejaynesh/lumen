@@ -1,156 +1,196 @@
-/// Data models for the portfolio with Firestore serialization
+// Data models for the portfolio with Firestore serialization
+
+class Highlight {
+  final String label;
+  final String value;
+  final String note;
+  Highlight({required this.label, required this.value, this.note = ''});
+  factory Highlight.fromMap(Map<String, dynamic> m) =>
+      Highlight(label: m['label'] ?? '', value: m['value'] ?? '', note: m['note'] ?? '');
+  Map<String, dynamic> toMap() => {'label': label, 'value': value, 'note': note};
+}
+
+class SkillGroup {
+  final String category;
+  final List<String> items;
+  SkillGroup({required this.category, this.items = const []});
+  factory SkillGroup.fromMap(Map<String, dynamic> m) =>
+      SkillGroup(category: m['category'] ?? '', items: List<String>.from(m['items'] ?? []));
+  Map<String, dynamic> toMap() => {'category': category, 'items': items};
+}
+
+class EducationEntry {
+  final String when;
+  final String where;
+  final String what;
+  EducationEntry({required this.when, required this.where, required this.what});
+  factory EducationEntry.fromMap(Map<String, dynamic> m) =>
+      EducationEntry(when: m['when'] ?? '', where: m['where'] ?? '', what: m['what'] ?? '');
+  Map<String, dynamic> toMap() => {'when': when, 'where': where, 'what': what};
+}
+
+class QuizQuestion {
+  final String q;
+  final List<String> options;
+  final int answer;
+  final String funFact;
+  QuizQuestion({required this.q, required this.options, required this.answer, this.funFact = ''});
+  factory QuizQuestion.fromMap(Map<String, dynamic> m) => QuizQuestion(
+        q: m['q'] ?? '',
+        options: List<String>.from(m['options'] ?? []),
+        answer: (m['answer'] ?? 0) as int,
+        funFact: m['funFact'] ?? '',
+      );
+  Map<String, dynamic> toMap() => {'q': q, 'options': options, 'answer': answer, 'funFact': funFact};
+}
+
+class PersonalityItem {
+  final String label;
+  final String value;
+  PersonalityItem({required this.label, required this.value});
+  factory PersonalityItem.fromMap(Map<String, dynamic> m) =>
+      PersonalityItem(label: m['label'] ?? '', value: m['value'] ?? '');
+  Map<String, dynamic> toMap() => {'label': label, 'value': value};
+}
 
 class PortfolioSettings {
   final String name;
+  final String initials;
+  final String role;
   final String tagline;
-  final String about;
+  final String location;
+  final String about; // legacy; kept for JobPosting customAbout fallback
+  final String summary;
   final String email;
+  final String phone;
   final String? github;
   final String? linkedin;
   final String? twitter;
   final String? instagram;
   final String? resumeUrl;
-  final List<String> defaultProjectIds; // Projects shown on generic homepage
-  final List<String>
-  defaultExperienceIds; // Experience shown on generic homepage
-  final List<Skill> skills;
-  final List<Stat> stats;
+  final List<Highlight> highlights;
+  final List<SkillGroup> skillGroups;
+  final List<String> awards;
+  final List<EducationEntry> education;
+  final List<QuizQuestion> quiz;
+  final List<PersonalityItem> personality;
+  final List<String> defaultProjectIds;
+  final List<String> defaultExperienceIds;
 
   PortfolioSettings({
     required this.name,
+    this.initials = '',
+    this.role = '',
     required this.tagline,
-    required this.about,
+    this.location = '',
+    this.about = '',
+    this.summary = '',
     required this.email,
+    this.phone = '',
     this.github,
     this.linkedin,
     this.twitter,
     this.instagram,
     this.resumeUrl,
+    this.highlights = const [],
+    this.skillGroups = const [],
+    this.awards = const [],
+    this.education = const [],
+    this.quiz = const [],
+    this.personality = const [],
     this.defaultProjectIds = const [],
     this.defaultExperienceIds = const [],
-    this.skills = const [],
-    this.stats = const [],
   });
 
   factory PortfolioSettings.fromMap(Map<String, dynamic> map) {
+    List<T> list<T>(String k, T Function(Map<String, dynamic>) f) =>
+        (map[k] as List<dynamic>?)?.map((e) => f(Map<String, dynamic>.from(e))).toList() ?? <T>[];
     return PortfolioSettings(
       name: map['name'] ?? '',
+      initials: map['initials'] ?? '',
+      role: map['role'] ?? '',
       tagline: map['tagline'] ?? '',
+      location: map['location'] ?? '',
       about: map['about'] ?? '',
+      summary: map['summary'] ?? '',
       email: map['email'] ?? '',
+      phone: map['phone'] ?? '',
       github: map['github'],
       linkedin: map['linkedin'],
       twitter: map['twitter'],
       instagram: map['instagram'],
       resumeUrl: map['resumeUrl'],
+      highlights: list('highlights', Highlight.fromMap),
+      skillGroups: list('skillGroups', SkillGroup.fromMap),
+      awards: List<String>.from(map['awards'] ?? []),
+      education: list('education', EducationEntry.fromMap),
+      quiz: list('quiz', QuizQuestion.fromMap),
+      personality: list('personality', PersonalityItem.fromMap),
       defaultProjectIds: List<String>.from(map['defaultProjectIds'] ?? []),
-      defaultExperienceIds: List<String>.from(
-        map['defaultExperienceIds'] ?? [],
-      ),
-      skills:
-          (map['skills'] as List<dynamic>?)
-              ?.map((s) => Skill.fromMap(s))
-              .toList() ??
-          [],
-      stats:
-          (map['stats'] as List<dynamic>?)
-              ?.map((s) => Stat.fromMap(s))
-              .toList() ??
-          [],
+      defaultExperienceIds: List<String>.from(map['defaultExperienceIds'] ?? []),
     );
   }
 
-  Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'tagline': tagline,
-      'about': about,
-      'email': email,
-      'github': github,
-      'linkedin': linkedin,
-      'twitter': twitter,
-      'instagram': instagram,
-      'resumeUrl': resumeUrl,
-      'defaultProjectIds': defaultProjectIds,
-      'defaultExperienceIds': defaultExperienceIds,
-      'skills': skills.map((s) => s.toMap()).toList(),
-      'stats': stats.map((s) => s.toMap()).toList(),
-    };
-  }
+  Map<String, dynamic> toMap() => {
+        'name': name,
+        'initials': initials,
+        'role': role,
+        'tagline': tagline,
+        'location': location,
+        'about': about,
+        'summary': summary,
+        'email': email,
+        'phone': phone,
+        'github': github,
+        'linkedin': linkedin,
+        'twitter': twitter,
+        'instagram': instagram,
+        'resumeUrl': resumeUrl,
+        'highlights': highlights.map((e) => e.toMap()).toList(),
+        'skillGroups': skillGroups.map((e) => e.toMap()).toList(),
+        'awards': awards,
+        'education': education.map((e) => e.toMap()).toList(),
+        'quiz': quiz.map((e) => e.toMap()).toList(),
+        'personality': personality.map((e) => e.toMap()).toList(),
+        'defaultProjectIds': defaultProjectIds,
+        'defaultExperienceIds': defaultExperienceIds,
+      };
 
   PortfolioSettings copyWith({
-    String? name,
-    String? tagline,
-    String? about,
-    String? email,
-    String? github,
-    String? linkedin,
-    String? twitter,
-    String? instagram,
-    String? resumeUrl,
-    List<String>? defaultProjectIds,
-    List<String>? defaultExperienceIds,
-    List<Skill>? skills,
-    List<Stat>? stats,
+    String? name, String? initials, String? role, String? tagline, String? location,
+    String? about, String? summary, String? email, String? phone,
+    String? github, String? linkedin, String? twitter, String? instagram, String? resumeUrl,
+    List<Highlight>? highlights, List<SkillGroup>? skillGroups, List<String>? awards,
+    List<EducationEntry>? education, List<QuizQuestion>? quiz, List<PersonalityItem>? personality,
+    List<String>? defaultProjectIds, List<String>? defaultExperienceIds,
   }) {
     return PortfolioSettings(
       name: name ?? this.name,
+      initials: initials ?? this.initials,
+      role: role ?? this.role,
       tagline: tagline ?? this.tagline,
+      location: location ?? this.location,
       about: about ?? this.about,
+      summary: summary ?? this.summary,
       email: email ?? this.email,
+      phone: phone ?? this.phone,
       github: github ?? this.github,
       linkedin: linkedin ?? this.linkedin,
       twitter: twitter ?? this.twitter,
       instagram: instagram ?? this.instagram,
       resumeUrl: resumeUrl ?? this.resumeUrl,
+      highlights: highlights ?? this.highlights,
+      skillGroups: skillGroups ?? this.skillGroups,
+      awards: awards ?? this.awards,
+      education: education ?? this.education,
+      quiz: quiz ?? this.quiz,
+      personality: personality ?? this.personality,
       defaultProjectIds: defaultProjectIds ?? this.defaultProjectIds,
       defaultExperienceIds: defaultExperienceIds ?? this.defaultExperienceIds,
-      skills: skills ?? this.skills,
-      stats: stats ?? this.stats,
     );
   }
 
-  /// Non-null placeholder used only when Firestore has no `settings/main`
-  /// doc yet. Contains NO fake data — real content lives in Firestore and is
-  /// loaded via the seed script or admin dashboard. Empty fields render as
-  /// blank/loading rather than shipping fabricated identity.
-  static PortfolioSettings empty() {
-    return PortfolioSettings(
-      name: '',
-      tagline: '',
-      about: '',
-      email: '',
-    );
-  }
-}
-
-class Skill {
-  final String name;
-  final double level;
-
-  Skill({required this.name, required this.level});
-
-  factory Skill.fromMap(Map<String, dynamic> map) {
-    return Skill(
-      name: map['name'] ?? '',
-      level: (map['level'] ?? 0).toDouble(),
-    );
-  }
-
-  Map<String, dynamic> toMap() => {'name': name, 'level': level};
-}
-
-class Stat {
-  final String value;
-  final String label;
-
-  Stat({required this.value, required this.label});
-
-  factory Stat.fromMap(Map<String, dynamic> map) {
-    return Stat(value: map['value'] ?? '', label: map['label'] ?? '');
-  }
-
-  Map<String, dynamic> toMap() => {'value': value, 'label': label};
+  static PortfolioSettings empty() => PortfolioSettings(name: '', tagline: '', email: '');
 }
 
 class Project {

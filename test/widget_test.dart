@@ -4,41 +4,79 @@ import 'package:lumen/providers/experience_provider.dart';
 import 'package:lumen/providers/narrator_provider.dart';
 
 void main() {
-  group('PortfolioSettings serialization', () {
-    test('settings round-trip through toMap/fromMap', () {
-      final original = PortfolioSettings(
-        name: 'Jaynesh Bhandari',
-        tagline: 'SOFTWARE ENGINEER',
-        about: 'About.',
-        email: 'contact@jaynesh.dev',
-        stats: [Stat(value: '15+', label: 'Projects')],
-        defaultProjectIds: ['p1', 'p2'],
+  group('Broadside model serialization', () {
+    test('Highlight round-trips', () {
+      final h = Highlight(label: 'Hackathons won', value: '3×', note: 'Roux · Start ×2');
+      final r = Highlight.fromMap(h.toMap());
+      expect(r.label, h.label);
+      expect(r.value, h.value);
+      expect(r.note, h.note);
+    });
+
+    test('SkillGroup round-trips and preserves order', () {
+      final g = SkillGroup(category: 'Languages', items: ['Java', 'Python', 'Dart']);
+      final r = SkillGroup.fromMap(g.toMap());
+      expect(r.category, 'Languages');
+      expect(r.items, ['Java', 'Python', 'Dart']);
+    });
+
+    test('EducationEntry round-trips', () {
+      final e = EducationEntry(when: '2024–25', where: 'Northeastern University', what: 'M.S. Computer Science');
+      final r = EducationEntry.fromMap(e.toMap());
+      expect(r.where, 'Northeastern University');
+      expect(r.what, 'M.S. Computer Science');
+    });
+
+    test('QuizQuestion round-trips', () {
+      final q = QuizQuestion(q: 'Go-to language?', options: ['Java', 'Python'], answer: 1, funFact: 'Python.');
+      final r = QuizQuestion.fromMap(q.toMap());
+      expect(r.options, ['Java', 'Python']);
+      expect(r.answer, 1);
+    });
+
+    test('PersonalityItem round-trips', () {
+      final p = PersonalityItem(label: 'Coffee order', value: 'Black, no sugar');
+      final r = PersonalityItem.fromMap(p.toMap());
+      expect(r.value, 'Black, no sugar');
+    });
+
+    test('PortfolioSettings carries all Broadside fields', () {
+      final s = PortfolioSettings(
+        name: 'Jaynesh Bhandari', initials: 'JB', role: 'Software Engineer',
+        tagline: 'Full-stack developer.', location: 'Portland, Maine',
+        email: 'thejaynesh@gmail.com', phone: '+1 207·313·7210',
+        linkedin: 'linkedin.com/in/thejaynesh', github: 'github.com/thejaynesh',
+        summary: "Master's student in CS.",
+        highlights: [Highlight(label: 'Years coding', value: '5+', note: 'since 2018')],
+        skillGroups: [SkillGroup(category: 'Languages', items: ['Java'])],
+        awards: ['1st Place — Start Summit'],
+        education: [EducationEntry(when: '2024–25', where: 'NEU', what: 'M.S. CS')],
+        quiz: [QuizQuestion(q: 'Q', options: ['a', 'b'], answer: 0, funFact: 'f')],
+        personality: [PersonalityItem(label: 'IDE', value: 'VS Code')],
       );
-      final restored = PortfolioSettings.fromMap(original.toMap());
-      expect(restored.name, equals(original.name));
-      expect(restored.tagline, equals(original.tagline));
-      expect(restored.email, equals(original.email));
-      expect(restored.stats.length, equals(original.stats.length));
-      expect(
-        restored.defaultProjectIds,
-        equals(original.defaultProjectIds),
-      );
+      final r = PortfolioSettings.fromMap(s.toMap());
+      expect(r.name, s.name);
+      expect(r.initials, 'JB');
+      expect(r.role, 'Software Engineer');
+      expect(r.location, 'Portland, Maine');
+      expect(r.phone, s.phone);
+      expect(r.summary, s.summary);
+      expect(r.highlights.first.value, '5+');
+      expect(r.skillGroups.first.items, ['Java']);
+      expect(r.awards.first, contains('Start Summit'));
+      expect(r.education.first.where, 'NEU');
+      expect(r.quiz.first.answer, 0);
+      expect(r.personality.first.value, 'VS Code');
     });
 
     test('empty() contains no fabricated data', () {
-      final empty = PortfolioSettings.empty();
-      expect(empty.name, isEmpty);
-      expect(empty.tagline, isEmpty);
-      expect(empty.email, isEmpty);
-      expect(empty.stats, isEmpty);
-      expect(empty.skills, isEmpty);
-    });
-
-    test('Stat serializes and deserializes correctly', () {
-      final stat = Stat(value: '10+', label: 'Projects');
-      final restored = Stat.fromMap(stat.toMap());
-      expect(restored.value, equals('10+'));
-      expect(restored.label, equals('Projects'));
+      final e = PortfolioSettings.empty();
+      expect(e.name, isEmpty);
+      expect(e.highlights, isEmpty);
+      expect(e.skillGroups, isEmpty);
+      expect(e.education, isEmpty);
+      expect(e.quiz, isEmpty);
+      expect(e.personality, isEmpty);
     });
   });
 
