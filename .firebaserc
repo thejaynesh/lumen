@@ -1,5 +1,7 @@
 {
-  "projects": {},
+  "projects": {
+    "default": "lumen-f2e07"
+  },
   "targets": {},
   "etags": {}
 }
