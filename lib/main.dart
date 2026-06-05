@@ -48,6 +48,14 @@ class LumenApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.themeMode,
             routerConfig: appRouter,
+            // Every Broadside screen returns a bare Container (no Scaffold), so
+            // wrap each route in a transparent Material to provide the required
+            // Material ancestor for text — without it Flutter paints debug
+            // yellow underlines under all text.
+            builder: (context, child) => Material(
+              type: MaterialType.transparency,
+              child: child ?? const SizedBox.shrink(),
+            ),
           );
         },
       ),
