@@ -21,7 +21,7 @@ class BroadsideEducation extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHead(
-          number: '§ 05',
+          number: '§ 03',
           title: 'EDUCATION',
           sub: 'The formal stuff',
           dark: dark,

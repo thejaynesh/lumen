@@ -16,7 +16,6 @@ class BroadsideNav extends StatelessWidget {
   final VoidCallback onSkills;
   final VoidCallback onEducation;
   final VoidCallback onCertifications;
-  final VoidCallback onNow;
   final VoidCallback onContact;
   final VoidCallback onToggle;
   final VoidCallback onHome;
@@ -31,7 +30,6 @@ class BroadsideNav extends StatelessWidget {
     required this.onSkills,
     required this.onEducation,
     required this.onCertifications,
-    required this.onNow,
     required this.onContact,
     required this.onToggle,
     required this.onHome,
@@ -94,20 +92,19 @@ class BroadsideNav extends StatelessWidget {
                     spacing: 20,
                     runSpacing: 10,
                     children: [
-                      _NavLink(label: 'Projects', dark: dark, onTap: onWork),
                       _NavLink(
                           label: 'Experience',
                           dark: dark,
                           onTap: onExperience),
-                      _NavLink(label: 'Awards', dark: dark, onTap: onAwards),
-                      _NavLink(label: 'Skills', dark: dark, onTap: onSkills),
+                      _NavLink(label: 'Projects', dark: dark, onTap: onWork),
                       _NavLink(
                           label: 'Education', dark: dark, onTap: onEducation),
+                      _NavLink(label: 'Skills', dark: dark, onTap: onSkills),
+                      _NavLink(label: 'Awards', dark: dark, onTap: onAwards),
                       _NavLink(
                           label: 'Certifications',
                           dark: dark,
                           onTap: onCertifications),
-                      _NavLink(label: 'Now', dark: dark, onTap: onNow),
                       _NavLink(label: 'Contact', dark: dark, onTap: onContact),
                       ThemeToggleButton(dark: dark, onToggle: onToggle),
                     ],

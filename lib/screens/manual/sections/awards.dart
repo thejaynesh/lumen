@@ -21,7 +21,7 @@ class BroadsideAwards extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHead(
-          number: '§ 03',
+          number: '§ 05',
           title: 'AWARDS',
           sub: 'Honors & wins',
           dark: dark,

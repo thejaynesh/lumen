@@ -10,7 +10,6 @@ import '../../theme/broadside_theme.dart';
 import 'sections/awards.dart';
 import 'sections/certifications.dart';
 import 'sections/contact.dart';
-import 'sections/now.dart';
 import 'sections/education.dart';
 import 'sections/experience.dart';
 import 'sections/floating_cta.dart';
@@ -39,7 +38,6 @@ class _ManualPageState extends State<ManualPage> {
   final _skillsKey = GlobalKey();
   final _educationKey = GlobalKey();
   final _certificationsKey = GlobalKey();
-  final _nowKey = GlobalKey();
   final _contactKey = GlobalKey();
   final _heroCtaKey = GlobalKey();
 
@@ -158,15 +156,7 @@ class _ManualPageState extends State<ManualPage> {
                           ),
                           // Stats strip
                           BroadsideStats(settings: settings, dark: dark),
-                          // Work
-                          KeyedSubtree(
-                            key: _workKey,
-                            child: BroadsideWork(
-                              projects: data.projects,
-                              dark: dark,
-                            ),
-                          ),
-                          // Experience
+                          // § 01 Experience
                           KeyedSubtree(
                             key: _experienceKey,
                             child: BroadsideExperience(
@@ -174,23 +164,16 @@ class _ManualPageState extends State<ManualPage> {
                               dark: dark,
                             ),
                           ),
-                          // Awards
+                          // § 02 Projects (with "Currently" sub-block)
                           KeyedSubtree(
-                            key: _awardsKey,
-                            child: BroadsideAwards(
-                              awards: settings.awards,
+                            key: _workKey,
+                            child: BroadsideWork(
+                              projects: data.projects,
+                              now: settings.now,
                               dark: dark,
                             ),
                           ),
-                          // Skills
-                          KeyedSubtree(
-                            key: _skillsKey,
-                            child: BroadsideSkills(
-                              settings: settings,
-                              dark: dark,
-                            ),
-                          ),
-                          // Education
+                          // § 03 Education
                           KeyedSubtree(
                             key: _educationKey,
                             child: BroadsideEducation(
@@ -198,19 +181,27 @@ class _ManualPageState extends State<ManualPage> {
                               dark: dark,
                             ),
                           ),
-                          // Certifications
+                          // § 04 Skills
+                          KeyedSubtree(
+                            key: _skillsKey,
+                            child: BroadsideSkills(
+                              settings: settings,
+                              dark: dark,
+                            ),
+                          ),
+                          // § 05 Awards
+                          KeyedSubtree(
+                            key: _awardsKey,
+                            child: BroadsideAwards(
+                              awards: settings.awards,
+                              dark: dark,
+                            ),
+                          ),
+                          // § 06 Certifications
                           KeyedSubtree(
                             key: _certificationsKey,
                             child: BroadsideCertifications(
                               certifications: settings.certifications,
-                              dark: dark,
-                            ),
-                          ),
-                          // Currently / Now
-                          KeyedSubtree(
-                            key: _nowKey,
-                            child: BroadsideNow(
-                              items: settings.now,
                               dark: dark,
                             ),
                           ),
@@ -251,7 +242,6 @@ class _ManualPageState extends State<ManualPage> {
                   onSkills: () => _scrollTo(_skillsKey),
                   onEducation: () => _scrollTo(_educationKey),
                   onCertifications: () => _scrollTo(_certificationsKey),
-                  onNow: () => _scrollTo(_nowKey),
                   onContact: () => _scrollTo(_contactKey),
                   onToggle: () => context.read<ThemeProvider>().toggleTheme(),
                   onHome: () => context.read<ExperienceProvider>().reset(),

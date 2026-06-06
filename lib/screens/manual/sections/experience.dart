@@ -21,7 +21,7 @@ class BroadsideExperience extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHead(
-          number: '§ 02',
+          number: '§ 01',
           title: 'EXPERIENCE',
           sub: 'Where the time went',
           dark: dark,

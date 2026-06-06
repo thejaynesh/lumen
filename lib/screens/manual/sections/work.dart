@@ -7,11 +7,13 @@ import '../../../widgets/broadside/primitives.dart';
 
 class BroadsideWork extends StatelessWidget {
   final List<Project> projects;
+  final List<String> now;
   final bool dark;
 
   const BroadsideWork({
     required this.projects,
     required this.dark,
+    this.now = const [],
     super.key,
   });
 
@@ -25,11 +27,51 @@ class BroadsideWork extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHead(
-          number: '§ 01',
+          number: '§ 02',
           title: 'PROJECTS',
           sub: 'Selected builds',
           dark: dark,
         ),
+        // "Currently" sub-block — what's in flight right now.
+        if (now.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 20, bottom: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Kicker('Currently', dark: dark, color: Broadside.accent(dark)),
+                const SizedBox(height: 10),
+                ...now.map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '→',
+                          style: BroadsideText.serif(
+                            size: 16,
+                            color: Broadside.accent(dark),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            item,
+                            style: BroadsideText.sans(
+                              size: 14.5,
+                              color: Broadside.inkSoft(dark),
+                              height: 1.5,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ...List.generate(builds.length, (i) {
           final p = builds[i];
           return Container(
