@@ -17,6 +17,9 @@ class BroadsideSkills extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
+    final mobile = w < 760;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -41,25 +44,40 @@ class BroadsideSkills extends StatelessWidget {
                   ),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: 140,
-                      child: Kicker(group.category, dark: dark),
-                    ),
-                    const SizedBox(width: 18),
-                    Expanded(
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: group.items
-                            .map((s) => BroadTag(s, dark: dark))
-                            .toList(),
+                child: mobile
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Kicker(group.category, dark: dark),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: group.items
+                                .map((s) => BroadTag(s, dark: dark))
+                                .toList(),
+                          ),
+                        ],
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 140,
+                            child: Kicker(group.category, dark: dark),
+                          ),
+                          const SizedBox(width: 18),
+                          Expanded(
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: group.items
+                                  .map((s) => BroadTag(s, dark: dark))
+                                  .toList(),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
               );
             }).toList(),
           ),

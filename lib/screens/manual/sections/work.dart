@@ -19,6 +19,9 @@ class BroadsideWork extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
+    final mobile = w < 760;
+
     // Projects = real builds only; hackathons live in the Awards section.
     final builds = projects
         .where((p) => !p.tag.toLowerCase().contains('hackathon'))
@@ -74,6 +77,86 @@ class BroadsideWork extends StatelessWidget {
           ),
         ...List.generate(builds.length, (i) {
           final p = builds[i];
+          if (mobile) {
+            return Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(color: Broadside.rule(dark)),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 22),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Number (smaller, inline with tag kickers)
+                  Text(
+                    '0${i + 1}',
+                    style: BroadsideText.serif(
+                      size: 44,
+                      height: 0.85,
+                      letterSpacing: -0.04,
+                      color: Broadside.accent(dark),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Tag + KPI kickers
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 4,
+                    children: [
+                      if (p.tag.isNotEmpty) Kicker(p.tag, dark: dark),
+                      if (p.kpi.isNotEmpty)
+                        Kicker(
+                          '↳ ${p.kpi}',
+                          dark: dark,
+                          color: Broadside.accent(dark),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Title
+                  Text(
+                    p.title,
+                    style: BroadsideText.serif(
+                      size: 30,
+                      height: 1.05,
+                      letterSpacing: -0.02,
+                      color: Broadside.ink(dark),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Description (full width)
+                  Text(
+                    p.description,
+                    style: BroadsideText.sans(
+                      size: 14,
+                      color: Broadside.inkSoft(dark),
+                      height: 1.6,
+                    ),
+                  ),
+                  // Image (only if set)
+                  if (p.imageUrl != null && p.imageUrl!.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    ImagePlaceholder(
+                      aspect: 16 / 7,
+                      label: 'FIG. 0${i + 1} · ${p.title.toUpperCase()}',
+                      dark: dark,
+                      imageUrl: p.imageUrl,
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  // Tech stack tags (left-aligned)
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: p.techStack
+                        .map((s) => BroadTag(s, dark: dark, mini: true))
+                        .toList(),
+                  ),
+                ],
+              ),
+            );
+          }
           return Container(
             decoration: BoxDecoration(
               border: Border(

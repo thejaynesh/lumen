@@ -17,6 +17,9 @@ class BroadsideAwards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (awards.isEmpty) return const SizedBox.shrink();
+    final w = MediaQuery.sizeOf(context).width;
+    final mobile = w < 760;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -48,7 +51,7 @@ class BroadsideAwards extends StatelessWidget {
                       child: Text(
                         '0${i + 1}',
                         style: BroadsideText.serif(
-                          size: 32,
+                          size: mobile ? 24 : 32,
                           color: Broadside.accent(dark),
                           letterSpacing: -0.02,
                         ),
@@ -70,7 +73,7 @@ class BroadsideAwards extends StatelessWidget {
                       child: Text(
                         awards[i],
                         style: BroadsideText.serif(
-                          size: 22,
+                          size: mobile ? 18 : 22,
                           color: Broadside.ink(dark),
                           height: 1.2,
                         ),

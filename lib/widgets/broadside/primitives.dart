@@ -64,9 +64,11 @@ class SectionHead extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
+    final mobile = w < 760;
     return Container(
       margin: const EdgeInsets.only(top: 32),
-      padding: const EdgeInsets.only(top: 52, bottom: 24),
+      padding: EdgeInsets.only(top: mobile ? 36 : 52, bottom: 24),
       decoration: BoxDecoration(
         border: Border(
           top: BorderSide(color: Broadside.ink(dark), width: 1.5),
@@ -76,22 +78,27 @@ class SectionHead extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Kicker(number, dark: dark),
-              const SizedBox(width: 22),
-              Text(
-                title,
-                style: BroadsideText.serif(
-                  size: 72,
-                  color: Broadside.ink(dark),
-                  height: 1.0,
-                  letterSpacing: -0.02,
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Kicker(number, dark: dark),
+                const SizedBox(width: 22),
+                Flexible(
+                  child: Text(
+                    title,
+                    style: BroadsideText.serif(
+                      size: mobile ? 40 : 72,
+                      color: Broadside.ink(dark),
+                      height: 1.0,
+                      letterSpacing: -0.02,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
           Kicker(sub, dark: dark),
         ],
       ),

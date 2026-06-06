@@ -25,6 +25,87 @@ class BroadsideContact extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
+    final mobile = w < 760;
+    final double emailSize = mobile ? 28 : 36;
+
+    final col1 = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Kicker('Get in touch', dark: dark),
+        const SizedBox(height: 14),
+        GestureDetector(
+          onTap: () => _launch('mailto:${settings.email}'),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: Container(
+              padding: const EdgeInsets.only(bottom: 6),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Broadside.accent(dark),
+                  ),
+                ),
+              ),
+              child: Text(
+                settings.email,
+                style: BroadsideText.serif(
+                  size: emailSize,
+                  color: Broadside.ink(dark),
+                  style: FontStyle.italic,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+        if (settings.phone.isNotEmpty) Kicker(settings.phone, dark: dark),
+      ],
+    );
+
+    final col2 = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Kicker('Links', dark: dark),
+        const SizedBox(height: 12),
+        if (settings.github != null && settings.github!.isNotEmpty)
+          _LinkItem(
+            label: '↳ GitHub',
+            dark: dark,
+            url: 'https://${settings.github}',
+          ),
+        const SizedBox(height: 8),
+        if (settings.linkedin != null && settings.linkedin!.isNotEmpty)
+          _LinkItem(
+            label: '↳ LinkedIn',
+            dark: dark,
+            url: 'https://${settings.linkedin}',
+          ),
+        const SizedBox(height: 8),
+        _LinkItem(
+          label: '↳ Email',
+          dark: dark,
+          url: 'mailto:${settings.email}',
+        ),
+      ],
+    );
+
+    final col3 = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Kicker('Colophon', dark: dark),
+        const SizedBox(height: 12),
+        Text(
+          'Set in Instrument Serif & Inter Tight, with Geist Mono for the small print. Designed in the Broadside style — bold, numbered, and direct.',
+          style: BroadsideText.sans(
+            size: 12.5,
+            color: Broadside.inkSoft(dark),
+            height: 1.6,
+          ),
+        ),
+      ],
+    );
+
     return Container(
       margin: const EdgeInsets.only(top: 48),
       decoration: BoxDecoration(
@@ -35,108 +116,30 @@ class BroadsideContact extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Main 3-col row
+          // Main content area
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 0,
-              vertical: 44,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Col 1 — email + phone (flex 14)
-                Expanded(
-                  flex: 14,
-                  child: Column(
+            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 44),
+            child: mobile
+                ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Kicker('Get in touch', dark: dark),
-                      const SizedBox(height: 14),
-                      GestureDetector(
-                        onTap: () => _launch('mailto:${settings.email}'),
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: Container(
-                            padding: const EdgeInsets.only(bottom: 6),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Broadside.accent(dark),
-                                ),
-                              ),
-                            ),
-                            child: Text(
-                              settings.email,
-                              style: BroadsideText.serif(
-                                size: 36,
-                                color: Broadside.ink(dark),
-                                style: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      if (settings.phone.isNotEmpty)
-                        Kicker(settings.phone, dark: dark),
+                      col1,
+                      const SizedBox(height: 28),
+                      col2,
+                      const SizedBox(height: 28),
+                      col3,
                     ],
-                  ),
-                ),
-                const SizedBox(width: 40),
-                // Col 2 — links (flex 10)
-                Expanded(
-                  flex: 10,
-                  child: Column(
+                  )
+                : Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Kicker('Links', dark: dark),
-                      const SizedBox(height: 12),
-                      if (settings.github != null &&
-                          settings.github!.isNotEmpty)
-                        _LinkItem(
-                          label: '↳ GitHub',
-                          dark: dark,
-                          url: 'https://${settings.github}',
-                        ),
-                      const SizedBox(height: 8),
-                      if (settings.linkedin != null &&
-                          settings.linkedin!.isNotEmpty)
-                        _LinkItem(
-                          label: '↳ LinkedIn',
-                          dark: dark,
-                          url: 'https://${settings.linkedin}',
-                        ),
-                      const SizedBox(height: 8),
-                      _LinkItem(
-                        label: '↳ Email',
-                        dark: dark,
-                        url: 'mailto:${settings.email}',
-                      ),
+                      Expanded(flex: 14, child: col1),
+                      const SizedBox(width: 40),
+                      Expanded(flex: 10, child: col2),
+                      const SizedBox(width: 40),
+                      Expanded(flex: 10, child: col3),
                     ],
                   ),
-                ),
-                const SizedBox(width: 40),
-                // Col 3 — colophon (flex 10)
-                Expanded(
-                  flex: 10,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Kicker('Colophon', dark: dark),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Set in Instrument Serif & Inter Tight, with Geist Mono for the small print. Designed in the Broadside style — bold, numbered, and direct.',
-                        style: BroadsideText.sans(
-                          size: 12.5,
-                          color: Broadside.inkSoft(dark),
-                          height: 1.6,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
           ),
           // Bottom bar
           Container(
@@ -149,16 +152,28 @@ class BroadsideContact extends StatelessWidget {
               horizontal: 0,
               vertical: 16,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Kicker('© 2026 ${settings.name}', dark: dark),
-                Kicker(
-                  'Built with care, one weekend at a time',
-                  dark: dark,
-                ),
-              ],
-            ),
+            child: mobile
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Kicker('© 2026 ${settings.name}', dark: dark),
+                      const SizedBox(height: 6),
+                      Kicker(
+                        'Built with care, one weekend at a time',
+                        dark: dark,
+                      ),
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Kicker('© 2026 ${settings.name}', dark: dark),
+                      Kicker(
+                        'Built with care, one weekend at a time',
+                        dark: dark,
+                      ),
+                    ],
+                  ),
           ),
         ],
       ),

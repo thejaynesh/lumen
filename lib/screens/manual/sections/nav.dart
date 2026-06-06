@@ -38,6 +38,8 @@ class BroadsideNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = MediaQuery.sizeOf(context).width;
+    final mobile = w < 760;
     Widget bar = Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -71,7 +73,7 @@ class BroadsideNav extends StatelessWidget {
                         Text(
                           name.toUpperCase(),
                           style: BroadsideText.serif(
-                            size: 22,
+                            size: mobile ? 17 : 22,
                             color: Broadside.ink(dark),
                           ),
                         ),
@@ -82,34 +84,35 @@ class BroadsideNav extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 24),
-                // Nav links + toggle. Wrap (not Row) so the link set can never
-                // overflow the bar on narrower windows — it wraps to a second
-                // line instead.
-                Flexible(
-                  child: Wrap(
-                    alignment: WrapAlignment.end,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    spacing: 20,
-                    runSpacing: 10,
-                    children: [
-                      _NavLink(
-                          label: 'Experience',
-                          dark: dark,
-                          onTap: onExperience),
-                      _NavLink(label: 'Projects', dark: dark, onTap: onWork),
-                      _NavLink(
-                          label: 'Education', dark: dark, onTap: onEducation),
-                      _NavLink(label: 'Skills', dark: dark, onTap: onSkills),
-                      _NavLink(label: 'Awards', dark: dark, onTap: onAwards),
-                      _NavLink(
-                          label: 'Certifications',
-                          dark: dark,
-                          onTap: onCertifications),
-                      _NavLink(label: 'Contact', dark: dark, onTap: onContact),
-                      ThemeToggleButton(dark: dark, onToggle: onToggle),
-                    ],
+                // Nav links + toggle. On mobile show only the toggle.
+                if (mobile)
+                  ThemeToggleButton(dark: dark, onToggle: onToggle)
+                else
+                  Flexible(
+                    child: Wrap(
+                      alignment: WrapAlignment.end,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 20,
+                      runSpacing: 10,
+                      children: [
+                        _NavLink(
+                            label: 'Experience',
+                            dark: dark,
+                            onTap: onExperience),
+                        _NavLink(label: 'Projects', dark: dark, onTap: onWork),
+                        _NavLink(
+                            label: 'Education', dark: dark, onTap: onEducation),
+                        _NavLink(label: 'Skills', dark: dark, onTap: onSkills),
+                        _NavLink(label: 'Awards', dark: dark, onTap: onAwards),
+                        _NavLink(
+                            label: 'Certifications',
+                            dark: dark,
+                            onTap: onCertifications),
+                        _NavLink(label: 'Contact', dark: dark, onTap: onContact),
+                        ThemeToggleButton(dark: dark, onToggle: onToggle),
+                      ],
+                    ),
                   ),
-                ),
               ],
             ),
           ),

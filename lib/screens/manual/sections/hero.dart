@@ -24,6 +24,8 @@ class BroadsideHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = data.settings;
+    final w = MediaQuery.sizeOf(context).width;
+    final mobile = w < 760;
 
     // Split name into first part and last word
     final nameParts = settings.name.trim().split(' ');
@@ -39,6 +41,89 @@ class BroadsideHero extends StatelessWidget {
       firstLine = '';
       secondLine = '${settings.name.toUpperCase()}.';
     }
+
+    final double nameSize = mobile ? (w < 400 ? 44 : 56) : 130;
+    final double statementSize = mobile ? 28 : 42;
+
+    // CTA buttons widget (shared between mobile and desktop paths)
+    final ctaButtons = KeyedSubtree(
+      key: ctaKey,
+      child: Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: [
+          BtnPrimary(
+            label: 'View projects ↘',
+            dark: dark,
+            onTap: onViewWork,
+          ),
+          BtnGhost(
+            label: 'Email me',
+            dark: dark,
+            href: 'mailto:${settings.email}',
+          ),
+          BtnGhost(
+            label: 'Résumé ↓',
+            dark: dark,
+            onTap: onContact,
+          ),
+        ],
+      ),
+    );
+
+    final statementText = RichText(
+      text: TextSpan(
+        style: BroadsideText.serif(
+          size: statementSize,
+          height: 1.05,
+          letterSpacing: -0.01,
+          color: Broadside.ink(dark),
+        ),
+        children: [
+          const TextSpan(text: 'A '),
+          TextSpan(
+            text: 'software engineer',
+            style: BroadsideText.serif(
+              size: statementSize,
+              height: 1.05,
+              letterSpacing: -0.01,
+              color: Broadside.accent(dark),
+              style: FontStyle.italic,
+            ),
+          ),
+          TextSpan(
+            text:
+                ' who builds back-end systems, wins hackathons, and ships full-stack products.',
+            style: BroadsideText.serif(
+              size: statementSize,
+              height: 1.05,
+              letterSpacing: -0.01,
+              color: Broadside.ink(dark),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final summaryBlock = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          settings.summary,
+          style: BroadsideText.sans(
+            size: 15,
+            color: Broadside.inkSoft(dark),
+            height: 1.65,
+          ),
+        ),
+        const SizedBox(height: 18),
+        Kicker(
+          'OPEN TO WORK →',
+          dark: dark,
+          color: Broadside.accent(dark),
+        ),
+      ],
+    );
 
     return Padding(
       padding: const EdgeInsets.only(top: 120, bottom: 48),
@@ -57,10 +142,13 @@ class BroadsideHero extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
-                Kicker('№ 001 · PORTFOLIO', dark: dark),
-                Kicker(
-                  '${settings.location.toUpperCase()} · 2026',
-                  dark: dark,
+                Flexible(child: Kicker('№ 001 · PORTFOLIO', dark: dark)),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Kicker(
+                    '${settings.location.toUpperCase()} · 2026',
+                    dark: dark,
+                  ),
                 ),
               ],
             ),
@@ -82,7 +170,7 @@ class BroadsideHero extends StatelessWidget {
                     Text(
                       firstLine,
                       style: BroadsideText.serif(
-                        size: 130,
+                        size: nameSize,
                         height: 0.88,
                         letterSpacing: -0.04,
                         color: Broadside.ink(dark),
@@ -91,7 +179,7 @@ class BroadsideHero extends StatelessWidget {
                   Text(
                     secondLine,
                     style: BroadsideText.serif(
-                      size: 130,
+                      size: nameSize,
                       height: 0.88,
                       letterSpacing: -0.04,
                       color: Broadside.ink(dark),
@@ -102,104 +190,42 @@ class BroadsideHero extends StatelessWidget {
               ),
             ),
 
-            // Two-column intro
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Left — statement + CTA
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          style: BroadsideText.serif(
-                            size: 42,
-                            height: 1.05,
-                            letterSpacing: -0.01,
-                            color: Broadside.ink(dark),
-                          ),
-                          children: [
-                            const TextSpan(text: 'A '),
-                            TextSpan(
-                              text: 'software engineer',
-                              style: BroadsideText.serif(
-                                size: 42,
-                                height: 1.05,
-                                letterSpacing: -0.01,
-                                color: Broadside.accent(dark),
-                                style: FontStyle.italic,
-                              ),
-                            ),
-                            TextSpan(
-                              text:
-                                  ' who builds back-end systems, wins hackathons, and ships full-stack products.',
-                              style: BroadsideText.serif(
-                                size: 42,
-                                height: 1.05,
-                                letterSpacing: -0.01,
-                                color: Broadside.ink(dark),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      // CTA buttons — wrapped with ctaKey
-                      KeyedSubtree(
-                        key: ctaKey,
-                        child: Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: [
-                            BtnPrimary(
-                              label: 'View projects ↘',
-                              dark: dark,
-                              onTap: onViewWork,
-                            ),
-                            BtnGhost(
-                              label: 'Email me',
-                              dark: dark,
-                              href: 'mailto:${settings.email}',
-                            ),
-                            BtnGhost(
-                              label: 'Résumé ↓',
-                              dark: dark,
-                              onTap: onContact,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+            // Two-column intro (desktop) or stacked (mobile)
+            if (mobile)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  statementText,
+                  const SizedBox(height: 28),
+                  ctaButtons,
+                  const SizedBox(height: 28),
+                  summaryBlock,
+                ],
+              )
+            else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Left — statement + CTA
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        statementText,
+                        const SizedBox(height: 28),
+                        ctaButtons,
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 48),
-                // Right — summary + open to work
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        settings.summary,
-                        style: BroadsideText.sans(
-                          size: 15,
-                          color: Broadside.inkSoft(dark),
-                          height: 1.65,
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      Kicker(
-                        'OPEN TO WORK →',
-                        dark: dark,
-                        color: Broadside.accent(dark),
-                      ),
-                    ],
+                  const SizedBox(width: 48),
+                  // Right — summary + open to work
+                  Expanded(
+                    flex: 2,
+                    child: summaryBlock,
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             const SizedBox(height: 48),
           ],
         ),

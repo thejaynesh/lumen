@@ -131,6 +131,8 @@ class _ManualPageState extends State<ManualPage> {
 
               final settings = data.settings;
 
+              final w = MediaQuery.sizeOf(context).width;
+              final mobile = w < 760;
               return SingleChildScrollView(
                 controller: _scroll,
                 child: Align(
@@ -140,8 +142,8 @@ class _ManualPageState extends State<ManualPage> {
                       maxWidth: Broadside.maxWidth,
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Broadside.pagePad,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: mobile ? 20 : Broadside.pagePad,
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
