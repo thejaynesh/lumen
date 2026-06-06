@@ -7,6 +7,7 @@ import '../../providers/experience_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/portfolio_service.dart';
 import '../../theme/broadside_theme.dart';
+import 'sections/awards.dart';
 import 'sections/contact.dart';
 import 'sections/education.dart';
 import 'sections/experience.dart';
@@ -32,6 +33,7 @@ class _ManualPageState extends State<ManualPage> {
   // Section anchor keys
   final _workKey = GlobalKey();
   final _experienceKey = GlobalKey();
+  final _awardsKey = GlobalKey();
   final _skillsKey = GlobalKey();
   final _educationKey = GlobalKey();
   final _contactKey = GlobalKey();
@@ -168,6 +170,14 @@ class _ManualPageState extends State<ManualPage> {
                               dark: dark,
                             ),
                           ),
+                          // Awards
+                          KeyedSubtree(
+                            key: _awardsKey,
+                            child: BroadsideAwards(
+                              awards: settings.awards,
+                              dark: dark,
+                            ),
+                          ),
                           // Skills
                           KeyedSubtree(
                             key: _skillsKey,
@@ -217,6 +227,7 @@ class _ManualPageState extends State<ManualPage> {
                   name: name,
                   onWork: () => _scrollTo(_workKey),
                   onExperience: () => _scrollTo(_experienceKey),
+                  onAwards: () => _scrollTo(_awardsKey),
                   onSkills: () => _scrollTo(_skillsKey),
                   onEducation: () => _scrollTo(_educationKey),
                   onContact: () => _scrollTo(_contactKey),

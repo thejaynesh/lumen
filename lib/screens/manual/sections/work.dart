@@ -17,17 +17,21 @@ class BroadsideWork extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Projects = real builds only; hackathons live in the Awards section.
+    final builds = projects
+        .where((p) => !p.tag.toLowerCase().contains('hackathon'))
+        .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHead(
           number: '§ 01',
-          title: 'WORK',
-          sub: 'A selection — newest first',
+          title: 'PROJECTS',
+          sub: 'Selected builds',
           dark: dark,
         ),
-        ...List.generate(projects.length, (i) {
-          final p = projects[i];
+        ...List.generate(builds.length, (i) {
+          final p = builds[i];
           return Container(
             decoration: BoxDecoration(
               border: Border(

@@ -22,7 +22,7 @@ class BroadsideExperience extends StatelessWidget {
       children: [
         SectionHead(
           number: '§ 02',
-          title: 'HISTORY',
+          title: 'EXPERIENCE',
           sub: 'Where the time went',
           dark: dark,
         ),

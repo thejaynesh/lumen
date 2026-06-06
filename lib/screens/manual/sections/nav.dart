@@ -12,6 +12,7 @@ class BroadsideNav extends StatelessWidget {
   final String name;
   final VoidCallback onWork;
   final VoidCallback onExperience;
+  final VoidCallback onAwards;
   final VoidCallback onSkills;
   final VoidCallback onEducation;
   final VoidCallback onContact;
@@ -24,6 +25,7 @@ class BroadsideNav extends StatelessWidget {
     required this.name,
     required this.onWork,
     required this.onExperience,
+    required this.onAwards,
     required this.onSkills,
     required this.onEducation,
     required this.onContact,
@@ -81,7 +83,7 @@ class BroadsideNav extends StatelessWidget {
                 Row(
                   children: [
                     _NavLink(
-                      label: 'Work',
+                      label: 'Projects',
                       dark: dark,
                       onTap: onWork,
                     ),
@@ -90,6 +92,12 @@ class BroadsideNav extends StatelessWidget {
                       label: 'Experience',
                       dark: dark,
                       onTap: onExperience,
+                    ),
+                    const SizedBox(width: 28),
+                    _NavLink(
+                      label: 'Awards',
+                      dark: dark,
+                      onTap: onAwards,
                     ),
                     const SizedBox(width: 28),
                     _NavLink(
