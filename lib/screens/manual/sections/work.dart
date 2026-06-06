@@ -34,24 +34,24 @@ class BroadsideWork extends StatelessWidget {
                 top: BorderSide(color: Broadside.rule(dark)),
               ),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 28),
+            padding: const EdgeInsets.symmetric(vertical: 22),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Number column
                 SizedBox(
-                  width: 90,
+                  width: 64,
                   child: Text(
                     '0${i + 1}',
                     style: BroadsideText.serif(
-                      size: 80,
+                      size: 56,
                       height: 0.85,
                       letterSpacing: -0.04,
                       color: Broadside.accent(dark),
                     ),
                   ),
                 ),
-                const SizedBox(width: 28),
+                const SizedBox(width: 24),
                 // Content column
                 Expanded(
                   child: Column(
@@ -77,8 +77,8 @@ class BroadsideWork extends StatelessWidget {
                       Text(
                         p.title,
                         style: BroadsideText.serif(
-                          size: 40,
-                          height: 1.0,
+                          size: 30,
+                          height: 1.05,
                           letterSpacing: -0.02,
                           color: Broadside.ink(dark),
                         ),
@@ -86,25 +86,27 @@ class BroadsideWork extends StatelessWidget {
                       const SizedBox(height: 8),
                       // Description
                       ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 580),
+                        constraints: const BoxConstraints(maxWidth: 620),
                         child: Text(
                           p.description,
                           style: BroadsideText.sans(
-                            size: 14.5,
+                            size: 14,
                             color: Broadside.inkSoft(dark),
                             height: 1.6,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      // Image placeholder
-                      ImagePlaceholder(
-                        aspect: 16 / 7,
-                        label:
-                            'FIG. 0${i + 1} · ${p.title.toUpperCase()}',
-                        dark: dark,
-                        imageUrl: p.imageUrl,
-                      ),
+                      // Show a screenshot only when one exists; the empty
+                      // placeholder made each project feel oversized.
+                      if (p.imageUrl != null && p.imageUrl!.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        ImagePlaceholder(
+                          aspect: 16 / 7,
+                          label: 'FIG. 0${i + 1} · ${p.title.toUpperCase()}',
+                          dark: dark,
+                          imageUrl: p.imageUrl,
+                        ),
+                      ],
                     ],
                   ),
                 ),
