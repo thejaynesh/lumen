@@ -57,7 +57,9 @@ class LumenApp extends StatelessWidget {
             // yellow underlines under all text.
             builder: (context, child) => Material(
               type: MaterialType.transparency,
-              child: child ?? const SizedBox.shrink(),
+              // SelectionArea makes the canvas-rendered text selectable
+              // (CanvasKit text isn't selectable otherwise).
+              child: SelectionArea(child: child ?? const SizedBox.shrink()),
             ),
           );
         },
