@@ -42,7 +42,7 @@ class LumenApp extends StatelessWidget {
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return MaterialApp.router(
-            title: 'Lumen Portfolio',
+            title: 'Jaynesh Bhandari · Software Engineer',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
