@@ -15,6 +15,8 @@ class BroadsideNav extends StatelessWidget {
   final VoidCallback onAwards;
   final VoidCallback onSkills;
   final VoidCallback onEducation;
+  final VoidCallback onCertifications;
+  final VoidCallback onNow;
   final VoidCallback onContact;
   final VoidCallback onToggle;
   final VoidCallback onHome;
@@ -28,6 +30,8 @@ class BroadsideNav extends StatelessWidget {
     required this.onAwards,
     required this.onSkills,
     required this.onEducation,
+    required this.onCertifications,
+    required this.onNow,
     required this.onContact,
     required this.onToggle,
     required this.onHome,
@@ -79,47 +83,35 @@ class BroadsideNav extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Nav links + toggle
-                Row(
-                  children: [
-                    _NavLink(
-                      label: 'Projects',
-                      dark: dark,
-                      onTap: onWork,
-                    ),
-                    const SizedBox(width: 28),
-                    _NavLink(
-                      label: 'Experience',
-                      dark: dark,
-                      onTap: onExperience,
-                    ),
-                    const SizedBox(width: 28),
-                    _NavLink(
-                      label: 'Awards',
-                      dark: dark,
-                      onTap: onAwards,
-                    ),
-                    const SizedBox(width: 28),
-                    _NavLink(
-                      label: 'Skills',
-                      dark: dark,
-                      onTap: onSkills,
-                    ),
-                    const SizedBox(width: 28),
-                    _NavLink(
-                      label: 'Education',
-                      dark: dark,
-                      onTap: onEducation,
-                    ),
-                    const SizedBox(width: 28),
-                    _NavLink(
-                      label: 'Contact',
-                      dark: dark,
-                      onTap: onContact,
-                    ),
-                    const SizedBox(width: 28),
-                    ThemeToggleButton(dark: dark, onToggle: onToggle),
-                  ],
+                const SizedBox(width: 24),
+                // Nav links + toggle. Wrap (not Row) so the link set can never
+                // overflow the bar on narrower windows — it wraps to a second
+                // line instead.
+                Flexible(
+                  child: Wrap(
+                    alignment: WrapAlignment.end,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 20,
+                    runSpacing: 10,
+                    children: [
+                      _NavLink(label: 'Projects', dark: dark, onTap: onWork),
+                      _NavLink(
+                          label: 'Experience',
+                          dark: dark,
+                          onTap: onExperience),
+                      _NavLink(label: 'Awards', dark: dark, onTap: onAwards),
+                      _NavLink(label: 'Skills', dark: dark, onTap: onSkills),
+                      _NavLink(
+                          label: 'Education', dark: dark, onTap: onEducation),
+                      _NavLink(
+                          label: 'Certifications',
+                          dark: dark,
+                          onTap: onCertifications),
+                      _NavLink(label: 'Now', dark: dark, onTap: onNow),
+                      _NavLink(label: 'Contact', dark: dark, onTap: onContact),
+                      ThemeToggleButton(dark: dark, onToggle: onToggle),
+                    ],
+                  ),
                 ),
               ],
             ),

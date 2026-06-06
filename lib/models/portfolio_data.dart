@@ -53,6 +53,20 @@ class PersonalityItem {
   Map<String, dynamic> toMap() => {'label': label, 'value': value};
 }
 
+class Certification {
+  final String name;
+  final String issuer;
+  final String year;
+  Certification({required this.name, this.issuer = '', this.year = ''});
+  factory Certification.fromMap(Map<String, dynamic> m) => Certification(
+        name: m['name'] ?? '',
+        issuer: m['issuer'] ?? '',
+        year: m['year'] ?? '',
+      );
+  Map<String, dynamic> toMap() =>
+      {'name': name, 'issuer': issuer, 'year': year};
+}
+
 class PortfolioSettings {
   final String name;
   final String initials;
@@ -74,6 +88,8 @@ class PortfolioSettings {
   final List<EducationEntry> education;
   final List<QuizQuestion> quiz;
   final List<PersonalityItem> personality;
+  final List<Certification> certifications;
+  final List<String> now;
   final List<String> defaultProjectIds;
   final List<String> defaultExperienceIds;
 
@@ -98,6 +114,8 @@ class PortfolioSettings {
     this.education = const [],
     this.quiz = const [],
     this.personality = const [],
+    this.certifications = const [],
+    this.now = const [],
     this.defaultProjectIds = const [],
     this.defaultExperienceIds = const [],
   });
@@ -126,6 +144,8 @@ class PortfolioSettings {
       education: list('education', EducationEntry.fromMap),
       quiz: list('quiz', QuizQuestion.fromMap),
       personality: list('personality', PersonalityItem.fromMap),
+      certifications: list('certifications', Certification.fromMap),
+      now: List<String>.from(map['now'] ?? []),
       defaultProjectIds: List<String>.from(map['defaultProjectIds'] ?? []),
       defaultExperienceIds: List<String>.from(map['defaultExperienceIds'] ?? []),
     );
@@ -152,6 +172,8 @@ class PortfolioSettings {
         'education': education.map((e) => e.toMap()).toList(),
         'quiz': quiz.map((e) => e.toMap()).toList(),
         'personality': personality.map((e) => e.toMap()).toList(),
+        'certifications': certifications.map((e) => e.toMap()).toList(),
+        'now': now,
         'defaultProjectIds': defaultProjectIds,
         'defaultExperienceIds': defaultExperienceIds,
       };
@@ -162,6 +184,7 @@ class PortfolioSettings {
     String? github, String? linkedin, String? twitter, String? instagram, String? resumeUrl,
     List<Highlight>? highlights, List<SkillGroup>? skillGroups, List<String>? awards,
     List<EducationEntry>? education, List<QuizQuestion>? quiz, List<PersonalityItem>? personality,
+    List<Certification>? certifications, List<String>? now,
     List<String>? defaultProjectIds, List<String>? defaultExperienceIds,
   }) {
     return PortfolioSettings(
@@ -185,6 +208,8 @@ class PortfolioSettings {
       education: education ?? this.education,
       quiz: quiz ?? this.quiz,
       personality: personality ?? this.personality,
+      certifications: certifications ?? this.certifications,
+      now: now ?? this.now,
       defaultProjectIds: defaultProjectIds ?? this.defaultProjectIds,
       defaultExperienceIds: defaultExperienceIds ?? this.defaultExperienceIds,
     );

@@ -8,7 +8,9 @@ import '../../providers/theme_provider.dart';
 import '../../services/portfolio_service.dart';
 import '../../theme/broadside_theme.dart';
 import 'sections/awards.dart';
+import 'sections/certifications.dart';
 import 'sections/contact.dart';
+import 'sections/now.dart';
 import 'sections/education.dart';
 import 'sections/experience.dart';
 import 'sections/floating_cta.dart';
@@ -36,6 +38,8 @@ class _ManualPageState extends State<ManualPage> {
   final _awardsKey = GlobalKey();
   final _skillsKey = GlobalKey();
   final _educationKey = GlobalKey();
+  final _certificationsKey = GlobalKey();
+  final _nowKey = GlobalKey();
   final _contactKey = GlobalKey();
   final _heroCtaKey = GlobalKey();
 
@@ -194,6 +198,22 @@ class _ManualPageState extends State<ManualPage> {
                               dark: dark,
                             ),
                           ),
+                          // Certifications
+                          KeyedSubtree(
+                            key: _certificationsKey,
+                            child: BroadsideCertifications(
+                              certifications: settings.certifications,
+                              dark: dark,
+                            ),
+                          ),
+                          // Currently / Now
+                          KeyedSubtree(
+                            key: _nowKey,
+                            child: BroadsideNow(
+                              items: settings.now,
+                              dark: dark,
+                            ),
+                          ),
                           // Contact / Footer
                           KeyedSubtree(
                             key: _contactKey,
@@ -230,6 +250,8 @@ class _ManualPageState extends State<ManualPage> {
                   onAwards: () => _scrollTo(_awardsKey),
                   onSkills: () => _scrollTo(_skillsKey),
                   onEducation: () => _scrollTo(_educationKey),
+                  onCertifications: () => _scrollTo(_certificationsKey),
+                  onNow: () => _scrollTo(_nowKey),
                   onContact: () => _scrollTo(_contactKey),
                   onToggle: () => context.read<ThemeProvider>().toggleTheme(),
                   onHome: () => context.read<ExperienceProvider>().reset(),

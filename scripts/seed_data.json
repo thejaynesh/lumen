@@ -32,7 +32,6 @@
     ],
     "education": [
       { "when": "2024–25", "where": "Northeastern University", "what": "M.S. Computer Science" },
-      { "when": "2025", "where": "CodePath", "what": "Technical Interview Prep" },
       { "when": "2018–22", "where": "Medi-Caps University", "what": "B.Tech. Computer Science" }
     ],
     "quiz": [
@@ -76,6 +75,15 @@
       { "label": "Superpower", "value": "Making a working MVP before the pitch deck is done" },
       { "label": "Biggest flex", "value": "Won a hackathon with 3 hours of sleep" },
       { "label": "Currently learning", "value": "Whatever the next project demands" }
+    ],
+    "certifications": [
+      { "name": "Technical Interview Prep", "issuer": "CodePath", "year": "2025" }
+    ],
+    "now": [
+      "Building PowerAttack — an autonomous job-application & networking engine",
+      "Shipping this portfolio (Flutter Web + Firebase)",
+      "Prepping for SWE interviews via CodePath",
+      "Open to full-time Software Engineer roles"
     ],
     "defaultProjectIds": [],
     "defaultExperienceIds": []
