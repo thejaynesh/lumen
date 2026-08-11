@@ -12,9 +12,21 @@ import 'screens/admin/admin_dashboard.dart';
 final appRouter = GoRouter(
   initialLocation: '/',
   routes: [
-    // Mode selector / main entry
+    // Main entry — the portfolio page.
     GoRoute(
       path: '/',
+      builder: (context, state) =>
+          ManualPage(jobId: state.uri.queryParameters['job']),
+    ),
+    // Direct portfolio access (job-specific links)
+    GoRoute(
+      path: '/portfolio',
+      builder: (context, state) =>
+          ManualPage(jobId: state.uri.queryParameters['job']),
+    ),
+    // Unlisted: alternate experiences, reachable only by direct URL.
+    GoRoute(
+      path: '/modes',
       builder: (context, state) {
         final experienceProvider = context.watch<ExperienceProvider>();
 
@@ -30,16 +42,6 @@ final appRouter = GoRouter(
           case ExperienceMode.manual:
             return ManualPage(jobId: state.uri.queryParameters['job']);
         }
-      },
-    ),
-    // Direct portfolio access (bypasses selector for job-specific links)
-    GoRoute(
-      path: '/portfolio',
-      builder: (context, state) {
-        if (!context.read<ExperienceProvider>().hasSelectedMode) {
-          context.read<ExperienceProvider>().setMode(ExperienceMode.manual);
-        }
-        return ManualPage(jobId: state.uri.queryParameters['job']);
       },
     ),
     // Admin login
@@ -61,7 +63,8 @@ final appRouter = GoRouter(
     // Allow public routes
     if (state.matchedLocation == '/' ||
         state.matchedLocation == '/login' ||
-        state.matchedLocation == '/portfolio') {
+        state.matchedLocation == '/portfolio' ||
+        state.matchedLocation == '/modes') {
       return null;
     }
     // Check auth for admin routes

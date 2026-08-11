@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/portfolio_data.dart';
-import '../../providers/experience_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/portfolio_service.dart';
 import '../../theme/broadside_theme.dart';
@@ -79,6 +78,16 @@ class _ManualPageState extends State<ManualPage> {
     if (ctx != null) {
       Scrollable.ensureVisible(
         ctx,
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
+  void _scrollToTop() {
+    if (_scroll.hasClients) {
+      _scroll.animateTo(
+        0,
         duration: const Duration(milliseconds: 800),
         curve: Curves.easeOutCubic,
       );
@@ -246,7 +255,7 @@ class _ManualPageState extends State<ManualPage> {
                   onCertifications: () => _scrollTo(_certificationsKey),
                   onContact: () => _scrollTo(_contactKey),
                   onToggle: () => context.read<ThemeProvider>().toggleTheme(),
-                  onHome: () => context.read<ExperienceProvider>().reset(),
+                  onHome: _scrollToTop,
                 );
               },
             ),
