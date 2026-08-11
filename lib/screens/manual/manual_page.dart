@@ -163,7 +163,6 @@ class _ManualPageState extends State<ManualPage> {
                             dark: dark,
                             ctaKey: _heroCtaKey,
                             onViewWork: () => _scrollTo(_workKey),
-                            onContact: () => _scrollTo(_contactKey),
                           ),
                           // Stats strip
                           BroadsideStats(settings: settings, dark: dark),

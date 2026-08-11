@@ -5,19 +5,22 @@ import '../../../models/portfolio_data.dart';
 import '../../../theme/broadside_theme.dart';
 import '../../../widgets/broadside/primitives.dart';
 
+/// Résumé PDF shipped in `web/`, so it deploys with the app and is always in
+/// sync with it. `settings.resumeUrl` (admin dashboard) overrides this when it
+/// is set — e.g. to point at a newer copy without a redeploy.
+const _bundledResume = '/Jaynesh-Bhandari-Resume.pdf';
+
 class BroadsideHero extends StatelessWidget {
   final PortfolioViewData data;
   final bool dark;
   final GlobalKey ctaKey;
   final VoidCallback onViewWork;
-  final VoidCallback onContact;
 
   const BroadsideHero({
     required this.data,
     required this.dark,
     required this.ctaKey,
     required this.onViewWork,
-    required this.onContact,
     super.key,
   });
 
@@ -26,6 +29,13 @@ class BroadsideHero extends StatelessWidget {
     final settings = data.settings;
     final w = MediaQuery.sizeOf(context).width;
     final mobile = w < 760;
+
+    // Resolve against Uri.base so a site-relative path works unchanged on
+    // localhost and in production, while an absolute override passes through.
+    final resume = settings.resumeUrl;
+    final resumeHref = Uri.base
+        .resolve(resume != null && resume.isNotEmpty ? resume : _bundledResume)
+        .toString();
 
     // Split name into first part and last word
     final nameParts = settings.name.trim().split(' ');
@@ -63,9 +73,9 @@ class BroadsideHero extends StatelessWidget {
             href: 'mailto:${settings.email}',
           ),
           BtnGhost(
-            label: 'Résumé ↓',
+            label: 'Résumé ↗',
             dark: dark,
-            onTap: onContact,
+            href: resumeHref,
           ),
         ],
       ),
