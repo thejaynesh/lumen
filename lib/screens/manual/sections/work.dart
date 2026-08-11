@@ -1,5 +1,6 @@
 // Broadside Work section — §6.2
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../models/portfolio_data.dart';
 import '../../../theme/broadside_theme.dart';
@@ -124,6 +125,21 @@ class BroadsideWork extends StatelessWidget {
                       color: Broadside.ink(dark),
                     ),
                   ),
+                  if (p.category.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      p.category,
+                      style: BroadsideText.serif(
+                        size: 16,
+                        color: Broadside.inkSoft(dark),
+                        style: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                  if (p.link != null && p.link!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    _ProjectLink(url: p.link!, dark: dark),
+                  ],
                   const SizedBox(height: 8),
                   // Description (full width)
                   Text(
@@ -212,6 +228,21 @@ class BroadsideWork extends StatelessWidget {
                           color: Broadside.ink(dark),
                         ),
                       ),
+                      if (p.category.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          p.category,
+                          style: BroadsideText.serif(
+                            size: 17,
+                            color: Broadside.inkSoft(dark),
+                            style: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                      if (p.link != null && p.link!.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        _ProjectLink(url: p.link!, dark: dark),
+                      ],
                       const SizedBox(height: 8),
                       // Description
                       ConstrainedBox(
@@ -257,6 +288,49 @@ class BroadsideWork extends StatelessWidget {
           );
         }),
       ],
+    );
+  }
+}
+
+/// Small mono link under a project title. Shows the bare domain/path, not the
+/// scheme — "clickdrobe.com" reads better in the grid than the full URL.
+class _ProjectLink extends StatefulWidget {
+  final String url;
+  final bool dark;
+
+  const _ProjectLink({required this.url, required this.dark});
+
+  @override
+  State<_ProjectLink> createState() => _ProjectLinkState();
+}
+
+class _ProjectLinkState extends State<_ProjectLink> {
+  bool _hover = false;
+
+  String get _display =>
+      widget.url.replaceFirst(RegExp(r'^https?://(www\.)?'), '');
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Broadside.accent(widget.dark);
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: GestureDetector(
+        onTap: () => launchUrl(Uri.parse(widget.url)),
+        child: Text(
+          '$_display ↗',
+          style: BroadsideText.mono(
+            size: 11,
+            color: color,
+            trackingEm: 0.08,
+          ).copyWith(
+            decoration: _hover ? TextDecoration.underline : TextDecoration.none,
+            decorationColor: color,
+          ),
+        ),
+      ),
     );
   }
 }

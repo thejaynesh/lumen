@@ -3,10 +3,10 @@
     "name": "Jaynesh Bhandari",
     "initials": "JB",
     "role": "Software Engineer",
-    "tagline": "Full-stack developer. Three-time hackathon winner. Quiet builder of useful things.",
-    "location": "Portland, Maine",
+    "tagline": "Software engineer. Back-end systems, full-stack products, and AI features that hold up in production.",
+    "location": "San Jose, CA",
     "about": "",
-    "summary": "Master's student in CS at Northeastern with a back-end & full-stack core. I like the moment a hard problem gets boring — when the abstraction finally clicks and the system just works. Java, Python, Flutter, SQL, and whatever the next idea calls for.",
+    "summary": "Software engineer with a back-end core — Java and Spring Boot services at Tata Consultancy Services, Flutter and PostgreSQL products of my own, and an M.S. in Computer Science from Northeastern. Lately most of the work is AI-adjacent: retrieval, vector search, and tool calling that has to hold up on real data.",
     "email": "thejaynesh@gmail.com",
     "phone": "+1 207·313·7210",
     "github": "github.com/thejaynesh",
@@ -15,55 +15,57 @@
     "instagram": "",
     "resumeUrl": "",
     "highlights": [
-      { "label": "Years coding", "value": "5+", "note": "since 2018" },
-      { "label": "Hackathons won", "value": "3×", "note": "Roux Institute · Start Summit ×2" },
-      { "label": "Code-review time cut", "value": "−40%", "note": "at TCS" },
-      { "label": "Testing time cut", "value": "−30%", "note": "Java simulator, TCS" }
+      { "label": "Hackathon podiums", "value": "2×", "note": "1st Start Summit · 2nd Roux Institute" },
+      { "label": "Students supported", "value": "200+", "note": "Graduate TA, two semesters" },
+      { "label": "API latency cut", "value": "−20%", "note": "500ms → 400ms · 5,000+ daily requests" },
+      { "label": "Worker invocations cut", "value": "−73%", "note": "ClickDrobe ingestion pipeline" }
     ],
     "skillGroups": [
-      { "category": "Languages", "items": ["Java", "Python", "Dart", "JavaScript", "SQL", "HTML/CSS"] },
-      { "category": "Frameworks", "items": ["Flutter", "React", "Spring", "Firebase", "Node.js"] },
-      { "category": "Practice", "items": ["REST APIs", "Back-end Systems", "Full-stack Apps", "Code Review", "Mentoring"] }
+      { "category": "Languages", "items": ["Java", "TypeScript", "JavaScript", "Dart", "Python", "SQL"] },
+      { "category": "Frameworks & Libraries", "items": ["Spring Boot", "React", "Next.js", "Flutter"] },
+      { "category": "Databases", "items": ["PostgreSQL", "MySQL", "MongoDB", "Firestore", "Redis", "pgvector"] },
+      { "category": "Cloud & DevOps", "items": ["Google Cloud Platform", "AWS", "Firebase", "Docker", "GitHub Actions", "Jenkins"] },
+      { "category": "AI / ML", "items": ["RAG", "Vector Embeddings", "LLM Tool Calling", "Gemini API", "OpenAI API", "Claude API"] },
+      { "category": "Tools", "items": ["Git", "Linux", "Postman", "Jira"] }
     ],
     "awards": [
-      "2nd Place — Roux Institute Hackathon",
-      "1st Place — Start Summit (Bowdoin × Roux)",
-      "Selected — TEDx Medi-Caps organizing team (7 of cohort)"
+      "1st Place — Start Summit Hackathon, Northeastern University",
+      "2nd Place — Roux Institute Hackathon, Northeastern University"
     ],
     "education": [
-      { "when": "2024–25", "where": "Northeastern University", "what": "M.S. Computer Science" },
-      { "when": "2018–22", "where": "Medi-Caps University", "what": "B.Tech. Computer Science" }
+      { "when": "2024–25", "where": "Northeastern University", "what": "M.S. Computer Science · GPA 3.7/4.0 · Boston, MA" },
+      { "when": "2018–22", "where": "Medicaps University", "what": "B.Tech. Computer Science · Indore, India" }
     ],
     "quiz": [
       {
-        "q": "What's Jaynesh's go-to language for a quick prototype?",
-        "options": ["Java", "Python", "Dart", "COBOL"],
+        "q": "What's Jaynesh's go-to stack for a new product?",
+        "options": ["Java + Spring Boot", "Flutter + PostgreSQL", "COBOL + hope", "A pile of Bash scripts"],
         "answer": 1,
-        "funFact": "Python for speed, Java for scale. COBOL… no."
+        "funFact": "Flutter on the front, PostgreSQL underneath. ClickDrobe runs on exactly that."
       },
       {
-        "q": "How many hackathons has Jaynesh won?",
-        "options": ["0 — he just vibes", "1", "3", "Lost count"],
+        "q": "Where did Jaynesh place at the Start Summit Hackathon?",
+        "options": ["1st", "2nd", "3rd", "Did not finish"],
+        "answer": 0,
+        "funFact": "1st at Start Summit, 2nd at the Roux Institute hackathon — both at Northeastern."
+      },
+      {
+        "q": "How much did he cut API response times at TCS?",
+        "options": ["5%", "20%", "50%", "It got slower"],
+        "answer": 1,
+        "funFact": "500ms → 400ms on a telecom backend handling 5,000+ requests a day."
+      },
+      {
+        "q": "What did a Flutter + Firestore app replace at a soap factory?",
+        "options": ["The accountant", "Paper-based stock logging", "The forklift", "A fax machine"],
+        "answer": 1,
+        "funFact": "Paper logs. Processing errors dropped 50% and material wastage 42% — about $15K a year."
+      },
+      {
+        "q": "How many algorithms does AlgoView visualize?",
+        "options": ["5", "12", "19", "All of them"],
         "answer": 2,
-        "funFact": "Three. Two at Start Summit, one at Roux Institute. The trick? Sleep is overrated."
-      },
-      {
-        "q": "What did Jaynesh replace at a local business?",
-        "options": ["The CEO", "A spreadsheet nobody trusted", "The WiFi router", "A Post-it note system"],
-        "answer": 1,
-        "funFact": "A Flutter + Firebase app replaced a spreadsheet that had been 'temporarily' in use for 2 years."
-      },
-      {
-        "q": "What role did Jaynesh play at TEDx?",
-        "options": ["Speaker", "Backstage coordinator", "Audience member", "Catering"],
-        "answer": 1,
-        "funFact": "One of 7 freshers selected. Ran the backstage on event day — improvising under pressure is a transferable skill."
-      },
-      {
-        "q": "What does Jaynesh like about hard problems?",
-        "options": ["The overtime pay", "When they finally get boring", "Complaining about them", "The Stack Overflow karma"],
-        "answer": 1,
-        "funFact": "\"I like the moment a hard problem gets boring — when the abstraction finally clicks and the system just works.\""
+        "funFact": "19 across five categories, each one scrubbable frame by frame."
       }
     ],
     "personality": [
@@ -73,16 +75,16 @@
       { "label": "IDE", "value": "VS Code, but IntelliJ when Java gets serious" },
       { "label": "Unpopular opinion", "value": "Spreadsheets are underrated databases" },
       { "label": "Superpower", "value": "Making a working MVP before the pitch deck is done" },
-      { "label": "Biggest flex", "value": "Won a hackathon with 3 hours of sleep" },
-      { "label": "Currently learning", "value": "Whatever the next project demands" }
+      { "label": "Biggest flex", "value": "1st place at Start Summit — Northeastern" },
+      { "label": "Currently learning", "value": "Retrieval that actually retrieves the right thing" }
     ],
     "certifications": [
-      { "name": "Technical Interview Prep", "issuer": "CodePath", "year": "2025" }
+      { "name": "Professional Cloud Developer", "issuer": "Google Cloud", "year": "" },
+      { "name": "GitHub Foundations", "issuer": "GitHub", "year": "" }
     ],
     "now": [
-      "Building PowerAttack — an autonomous job-application & networking engine",
-      "Shipping this portfolio (Flutter Web + Firebase)",
-      "Prepping for SWE interviews via CodePath",
+      "Building ClickDrobe — an AI wardrobe & styling app (Flutter, PostgreSQL, Gemini)",
+      "Extending AlgoView with more algorithm categories and benchmarks",
       "Open to full-time Software Engineer roles"
     ],
     "defaultProjectIds": [],
@@ -90,100 +92,76 @@
   },
   "projects": [
     {
-      "title": "Inventory & Order Management",
-      "category": "",
-      "description": "A custom system for a local business — stock, orders, invoicing in one Flutter app, with a Firebase back end. Replaced a spreadsheet that nobody trusted anymore.",
-      "techStack": ["Flutter", "Dart", "Firebase", "Cloud Functions"],
-      "tag": "Freelance · 2023",
-      "kpi": "End-to-end build · solo",
-      "tags": ["flutter", "dart", "firebase"],
+      "title": "ClickDrobe",
+      "category": "AI Wardrobe & Styling Application",
+      "description": "A cross-platform Flutter app that turns clothing photos and share-sheet imports into structured wardrobe items using Gemini vision, then handles outfit planning, wear tracking, and personalized styling. Underneath it runs an asynchronous PostgreSQL ingestion pipeline — row-level locking, event-driven workers, recovery sweeps — processing roughly 15–30 garments a minute with 73% fewer worker invocations. Invalid outfit combinations turned out to trace back to free-text garment labels, so the whole system now shares one canonical taxonomy across ingestion, recommendations, backfills, and evaluation tooling.",
+      "techStack": ["Flutter", "PostgreSQL", "Supabase", "Gemini", "pgvector"],
+      "link": "https://clickdrobe.com",
+      "tag": "Product · 2026 – Present",
+      "kpi": "−73% worker invocations",
+      "tags": ["flutter", "postgresql", "ai", "supabase"],
       "imageUrl": null,
       "colorHex": 16737845,
       "order": 0,
       "isActive": true
     },
     {
-      "title": "Roux Institute Hackathon",
-      "category": "",
-      "description": "2nd place. Built a tool for a healthcare partner in 36 hours — data ingestion, dashboard, and a demo that landed.",
-      "techStack": ["Python", "REST APIs", "React"],
-      "tag": "Hackathon · 2024",
-      "kpi": "2nd of ~40 teams",
-      "tags": ["python", "react", "rest apis"],
+      "title": "AlgoView",
+      "category": "Algorithm Visualizer",
+      "description": "A browser-based teaching platform that visualizes 19 algorithms across five categories. Execution-state snapshots make a run fully scrubbable — play, pause, step backward — with pseudocode and complexity analysis staying in sync. A separate benchmarking engine runs the real sorting implementations in background workers across varying input sizes and plots the empirical runtime curve against the theoretical Big-O, all without blocking the interface.",
+      "techStack": ["React", "TypeScript", "Zustand", "Web Workers", "Vitest", "Firebase"],
+      "link": "https://algoview.jaynesh.dev",
+      "tag": "Teaching tool",
+      "kpi": "19 algorithms · 5 categories",
+      "tags": ["react", "typescript", "web"],
       "imageUrl": null,
       "colorHex": 16737845,
       "order": 1,
-      "isActive": true
-    },
-    {
-      "title": "Start Summit · Eco-Entrepreneur",
-      "category": "",
-      "description": "1st place at the Bowdoin × Roux Institute hackathon — sustainability brief, a pitch that pitched itself, and a working MVP by Sunday morning.",
-      "techStack": ["Concept", "MVP", "Pitch"],
-      "tag": "Hackathon · 2024",
-      "kpi": "1st place",
-      "tags": ["mvp", "pitch", "concept"],
-      "imageUrl": null,
-      "colorHex": 16737845,
-      "order": 2,
-      "isActive": true
-    },
-    {
-      "title": "Telecom Test Simulator",
-      "category": "",
-      "description": "Java-based mock-API generator running against historical traffic. Turned a manual test cycle into a one-command run.",
-      "techStack": ["Java", "Spring", "JUnit"],
-      "tag": "Enterprise · 2022",
-      "kpi": "−30% test time",
-      "tags": ["java", "spring", "junit"],
-      "imageUrl": null,
-      "colorHex": 16737845,
-      "order": 3,
       "isActive": true
     }
   ],
   "experience": [
     {
-      "role": "Teaching Assistant",
+      "role": "Graduate Teaching Assistant",
       "company": "Northeastern University",
-      "period": "2025",
-      "description": "Two semesters guiding undergrads through CS fundamentals — algorithms, data structures, the conversation you have with code at 2 a.m.",
-      "city": "Portland, ME",
+      "period": "Sep 2024 – Apr 2025",
+      "description": "Supported 200+ graduate students across two semesters of Programming Design Paradigm and Algorithms — office hours, technical activities, code reviews, grading, and one-on-one debugging. Most of the mentoring landed on Java, data structures, algorithm design, and software architecture.",
+      "city": "Boston, MA",
       "highlights": [],
-      "tags": ["Mentoring", "CS Fundamentals"],
+      "tags": ["Java", "Algorithms", "Mentoring"],
       "order": 0,
       "isActive": true
     },
     {
-      "role": "Assistant System Engineer",
+      "role": "Software Engineer",
       "company": "Tata Consultancy Services",
-      "period": "2022–24",
-      "description": "Built a Java testing simulator that mocked telecom-client APIs from historical data — 30% less testing time, 15 critical bugs caught pre-release. Rewrote review workflows for a 40% faster cycle.",
+      "period": "Jun 2022 – Jan 2024",
+      "description": "Optimized Java/Spring Boot microservices for a telecom client's backend handling 5,000+ daily requests — query caching and load balancing cut API response times 20% (500ms → 400ms). Automated build and deployment workflows with Docker and Jenkins, pulling the release cycle from four weeks to three across three microservices. Restructured queries and added targeted indexes on internal simulation tools for a 30% drop in execution time (1,000ms → 700ms).",
       "city": "Mumbai, India",
       "highlights": [],
-      "tags": ["Java", "API Mocking", "Process Design"],
+      "tags": ["Java", "Spring Boot", "Docker", "Jenkins"],
       "order": 1,
       "isActive": true
     },
     {
-      "role": "Backstage Coordinator",
-      "company": "TEDx Medi-Caps University",
-      "period": "2018–19",
-      "description": "One of seven freshers selected. Helped on web & graphic teams in the lead-up, then ran the backstage on event day — improvising under pressure.",
+      "role": "Freelance Software Developer",
+      "company": "Rawat Soap and Chemicals",
+      "period": "Jan 2022 – Apr 2022",
+      "description": "Built and shipped a cross-platform inventory app (Flutter, Firestore) onto shop-floor devices, replacing paper-based stock logging and cutting processing errors by 50%. Real-time raw-materials tracking with Firestore sync reduced material wastage 42% — an estimated $15K a year. Automated reporting (Cloud Scheduler → Cloud Functions) produced daily consumption, wastage, and stock-valuation summaries as PDF/CSV, saving five hours a week of manual reconciliation.",
       "city": "Indore, India",
       "highlights": [],
-      "tags": ["Live Ops", "Design"],
+      "tags": ["Flutter", "Firestore", "Cloud Functions"],
       "order": 2,
       "isActive": true
     },
     {
-      "role": "Marketing Team Member",
-      "company": "AIESEC in India",
-      "period": "2018–19",
-      "description": "Strategy + content for the national team. Seven cross-platform campaigns, six pieces of content a week, and a 20k follower bump.",
-      "city": "Indore, India",
+      "role": "President",
+      "company": "Google Developer Group on Campus & University Tech Club",
+      "period": "Jan 2025 – Dec 2025",
+      "description": "Led a student organization serving 80+ developers and organized three workshops on AI-assisted development, AI agents, and cloud technologies.",
+      "city": "Boston, MA",
       "highlights": [],
-      "tags": ["Content", "Campaigns"],
+      "tags": ["Community", "Workshops"],
       "order": 3,
       "isActive": true
     }
