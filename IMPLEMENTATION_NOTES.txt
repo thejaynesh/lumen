@@ -1,5 +1,9 @@
 CURRENT UI — October 8, 2026 (America/Los_Angeles)
 
+Release correction: pushes to main again trigger production deployment after
+checks pass. Manual dispatch remains available with publish=true. Earlier
+manual-only release notes below describe the historical completion pass.
+
 The selected design is Index club in cobalt and apricot, with light mode as
 the default. Projects and experience use shared folders with visible tabs,
 keyboard selection, and overflow controls. Education, certifications, and

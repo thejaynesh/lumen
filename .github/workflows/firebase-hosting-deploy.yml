@@ -1,5 +1,7 @@
 name: Release portfolio
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       publish:
@@ -16,7 +18,7 @@ jobs:
   checks:
     uses: ./.github/workflows/ci.yml
   deploy:
-    if: inputs.publish && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.publish)
     needs: checks
     runs-on: ubuntu-latest
     environment: production
