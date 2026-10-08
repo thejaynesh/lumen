@@ -264,13 +264,17 @@ Initial production transition:
   6. Confirm index readiness and test an existing tailored URL, an expired URL,
      signed-out browsing, admin sign-in, and archive/publish behavior.
 
-The Release portfolio GitHub workflow automates steps 4–5 after checks on pushes
-to main. Manual dispatch also supports publishing with publish=true; it defaults
-to checks only. The production environment uses FIREBASE_SERVICE_ACCOUNT_LUMEN_F2E07;
-the credential needs the actual Firestore migration and Hosting/deploy privileges.
-SITE_URL optionally supplies the verified canonical HTTPS origin. The workflow
-migrates first, preserves the migration backup as an artifact for seven days,
-then runs a deployment of firestore:rules, firestore:indexes, and hosting.
+Run database maintenance and rules/index deployment locally with an authorized
+account before pushing a dependent frontend. Firebase CLI login does not configure
+Python Application Default Credentials; the maintenance scripts require their own
+authorized credentials. Retain migration backups privately outside Git history.
+
+The Release portfolio GitHub workflow publishes Firebase Hosting only after checks
+on pushes to main. Manual dispatch supports publishing with publish=true; it
+defaults to checks only. The production environment uses the existing Hosting
+credential FIREBASE_SERVICE_ACCOUNT_LUMEN_F2E07. It does not need production data
+access and the workflow does not migrate data, upload database backups, or deploy
+rules/indexes. SITE_URL optionally supplies the verified canonical HTTPS origin.
 Production releases are serialized. Environment approval/reviewer requirements
 must be configured in GitHub; naming an environment alone is not such a policy.
 

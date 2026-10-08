@@ -1,8 +1,13 @@
 CURRENT UI — October 8, 2026 (America/Los_Angeles)
 
-Release correction: pushes to main again trigger production deployment after
-checks pass. Manual dispatch remains available with publish=true. Earlier
-manual-only release notes below describe the historical completion pass.
+Release correction: pushes to main trigger Hosting-only deployment after checks
+pass. Manual dispatch remains available with publish=true. Database maintenance
+and rules/index deployment run locally with the owner's authorized account;
+GitHub's existing Hosting credential does not need extra database permissions.
+The production profile migration dry run and apply both planned zero writes.
+Production Firestore rules compiled and were released successfully; both project
+and experience indexes were deployed and confirmed in the live index listing.
+Earlier combined/manual-only release notes below describe historical work.
 
 The selected design is Index club in cobalt and apricot, with light mode as
 the default. Projects and experience use shared folders with visible tabs,

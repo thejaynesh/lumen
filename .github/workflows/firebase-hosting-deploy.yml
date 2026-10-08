@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: 'Publish this verified revision, migrate share profiles, and deploy rules/indexes to production'
+        description: 'Publish this verified revision to production Firebase Hosting'
         type: boolean
         required: true
         default: false
@@ -38,7 +38,6 @@ jobs:
       - run: flutter pub get --enforce-lockfile
       - run: npm ci
         working-directory: tooling/firestore
-      - run: pip install -r scripts/requirements.txt
       - name: Configure release credentials
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_LUMEN_F2E07 }}
@@ -50,15 +49,5 @@ jobs:
           SITE_URL: ${{ vars.SITE_URL || 'https://lumen-f2e07.web.app' }}
         run: python scripts/prepare_web.py --site-url "$SITE_URL"
       - run: flutter build web --release --no-pub --dart-define=APP_ENV=production
-      - name: Back up and migrate legacy share profiles
-        run: python scripts/migrate_profiles.py --project lumen-f2e07 --apply --confirm-project lumen-f2e07 --backup "$RUNNER_TEMP/profile-backup.json"
-      - name: Preserve private migration backup
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: profile-migration-backup
-          path: ${{ runner.temp }}/profile-backup.json
-          retention-days: 7
-          if-no-files-found: ignore
-      - name: Deploy rules, indexes and Hosting
-        run: tooling/firestore/node_modules/.bin/firebase deploy --project lumen-f2e07 --only firestore:rules,firestore:indexes,hosting --non-interactive
+      - name: Deploy Hosting
+        run: tooling/firestore/node_modules/.bin/firebase deploy --project lumen-f2e07 --only hosting --non-interactive

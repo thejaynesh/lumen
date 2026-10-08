@@ -138,7 +138,13 @@ python scripts/migrate_profiles.py --project lumen-f2e07 --apply --confirm-proje
 
 Use a different unused backup filename each time. These JSON backups contain before-images of documents the operation changes; they are not full database exports and there is no automatic restore command. Keep backups private and review any restoration separately. Do not run the seed against production as a routine release step.
 
-Run the profile migration **before** deploying the stricter rules and new frontend so existing tailored links have their public documents ready. The production release workflow performs this migration before deployment.
+Run the profile migration **before** deploying the stricter rules and new frontend so existing tailored links have their public documents ready. Run database maintenance locally with an authorized account; GitHub releases publish Hosting only. After reviewing/applying any required migration, deploy the backend before pushing the dependent frontend:
+
+```sh
+npx -y firebase-tools@latest deploy --project lumen-f2e07 --only firestore:rules,firestore:indexes
+```
+
+Firebase CLI sign-in and Python Application Default Credentials are separate: `firebase login` does not configure ADC for the Python maintenance scripts. Keep local credentials and migration backups private.
 
 ## Verification
 
@@ -160,7 +166,7 @@ The development-only `tooling/firestore/package.json` includes targeted override
 
 - **Verify portfolio** (`ci.yml`): runs on main pushes and pull requests, and is reused by release/preview jobs. It checks formatting, analysis, Flutter tests, Python tests, Firestore rules in the emulator, and a web build.
 - **Preview portfolio on staging**: runs after checks for same-repository PRs. Configure the `staging` environment with variables `FIREBASE_STAGING_PROJECT_ID`, `FIREBASE_STAGING_API_KEY`, `FIREBASE_STAGING_APP_ID`, `FIREBASE_STAGING_MESSAGING_SENDER_ID`, `FIREBASE_STAGING_AUTH_DOMAIN`, and secret `FIREBASE_SERVICE_ACCOUNT_STAGING`. Configuration is checked inside that environment: a fully unconfigured preview skips with a clear notice; partial configuration, production targets, or mismatched credentials fail. Preview publishing deploys Hosting only, so provision staging rules/data separately. Preview indexing is disabled.
-- **Release portfolio**: automatically runs on pushes to `main` and deploys after checks pass. It can also be dispatched manually from `main` with `publish=true` (manual dispatch defaults to checks only). It uses the `production` environment, builds with explicit production configuration, backs up/migrates share profiles, and deploys Firestore rules, indexes, and Hosting. Configure secret `FIREBASE_SERVICE_ACCOUNT_LUMEN_F2E07` with the required Firestore/Hosting access and optional variable `SITE_URL`. Production releases are serialized. Migration backup artifacts are retained for seven days; preserve them separately if needed longer. Configure GitHub environment protection/reviewers if your release process requires approval.
+- **Release portfolio**: automatically runs on pushes to `main` and deploys Firebase Hosting after checks pass. It can also be dispatched manually from `main` with `publish=true` (manual dispatch defaults to checks only). It uses the `production` environment and builds with explicit production configuration. Keep the existing Hosting deployment secret `FIREBASE_SERVICE_ACCOUNT_LUMEN_F2E07` and optional variable `SITE_URL`; this workflow does not read/migrate production Firestore data or deploy rules/indexes. Apply required backend changes locally before pushing a frontend that depends on them. Production releases are serialized. Configure GitHub environment protection/reviewers if your release process requires approval.
 
 `.firebaserc` still identifies production as the Firebase CLI default. Use an explicit `--project` for operational CLI commands. A push to `main` verifies code and then automatically deploys production when checks and release prerequisites succeed.
 
