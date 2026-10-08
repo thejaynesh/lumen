@@ -1,223 +1,143 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'broadside_theme.dart';
 
 class AppTheme {
-  // Primary accent - Electric Blue
-  static const Color primary = Color(0xFF0066FF);
-  static const Color primaryLight = Color(0xFF3388FF);
-  static const Color accent = Color(0xFF00A3FF);
-
-  // Dark Mode Colors
-  static const Color darkBackground = Color(0xFF000000);
-  static const Color darkBackgroundAlt = Color(0xFF0A0A0A);
-  static const Color darkSurface = Color(0xFF111111);
-  static const Color darkSurfaceLight = Color(0xFF1A1A1A);
-  static const Color darkTextPrimary = Color(0xFFFFFFFF);
-  static const Color darkTextSecondary = Color(0xFFAAAAAA);
-  static const Color darkTextMuted = Color(0xFF666666);
-
-  // Light Mode Colors
-  static const Color lightBackground = Color(0xFFFAFAFA);
-  static const Color lightBackgroundAlt = Color(0xFFFFFFFF);
-  static const Color lightSurface = Color(0xFFFFFFFF);
-  static const Color lightSurfaceLight = Color(0xFFF0F0F0);
-  static const Color lightTextPrimary = Color(0xFF000000);
-  static const Color lightTextSecondary = Color(0xFF555555);
-  static const Color lightTextMuted = Color(0xFF999999);
-
-  // Glow/Halo colors
-  static Color glowColor(bool isDark) =>
-      primary.withValues(alpha: isDark ? 0.3 : 0.2);
-  static Color softGlow(bool isDark) =>
-      primary.withValues(alpha: isDark ? 0.15 : 0.1);
-
-  // Border radius
-  static const double radiusSmall = 12.0;
-  static const double radiusMedium = 20.0;
-  static const double radiusLarge = 28.0;
-  static const double radiusXL = 40.0;
-
-  // Helper methods for theme-aware colors
-  static Color background(bool isDark) =>
-      isDark ? darkBackground : lightBackground;
-  static Color backgroundAlt(bool isDark) =>
-      isDark ? darkBackgroundAlt : lightBackgroundAlt;
-  static Color surface(bool isDark) => isDark ? darkSurface : lightSurface;
-  static Color surfaceLight(bool isDark) =>
-      isDark ? darkSurfaceLight : lightSurfaceLight;
-  static Color textPrimary(bool isDark) =>
-      isDark ? darkTextPrimary : lightTextPrimary;
-  static Color textSecondary(bool isDark) =>
-      isDark ? darkTextSecondary : lightTextSecondary;
-  static Color textMuted(bool isDark) =>
-      isDark ? darkTextMuted : lightTextMuted;
-
-  // Box shadows with glow effect
-  static List<BoxShadow> glowShadow(bool isDark) => [
-    BoxShadow(
-      color: primary.withValues(alpha: isDark ? 0.3 : 0.15),
-      blurRadius: 30,
-      spreadRadius: -5,
-    ),
+  static const primary = Color(0xFF2549CD);
+  static const primaryLight = Color(0xFF7792F8);
+  static const accent = primaryLight;
+  static const darkBackground = Color(0xFF172239);
+  static const darkBackgroundAlt = Color(0xFF293B57);
+  static const darkSurface = Color(0xFF202E49);
+  static const darkSurfaceLight = Color(0xFF344765);
+  static const darkTextPrimary = Color(0xFFEDF1F8);
+  static const darkTextSecondary = Color(0xFFB8C7DE);
+  static const darkTextMuted = Color(0xFFB8C7DE);
+  static const lightBackground = Color(0xFFEDF1F8);
+  static const lightBackgroundAlt = Color(0xFFF7F9FC);
+  static const lightSurface = Color(0xFFF7F9FC);
+  static const lightSurfaceLight = Color(0xFFDCE4F2);
+  static const lightTextPrimary = Color(0xFF17264B);
+  static const lightTextSecondary = Color(0xFF475673);
+  static const lightTextMuted = Color(0xFF475673);
+  static const radiusSmall = 4.0;
+  static const radiusMedium = 6.0;
+  static const radiusLarge = 8.0;
+  static const radiusXL = 12.0;
+  static Color background(bool d) => Broadside.paper(d);
+  static Color backgroundAlt(bool d) => Broadside.paperDeep(d);
+  static Color surface(bool d) => Broadside.paperAlt(d);
+  static Color surfaceLight(bool d) => d ? darkSurfaceLight : lightSurfaceLight;
+  static Color textPrimary(bool d) => Broadside.ink(d);
+  static Color textSecondary(bool d) => Broadside.inkSoft(d);
+  static Color textMuted(bool d) => Broadside.inkSoft(d);
+  static Color glowColor(bool d) => Broadside.accent(d).withValues(alpha: 0.15);
+  static Color softGlow(bool d) => Broadside.accent(d).withValues(alpha: 0.08);
+  static List<BoxShadow> glowShadow(bool d) => const [];
+  static List<BoxShadow> softShadow(bool d) => [
+    BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 16),
   ];
-
-  static List<BoxShadow> softShadow(bool isDark) => [
-    BoxShadow(
-      color: (isDark ? Colors.black : Colors.black.withValues(alpha: 0.1)),
-      blurRadius: 20,
-      offset: const Offset(0, 10),
-    ),
-  ];
-
-  // Accent gradient for UI elements
-  static const LinearGradient accentGradient = LinearGradient(
-    colors: [primary, accent],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
+  static const accentGradient = LinearGradient(colors: [primary, primaryLight]);
   static ThemeData get darkTheme => _buildTheme(true);
   static ThemeData get lightTheme => _buildTheme(false);
 
-  static ThemeData _buildTheme(bool isDark) {
-    final bg = background(isDark);
-    final surfaceColor = surface(isDark);
-    final textPri = textPrimary(isDark);
-    final textSec = textSecondary(isDark);
-    final textMut = textMuted(isDark);
-
-    return ThemeData(
+  static ThemeData _buildTheme(bool dark) {
+    final ink = Broadside.ink(dark);
+    final muted = Broadside.inkSoft(dark);
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: Broadside.accent(dark),
+          brightness: dark ? Brightness.dark : Brightness.light,
+          surface: Broadside.paperAlt(dark),
+        ).copyWith(
+          primary: Broadside.accent(dark),
+          onPrimary: Broadside.accentInk(dark),
+          onSurface: ink,
+          onSurfaceVariant: muted,
+          outline: Broadside.rule(dark),
+        );
+    final base = ThemeData(
       useMaterial3: true,
-      brightness: isDark ? Brightness.dark : Brightness.light,
-      scaffoldBackgroundColor: bg,
-      colorScheme: isDark
-          ? ColorScheme.dark(
-              primary: primary,
-              secondary: accent,
-              surface: surfaceColor,
-            )
-          : ColorScheme.light(
-              primary: primary,
-              secondary: accent,
-              surface: surfaceColor,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: Broadside.paper(dark),
+    );
+    return base.copyWith(
+      textTheme: base.textTheme
+          .apply(fontFamily: 'Manrope')
+          .copyWith(
+            headlineLarge: BroadsideText.display(
+              letterSpacing: 0,
+              size: 40,
+              color: ink,
+              height: 1.1,
             ),
-      textTheme: TextTheme(
-        displayLarge: GoogleFonts.montserrat(
-          fontSize: 120,
-          fontWeight: FontWeight.w900,
-          color: textPri,
-          letterSpacing: -4,
-          height: 0.9,
-        ),
-        displayMedium: GoogleFonts.montserrat(
-          fontSize: 72,
-          fontWeight: FontWeight.w800,
-          color: textPri,
-          letterSpacing: -2,
-        ),
-        displaySmall: GoogleFonts.montserrat(
-          fontSize: 48,
-          fontWeight: FontWeight.w700,
-          color: textPri,
-          letterSpacing: -1,
-        ),
-        headlineLarge: GoogleFonts.montserrat(
-          fontSize: 36,
-          fontWeight: FontWeight.w700,
-          color: textPri,
-        ),
-        headlineMedium: GoogleFonts.montserrat(
-          fontSize: 28,
-          fontWeight: FontWeight.w600,
-          color: textPri,
-        ),
-        headlineSmall: GoogleFonts.montserrat(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: textPri,
-        ),
-        titleLarge: GoogleFonts.montserrat(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: textPri,
-          letterSpacing: 2,
-        ),
-        titleMedium: GoogleFonts.montserrat(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: textSec,
-          letterSpacing: 3,
-        ),
-        bodyLarge: GoogleFonts.montserrat(
-          fontSize: 20,
-          color: textSec,
-          height: 1.8,
-        ),
-        bodyMedium: GoogleFonts.montserrat(
-          fontSize: 16,
-          color: textSec,
-          height: 1.6,
-        ),
-        bodySmall: GoogleFonts.montserrat(
-          fontSize: 14,
-          color: textMut,
-          height: 1.5,
-        ),
-        labelLarge: GoogleFonts.montserrat(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: primary,
-          letterSpacing: 1,
-        ),
-      ),
+            headlineMedium: BroadsideText.display(
+              letterSpacing: 0,
+              size: 32,
+              color: ink,
+              height: 1.15,
+            ),
+            headlineSmall: BroadsideText.display(
+              letterSpacing: 0,
+              size: 26,
+              color: ink,
+              height: 1.2,
+            ),
+            bodyLarge: BroadsideText.sans(size: 16, color: ink),
+            bodyMedium: BroadsideText.sans(size: 15, color: ink),
+            bodySmall: BroadsideText.sans(size: 13, color: muted),
+          ),
       cardTheme: CardThemeData(
-        color: surfaceColor,
+        color: Broadside.paperAlt(dark),
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusLarge),
-          side: BorderSide(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.05)
-                : Colors.black.withValues(alpha: 0.05),
-          ),
+          borderRadius: BorderRadius.circular(radiusSmall),
+          side: BorderSide(color: Broadside.rule(dark)),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: primary,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-          textStyle: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1,
-          ),
+          minimumSize: const Size(44, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusMedium),
+            borderRadius: BorderRadius.circular(radiusSmall),
           ),
+          textStyle: BroadsideText.sans(size: 14, weight: FontWeight.w600),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: textPri,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-          side: BorderSide(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.2)
-                : Colors.black.withValues(alpha: 0.2),
-          ),
-          textStyle: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1,
-          ),
+          minimumSize: const Size(44, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          foregroundColor: ink,
+          side: BorderSide(color: Broadside.rule(dark)),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusMedium),
+            borderRadius: BorderRadius.circular(radiusSmall),
           ),
+          textStyle: BroadsideText.sans(size: 14, weight: FontWeight.w600),
         ),
       ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(minimumSize: const Size(44, 44)),
+      ),
       iconButtonTheme: IconButtonThemeData(
-        style: IconButton.styleFrom(foregroundColor: textSec),
+        style: IconButton.styleFrom(
+          foregroundColor: muted,
+          minimumSize: const Size(44, 44),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        labelStyle: BroadsideText.sans(size: 14, color: muted),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(radiusSmall),
+        ),
+      ),
+      dividerColor: Broadside.rule(dark),
+      scrollbarTheme: ScrollbarThemeData(
+        thumbColor: WidgetStatePropertyAll(muted.withValues(alpha: 0.6)),
       ),
     );
   }

@@ -1,21 +1,15 @@
-// Broadside Hero section — §6.1
 import 'package:flutter/material.dart';
-
 import '../../../models/portfolio_data.dart';
 import '../../../theme/broadside_theme.dart';
+import '../../../utils/external_links.dart';
 import '../../../widgets/broadside/primitives.dart';
-
-/// Résumé PDF shipped in `web/`, so it deploys with the app and is always in
-/// sync with it. `settings.resumeUrl` (admin dashboard) overrides this when it
-/// is set — e.g. to point at a newer copy without a redeploy.
-const _bundledResume = '/Jaynesh-Bhandari-Resume.pdf';
+import '../../../widgets/broadside/project_folder.dart';
 
 class BroadsideHero extends StatelessWidget {
   final PortfolioViewData data;
   final bool dark;
   final GlobalKey ctaKey;
   final VoidCallback onViewWork;
-
   const BroadsideHero({
     required this.data,
     required this.dark,
@@ -25,221 +19,165 @@ class BroadsideHero extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final settings = data.settings;
-    final w = MediaQuery.sizeOf(context).width;
-    final mobile = w < 760;
-
-    // Resolve against Uri.base so a site-relative path works unchanged on
-    // localhost and in production, while an absolute override passes through.
-    final resume = settings.resumeUrl;
-    final resumeHref = Uri.base
-        .resolve(resume != null && resume.isNotEmpty ? resume : _bundledResume)
-        .toString();
-
-    // Split name into first part and last word
-    final nameParts = settings.name.trim().split(' ');
-    final String firstLine;
-    final String secondLine;
-    if (nameParts.length > 1) {
-      firstLine = nameParts
-          .sublist(0, nameParts.length - 1)
-          .join(' ')
-          .toUpperCase();
-      secondLine = '${nameParts.last.toUpperCase()}.';
-    } else {
-      firstLine = '';
-      secondLine = '${settings.name.toUpperCase()}.';
-    }
-
-    final double nameSize = mobile ? (w < 400 ? 44 : 56) : 130;
-    final double statementSize = mobile ? 28 : 42;
-
-    // CTA buttons widget (shared between mobile and desktop paths)
-    final ctaButtons = KeyedSubtree(
-      key: ctaKey,
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 10,
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final settings = data.settings;
+      final textScale = MediaQuery.textScalerOf(context).scale(16) / 16;
+      final compact = constraints.maxWidth / textScale < 720;
+      final titleSize = compact ? 43.0 : 68.0;
+      final customTagline = data.jobPosting?.customTagline?.trim() ?? '';
+      final customAbout = data.jobPosting?.customAbout?.trim() ?? '';
+      final resume = resolveAssetUrl(
+        settings.resumeUrl?.isNotEmpty == true
+            ? settings.resumeUrl!
+            : '/Jaynesh-Bhandari-Resume.pdf',
+      );
+      final copy = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          BtnPrimary(
-            label: 'View projects ↘',
-            dark: dark,
-            onTap: onViewWork,
+          Kicker('Backend / Web / Mobile', dark: dark),
+          const SizedBox(height: 25),
+          Semantics(
+            header: true,
+            child: customTagline.isNotEmpty
+                ? Text(
+                    customTagline,
+                    style: BroadsideText.editorial(
+                      size: titleSize,
+                      color: Broadside.ink(dark),
+                    ),
+                  )
+                : Text.rich(
+                    TextSpan(
+                      children: [
+                        const TextSpan(text: 'I build apps.\n'),
+                        TextSpan(
+                          text: 'And their\nbackends.',
+                          style: const TextStyle(fontStyle: FontStyle.italic),
+                        ),
+                      ],
+                    ),
+                    style: BroadsideText.editorial(
+                      size: titleSize,
+                      height: 1.06,
+                      color: Broadside.ink(dark),
+                    ),
+                  ),
           ),
-          BtnGhost(
-            label: 'Email me',
-            dark: dark,
-            href: 'mailto:${settings.email}',
-          ),
-          BtnGhost(
-            label: 'Résumé ↗',
-            dark: dark,
-            href: resumeHref,
-          ),
-        ],
-      ),
-    );
-
-    final statementText = RichText(
-      text: TextSpan(
-        style: BroadsideText.serif(
-          size: statementSize,
-          height: 1.05,
-          letterSpacing: -0.01,
-          color: Broadside.ink(dark),
-        ),
-        children: [
-          const TextSpan(text: 'A '),
-          TextSpan(
-            text: 'software engineer',
-            style: BroadsideText.serif(
-              size: statementSize,
-              height: 1.05,
-              letterSpacing: -0.01,
-              color: Broadside.accent(dark),
-              style: FontStyle.italic,
+          const SizedBox(height: 25),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Text(
+              customAbout.isNotEmpty
+                  ? customAbout
+                  : data.tagline.isNotEmpty
+                  ? data.tagline
+                  : "I'm ${settings.name.split(' ').first}, a software developer. I build backend services and web and mobile applications.",
+              style: BroadsideText.sans(
+                size: 15,
+                height: 1.8,
+                color: Broadside.inkSoft(dark),
+              ),
             ),
           ),
-          TextSpan(
-            text:
-                ' who builds back-end systems, wins hackathons, and ships full-stack products.',
-            style: BroadsideText.serif(
-              size: statementSize,
-              height: 1.05,
-              letterSpacing: -0.01,
-              color: Broadside.ink(dark),
+          if (settings.location.isNotEmpty ||
+              settings.availability.isNotEmpty) ...[
+            const SizedBox(height: 18),
+            Wrap(
+              spacing: 18,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (settings.location.isNotEmpty)
+                  Text(
+                    'Based in ${settings.location}',
+                    style: BroadsideText.sans(
+                      size: 13,
+                      color: Broadside.inkSoft(dark),
+                    ),
+                  ),
+                if (settings.availability.isNotEmpty)
+                  Text(
+                    settings.availability,
+                    style: BroadsideText.sans(
+                      size: 13,
+                      weight: FontWeight.w600,
+                      color: Broadside.ink(dark),
+                    ),
+                  ),
+              ],
             ),
+          ],
+          const SizedBox(height: 22),
+          Wrap(
+            spacing: 20,
+            runSpacing: 8,
+            children: [
+              if (settings.email.isNotEmpty)
+                KeyedSubtree(
+                  key: ctaKey,
+                  child: BtnPrimary(
+                    label: 'Email me ↗',
+                    dark: dark,
+                    href: 'mailto:${settings.email}',
+                  ),
+                ),
+              TextButton(
+                onPressed: onViewWork,
+                style: TextButton.styleFrom(
+                  foregroundColor: Broadside.ink(dark),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 8,
+                  ),
+                ),
+                child: const Text('View my projects ↓'),
+              ),
+              if (resume.isNotEmpty)
+                BroadsideLink(label: 'Résumé ↗', href: resume, dark: dark),
+            ],
           ),
         ],
-      ),
-    );
-
-    final summaryBlock = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          settings.summary,
-          style: BroadsideText.sans(
-            size: 15,
-            color: Broadside.inkSoft(dark),
-            height: 1.65,
-          ),
-        ),
-        const SizedBox(height: 18),
-        Kicker(
-          'OPEN TO WORK →',
-          dark: dark,
-          color: Broadside.accent(dark),
-        ),
-      ],
-    );
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 120, bottom: 48),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Broadside.rule(dark)),
-          ),
-        ),
+      );
+      final folder = ProjectFolder(
+        dark: dark,
+        onOpenProjects: onViewWork,
+        initials: settings.initials.isEmpty
+            ? settings.name
+                  .split(' ')
+                  .where((s) => s.isNotEmpty)
+                  .take(2)
+                  .map((s) => s[0])
+                  .join()
+            : settings.initials,
+        titles: data.projects.map((p) => p.title).toList(),
+      );
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: compact ? 35 : 55),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top kicker row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Flexible(child: Kicker('№ 001 · PORTFOLIO', dark: dark)),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Kicker(
-                    '${settings.location.toUpperCase()} · 2026',
-                    dark: dark,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-
-            // Big name
-            Container(
-              padding: const EdgeInsets.only(bottom: 20),
-              margin: const EdgeInsets.only(bottom: 28),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Broadside.rule(dark)),
+            if (compact) ...[
+              copy,
+              const SizedBox(height: 24),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 360),
+                  child: folder,
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (firstLine.isNotEmpty)
-                    Text(
-                      firstLine,
-                      style: BroadsideText.serif(
-                        size: nameSize,
-                        height: 0.88,
-                        letterSpacing: -0.04,
-                        color: Broadside.ink(dark),
-                      ),
-                    ),
-                  Text(
-                    secondLine,
-                    style: BroadsideText.serif(
-                      size: nameSize,
-                      height: 0.88,
-                      letterSpacing: -0.04,
-                      color: Broadside.ink(dark),
-                      style: FontStyle.italic,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Two-column intro (desktop) or stacked (mobile)
-            if (mobile)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  statementText,
-                  const SizedBox(height: 28),
-                  ctaButtons,
-                  const SizedBox(height: 28),
-                  summaryBlock,
-                ],
-              )
-            else
+            ] else
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Left — statement + CTA
-                  Expanded(
-                    flex: 3,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        statementText,
-                        const SizedBox(height: 28),
-                        ctaButtons,
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 48),
-                  // Right — summary + open to work
-                  Expanded(
-                    flex: 2,
-                    child: summaryBlock,
-                  ),
+                  Expanded(flex: 6, child: copy),
+                  const SizedBox(width: 40),
+                  Expanded(flex: 5, child: folder),
                 ],
               ),
-            const SizedBox(height: 48),
           ],
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
 }

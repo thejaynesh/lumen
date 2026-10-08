@@ -1,124 +1,91 @@
+"""Idempotent, atomic seeding with stable IDs and preservation of legacy references.
+
+Default is a dry run. --apply opts into writes; --wipe is intentionally unsupported.
 """
-Firestore seed script for Lumen portfolio app (project: lumen-f2e07).
-
-Usage:
-    python seed_firestore.py           # seed without wiping existing data
-    python seed_firestore.py --wipe    # delete all projects + experience docs first, then seed
-
-WARNING: This script MUTATES production Firestore. Review seed_data.json before running.
-A human must run this manually — it is NOT invoked by CI or any automated process.
-"""
-
-import argparse
 import json
-import os
-import sys
+from pathlib import Path
+import re
+from firestore_tools import arguments, connect, read_collection, apply_plan
+from content_validation import validate_settings, validate_project, validate_experience
 
-import firebase_admin
-from firebase_admin import credentials, firestore
+
+def stable_id(value):
+    result = re.sub(r'[^a-z0-9]+', '-', value.lower()).strip('-')[:100]
+    if not result:
+        raise ValueError('A seed record needs a stable identifier.')
+    return result
 
 
-def batch_delete_collection(db, collection_name):
-    """Delete all documents in a collection using batched deletes."""
-    col_ref = db.collection(collection_name)
-    docs = col_ref.stream()
-    batch = db.batch()
-    count = 0
-    for doc in docs:
-        batch.delete(doc.reference)
-        count += 1
-        if count % 500 == 0:
-            batch.commit()
-            batch = db.batch()
-    if count % 500 != 0:
-        batch.commit()
-    print(f"  Deleted {count} docs from '{collection_name}'")
+def plan_records(records, existing, collection):
+    """Match a legacy random ID before assigning a stable ID to a new record."""
+    fields = ('title',) if collection == 'projects' else ('company', 'role', 'period')
+    planned = {}
+    used = set()
+    for index, record in enumerate(records):
+        if any(not isinstance(record.get(field), str) or not record[field].strip() for field in fields):
+            raise ValueError(f'{collection} record lacks identifying fields.')
+        key = tuple(record[field] for field in fields)
+        matches = [doc_id for doc_id, data in existing.items() if tuple(data.get(field) for field in fields) == key]
+        if len(matches) > 1:
+            raise ValueError(f'Ambiguous legacy duplicates in {collection}: {key}. Resolve before seeding.')
+        doc_id = matches[0] if matches else record.get('id', stable_id('-'.join(key)))
+        if doc_id in used or not re.fullmatch(r'[a-zA-Z0-9_-]{1,128}', doc_id):
+            raise ValueError(f'Duplicate/invalid seed ID: {doc_id}')
+        if doc_id in existing and doc_id not in matches:
+            raise ValueError(f'Seed ID collides with unrelated {collection}/{doc_id}.')
+        used.add(doc_id)
+        data = {**existing.get(doc_id, {}), **{k: v for k, v in record.items() if k != 'id'}}
+        data['order'] = index
+        data.setdefault('isActive', True)
+        if type(data['isActive']) is not bool:
+            raise ValueError('isActive must be a boolean.')
+        if collection == 'projects':
+            for field in ('problem', 'contribution', 'outcome', 'sourceUrl'):
+                data.setdefault(field, '')
+        planned[doc_id] = data
+    return planned
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Seed Firestore with Lumen portfolio content from seed_data.json."
-    )
-    parser.add_argument(
-        "--wipe",
-        action="store_true",
-        help="Delete all docs in 'projects' and 'experience' collections before seeding.",
-    )
+    parser = arguments(__doc__)
+    parser.add_argument('--data', default=str(Path(__file__).with_name('seed_data.json')))
+    parser.add_argument('--reset-defaults', action='store_true', help='Explicitly replace existing featured selections')
     args = parser.parse_args()
-
-    # Resolve paths
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    sa_path = os.path.normpath(os.path.join(script_dir, "..", "..", "secrets", "lumen-sa.json"))
-    data_path = os.path.join(script_dir, "seed_data.json")
-
-    # Validate service account
-    if not os.path.isfile(sa_path):
-        print(f"ERROR: Service account JSON not found at:\n  {sa_path}", file=sys.stderr)
-        sys.exit(1)
-
-    # Validate data file
-    if not os.path.isfile(data_path):
-        print(f"ERROR: seed_data.json not found at:\n  {data_path}", file=sys.stderr)
-        sys.exit(1)
-
-    # Load seed data
-    with open(data_path, encoding="utf-8") as f:
-        seed = json.load(f)
-
-    settings_dict = seed["settings"]
-    projects_list = seed["projects"]
-    experience_list = seed["experience"]
-
-    # Initialize Firebase
-    cred = credentials.Certificate(sa_path)
-    firebase_admin.initialize_app(cred)
-    db = firestore.client()
-
-    # Optional wipe
-    if args.wipe:
-        print("--wipe flag set. Deleting existing collections...")
-        batch_delete_collection(db, "projects")
-        batch_delete_collection(db, "experience")
-
-    # Write settings/main (without defaultProjectIds/defaultExperienceIds for now)
-    settings_to_write = {k: v for k, v in settings_dict.items()
-                         if k not in ("defaultProjectIds", "defaultExperienceIds")}
-    settings_to_write["defaultProjectIds"] = []
-    settings_to_write["defaultExperienceIds"] = []
-    db.collection("settings").document("main").set(settings_to_write)
-    print("settings/main written")
-
-    # Seed projects
-    project_ids = []
-    for i, project in enumerate(projects_list):
-        doc = dict(project)
-        doc["order"] = i
-        doc["createdAt"] = firestore.SERVER_TIMESTAMP
-        doc["updatedAt"] = firestore.SERVER_TIMESTAMP
-        _, ref = db.collection("projects").add(doc)
-        project_ids.append(ref.id)
-    print(f"projects written: {len(project_ids)}")
-
-    # Seed experience
-    experience_ids = []
-    for i, exp in enumerate(experience_list):
-        doc = dict(exp)
-        doc["order"] = i
-        doc["createdAt"] = firestore.SERVER_TIMESTAMP
-        doc["updatedAt"] = firestore.SERVER_TIMESTAMP
-        _, ref = db.collection("experience").add(doc)
-        experience_ids.append(ref.id)
-    print(f"experience written: {len(experience_ids)}")
-
-    # Update settings/main with default IDs
-    db.collection("settings").document("main").update({
-        "defaultProjectIds": project_ids,
-        "defaultExperienceIds": experience_ids,
-    })
-    print("defaults updated")
-    print(f"\nDone. Project IDs: {project_ids}")
-    print(f"Experience IDs: {experience_ids}")
+    seed = json.loads(Path(args.data).read_text(encoding='utf-8'))
+    if not all(key in seed for key in ('settings', 'projects', 'experience')):
+        raise ValueError('Seed data requires settings, projects and experience.')
+    db = connect(args)
+    from google.cloud import firestore
+    writes, reads, defaults, collections = {}, {}, {}, {}
+    for collection in ('projects', 'experience'):
+        snapshots = read_collection(db, collection)
+        collections[collection] = set(snapshots)
+        reads.update({f'{collection}/{key}': snap for key, snap in snapshots.items()})
+        existing = {key: snap.to_dict() for key, snap in snapshots.items()}
+        planned = plan_records(seed[collection], existing, collection)
+        defaults[collection] = list(planned)
+        for doc_id, data in planned.items():
+            path = f'{collection}/{doc_id}'
+            reads[path] = snapshots.get(doc_id)
+            original = existing.get(doc_id, {})
+            validator = validate_project if collection == 'projects' else validate_experience
+            data = validator(data, path=path, timestamps=bool(original))
+            if any(original.get(key) != value for key, value in data.items() if key not in ('createdAt', 'updatedAt')):
+                data['createdAt'] = original.get('createdAt', firestore.SERVER_TIMESTAMP)
+                data['updatedAt'] = firestore.SERVER_TIMESTAMP
+                writes[path] = data
+    settings_snap = db.document('settings/main').get()
+    reads['settings/main'] = settings_snap
+    previous = settings_snap.to_dict() or {}
+    settings = {**previous, **seed['settings']}
+    settings.setdefault('availability', '')
+    for field, collection in (('defaultProjectIds', 'projects'), ('defaultExperienceIds', 'experience')):
+        settings[field] = defaults[collection] if args.reset_defaults or field not in previous else previous[field]
+    settings = validate_settings(settings, normalize_urls=True)
+    if settings != previous:
+        writes['settings/main'] = settings
+    apply_plan(db, args, writes, reads, collections)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

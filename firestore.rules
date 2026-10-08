@@ -1,38 +1,174 @@
-rules_version='2'
+rules_version = '2';
 
+// Prototype rules for the Standard edition portfolio database.
+// settings/main: public profile/contact fields intentionally published by owner.
+// projects and experience: bounded public content, visible only while active.
+// jobs: private application metadata; createdAt and legacy viewCount immutable.
+// profileSlugs/{slug}: private reservation {jobId}; atomically owns one slug.
+// publicProfiles/{slug}: only slug, selected IDs, custom public copy, active,
+// expiry and timestamps. Public visitors may get an active, unexpired link;
+// they cannot list links or read the corresponding private application.
+// Job, reservation and projection writes must agree in the same transaction.
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper: check if the requester is an authenticated admin
     function isAdmin() {
-      return request.auth != null
-        && request.auth.token.email == 'thejaynesh@gmail.com';
+      return request.auth != null && (
+        request.auth.token.get('admin', false) == true ||
+        (request.auth.token.get('email', '') == 'thejaynesh@gmail.com' &&
+         request.auth.token.get('email_verified', false) == true));
     }
-
-    // Portfolio data: anyone can read, only admin can write
-    match /settings/{docId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
+    function text(value, max) { return value is string && value.size() <= max; }
+    function nonempty(value, max) { return text(value, max) && value.size() > 0; }
+    function optionalText(value, max) { return value == null || text(value, max); }
+    function url(value, relative) {
+      return value == null || value == '' || (text(value, 2000) && value.matches('[^\\s\\\\]*') && (
+        value.matches('https?://[^/@\\s]+([/?#].*)?') ||
+        (relative && value.matches('/[^/\\\\].*'))));
     }
-
-    match /projects/{docId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
+    function strings(value, max, itemMax) {
+      // join() is defined only on lists. Round-trip comparison rejects any
+      // non-string elements; the regex bounds every single-line entry.
+      let joined = value.join('\n');
+      let itemPattern = itemMax == 2000 ? '[^\n\r]{0,1000}[^\n\r]{0,1000}' :
+        (itemMax == 500 ? '[^\n\r]{0,500}' : '[^\n\r]{0,200}');
+      return value.size() <= max && (value.size() == 0 || (
+        joined.split('\n') == value && joined.matches('(' + itemPattern + '\n)*' + itemPattern)));
     }
-
-    match /experience/{docId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
+    function ids(value) {
+      let joined = value.join('\n');
+      return value.size() <= 100 && value.toSet().size() == value.size() &&
+        (value.size() == 0 || (joined.split('\n') == value &&
+        joined.matches('([a-zA-Z0-9_-]{1,128}\n)*[a-zA-Z0-9_-]{1,128}')));
     }
-
-    match /jobs/{docId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
+    function timestamps(data) { return data.createdAt is timestamp && data.updatedAt is timestamp; }
+    function createdNow(data) { return data.createdAt == request.time && data.updatedAt == request.time; }
+    function updatedNow(data) { return data.createdAt == resource.data.createdAt && data.updatedAt == request.time; }
+    function expiry(value) { return value == null || value is timestamp; }
+    function slug(value) { return value is string && value.matches('[a-z0-9][a-z0-9-]{0,99}'); }
+    function objects(value) {
+      // Only the verified owner/admin can write these public content groups.
+      // Bound their structure here; detailed nested schemas are checked in Dart
+      // and Python preflight. Revalidating every nested string here exceeds
+      // Firestore's 1000-expression limit on a normal complete profile.
+      return value is list && value.size() <= 12;
     }
-
-    // Deny everything else by default
-    match /{document=**} {
-      allow read, write: if false;
+    function validSettings(data) {
+      return data.keys().hasAll(['name', 'tagline', 'email']) &&
+        data.keys().hasOnly(['name','initials','role','tagline','location','about','summary','email','phone',
+          'availability','github','linkedin','twitter','instagram','resumeUrl','highlights','skillGroups',
+          'awards','education','quiz','personality','certifications','now','defaultProjectIds','defaultExperienceIds']) &&
+        nonempty(data.name, 200) && text(data.get('initials',''), 20) && text(data.get('role',''), 200) &&
+        text(data.tagline, 1000) && text(data.get('location',''), 200) && text(data.get('about',''), 10000) &&
+        text(data.get('summary',''), 10000) && text(data.get('availability',''), 300) &&
+        text(data.email, 320) && data.email.matches('[^\\s@]+@[^\\s@]+\\.[^\\s@]+') && text(data.get('phone',''), 50) &&
+        url(data.get('github',null),false) && url(data.get('linkedin',null),false) &&
+        url(data.get('twitter',null),false) && url(data.get('instagram',null),false) && url(data.get('resumeUrl',null),true) &&
+        objects(data.get('highlights',[])) && objects(data.get('skillGroups',[])) &&
+        strings(data.get('awards',[]),50,2000) && objects(data.get('education',[])) &&
+        objects(data.get('quiz',[])) && objects(data.get('personality',[])) &&
+        objects(data.get('certifications',[])) && strings(data.get('now',[]),50,2000) &&
+        ids(data.get('defaultProjectIds',[])) && ids(data.get('defaultExperienceIds',[]));
     }
+    function validProject(data) {
+      return data.keys().hasAll(['title','category','description','techStack','order','isActive','createdAt','updatedAt']) &&
+        data.keys().hasOnly(['title','category','description','techStack','link','imageUrl','sourceUrl','colorHex','tags',
+          'tag','kpi','problem','contribution','outcome','order','isActive','createdAt','updatedAt']) &&
+        nonempty(data.title,200) && text(data.category,200) && text(data.description,10000) &&
+        strings(data.techStack,50,200) && strings(data.get('tags',[]),50,200) &&
+        text(data.get('tag',''),300) && text(data.get('kpi',''),1000) &&
+        text(data.get('problem',''),10000) && text(data.get('contribution',''),10000) && text(data.get('outcome',''),10000) &&
+        url(data.get('link',null),false) && url(data.get('sourceUrl',null),false) && url(data.get('imageUrl',null),true) &&
+        data.get('colorHex',4294929205) is int && data.get('colorHex',4294929205) >= 0 && data.get('colorHex',4294929205) <= 4294967295 &&
+        data.order is int && data.order >= 0 && data.order <= 100000 && data.isActive is bool && timestamps(data);
+    }
+    function validExperience(data) {
+      return data.keys().hasAll(['role','company','period','description','order','isActive','createdAt','updatedAt']) &&
+        data.keys().hasOnly(['role','company','period','description','highlights','tags','city','order','isActive','createdAt','updatedAt']) &&
+        nonempty(data.role,200) && nonempty(data.company,200) && text(data.period,200) &&
+        text(data.description,10000) && text(data.get('city',''),200) &&
+        strings(data.get('highlights',[]),50,2000) && strings(data.get('tags',[]),50,200) &&
+        data.order is int && data.order >= 0 && data.order <= 100000 && data.isActive is bool && timestamps(data);
+    }
+    function validJob(data) {
+      return data.keys().hasAll(['slug','title','company','projectIds','experienceIds','isActive','createdAt','updatedAt']) &&
+        data.keys().hasOnly(['slug','title','company','description','projectIds','experienceIds','customTagline','customAbout',
+          'isActive','viewCount','createdAt','updatedAt','expiresAt']) &&
+        slug(data.slug) && nonempty(data.title,200) && nonempty(data.company,200) && optionalText(data.get('description',null),10000) &&
+        ids(data.projectIds) && ids(data.experienceIds) && optionalText(data.get('customTagline',null),1000) &&
+        optionalText(data.get('customAbout',null),10000) && data.isActive is bool && expiry(data.get('expiresAt',null)) &&
+        data.get('viewCount',0) is int && data.get('viewCount',0) >= 0 && timestamps(data);
+    }
+    function validProfile(data, profileSlug) {
+      return data.keys().hasAll(['slug','projectIds','experienceIds','isActive','createdAt','updatedAt','expiresAt']) &&
+        data.keys().hasOnly(['slug','projectIds','experienceIds','customTagline','customAbout','isActive','createdAt','updatedAt','expiresAt']) &&
+        slug(data.slug) && data.slug == profileSlug && ids(data.projectIds) && ids(data.experienceIds) &&
+        optionalText(data.get('customTagline',null),1000) && optionalText(data.get('customAbout',null),10000) &&
+        data.isActive is bool && expiry(data.expiresAt) && timestamps(data);
+    }
+    function projectionMatches(profile, job) {
+      return profile.slug == job.slug && profile.projectIds == job.projectIds && profile.experienceIds == job.experienceIds &&
+        profile.get('customTagline',null) == job.get('customTagline',null) && profile.get('customAbout',null) == job.get('customAbout',null) &&
+        profile.isActive == job.isActive && profile.expiresAt == job.get('expiresAt',null) &&
+        profile.createdAt == job.createdAt && profile.updatedAt == job.updatedAt;
+    }
+    function jobPublished(job, jobId) {
+      return getAfter(/databases/$(database)/documents/profileSlugs/$(job.slug)).data.jobId == jobId &&
+        projectionMatches(getAfter(/databases/$(database)/documents/publicProfiles/$(job.slug)).data, job);
+    }
+    function profileLinked(data, profileSlug) {
+      let jobId = getAfter(/databases/$(database)/documents/profileSlugs/$(profileSlug)).data.jobId;
+      return projectionMatches(data, getAfter(/databases/$(database)/documents/jobs/$(jobId)).data);
+    }
+    function validReservation(data, profileSlug) {
+      return data.keys().hasOnly(['jobId']) && nonempty(data.jobId,128) &&
+        getAfter(/databases/$(database)/documents/jobs/$(data.jobId)).data.slug == profileSlug &&
+        existsAfter(/databases/$(database)/documents/publicProfiles/$(profileSlug));
+    }
+    match /settings/main {
+      allow get: if true;
+      allow create, update: if isAdmin() && validSettings(request.resource.data);
+      allow delete: if false;
+    }
+    match /projects/{id} {
+      allow read: if isAdmin() || resource.data.isActive == true;
+      allow create: if isAdmin() && validProject(request.resource.data) && createdNow(request.resource.data);
+      allow update: if isAdmin() && validProject(request.resource.data) && updatedNow(request.resource.data);
+      // Archive instead of deleting to preserve references in published links.
+      allow delete: if false;
+    }
+    match /experience/{id} {
+      allow read: if isAdmin() || resource.data.isActive == true;
+      allow create: if isAdmin() && validExperience(request.resource.data) && createdNow(request.resource.data);
+      allow update: if isAdmin() && validExperience(request.resource.data) && updatedNow(request.resource.data);
+      allow delete: if false;
+    }
+    match /jobs/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && validJob(request.resource.data) && createdNow(request.resource.data) &&
+        request.resource.data.get('viewCount',0) == 0 && jobPublished(request.resource.data,id);
+      allow update: if isAdmin() && validJob(request.resource.data) && updatedNow(request.resource.data) &&
+        request.resource.data.get('viewCount',0) == resource.data.get('viewCount',0) && jobPublished(request.resource.data,id) &&
+        (request.resource.data.slug == resource.data.slug || (
+          !existsAfter(/databases/$(database)/documents/profileSlugs/$(resource.data.slug)) &&
+          !existsAfter(/databases/$(database)/documents/publicProfiles/$(resource.data.slug))));
+      allow delete: if isAdmin() &&
+        !existsAfter(/databases/$(database)/documents/profileSlugs/$(resource.data.slug)) &&
+        !existsAfter(/databases/$(database)/documents/publicProfiles/$(resource.data.slug));
+    }
+    match /profileSlugs/{profileSlug} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && validReservation(request.resource.data,profileSlug);
+      allow update: if isAdmin() && validReservation(request.resource.data,profileSlug) && request.resource.data == resource.data;
+      allow delete: if isAdmin() && (!existsAfter(/databases/$(database)/documents/jobs/$(resource.data.jobId)) ||
+        getAfter(/databases/$(database)/documents/jobs/$(resource.data.jobId)).data.slug != profileSlug);
+    }
+    match /publicProfiles/{profileSlug} {
+      allow get: if isAdmin() || (resource.data.isActive == true &&
+        (resource.data.expiresAt == null || resource.data.expiresAt > request.time));
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() && validProfile(request.resource.data,profileSlug) && profileLinked(request.resource.data,profileSlug);
+      allow delete: if isAdmin() && !existsAfter(/databases/$(database)/documents/profileSlugs/$(profileSlug));
+    }
+    match /{document=**} { allow read, write: if false; }
   }
 }

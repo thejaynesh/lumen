@@ -29,7 +29,7 @@
         ]
       },
       {
-        "source": "**/@(main.dart.js|flutter.js|flutter_bootstrap.js|flutter_service_worker.js)",
+        "source": "**/@(main.dart.js|flutter.js|flutter_bootstrap.js|flutter_service_worker.js|firebase_emulator_bootstrap.js)",
         "headers": [
           {
             "key": "Cache-Control",
@@ -67,6 +67,22 @@
           }
         }
       }
+    }
+  },
+  "emulators": {
+    "ui": {
+      "host": "127.0.0.1",
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true,
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 8080
+    },
+    "auth": {
+      "host": "127.0.0.1",
+      "port": 9099
     }
   }
 }

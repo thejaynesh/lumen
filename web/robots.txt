@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /login
+Disallow: /access-denied
+Disallow: /modes
+Disallow: /*?job=
+Disallow: /*?jobId=
+Sitemap: https://lumen-f2e07.web.app/sitemap.xml

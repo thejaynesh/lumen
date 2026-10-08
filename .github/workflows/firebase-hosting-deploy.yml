@@ -1,37 +1,62 @@
-name: Deploy to Firebase Hosting
-
-# Auto-deploys the Flutter web build to Firebase Hosting (live channel) on every
-# push to main. The service-account secret is created by `firebase init
-# hosting:github` (named FIREBASE_SERVICE_ACCOUNT_LUMEN_F2E07).
-
+name: Release portfolio
 on:
-  push:
-    branches:
-      - main
-
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish this verified revision, migrate share profiles, and deploy rules/indexes to production'
+        type: boolean
+        required: true
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: production-release
+  cancel-in-progress: false
 jobs:
-  build_and_deploy:
+  checks:
+    uses: ./.github/workflows/ci.yml
+  deploy:
+    if: inputs.publish && github.ref == 'refs/heads/main'
+    needs: checks
     runs-on: ubuntu-latest
+    environment: production
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.44.6'
           channel: stable
           cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build web (release)
-        run: flutter build web --release
-
-      - name: Deploy to Firebase Hosting (live)
-        uses: FirebaseExtended/action-hosting-deploy@v0
+      - uses: actions/setup-node@v4
         with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_LUMEN_F2E07 }}
-          projectId: lumen-f2e07
-          channelId: live
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: flutter pub get --enforce-lockfile
+      - run: npm ci
+        working-directory: tooling/firestore
+      - run: pip install -r scripts/requirements.txt
+      - name: Configure release credentials
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_LUMEN_F2E07 }}
+        run: |
+          python -c "import os,pathlib; pathlib.Path(os.environ['RUNNER_TEMP'], 'firebase-credentials.json').write_text(os.environ['FIREBASE_SERVICE_ACCOUNT'])"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-credentials.json" >> "$GITHUB_ENV"
+      - name: Prepare public metadata
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://lumen-f2e07.web.app' }}
+        run: python scripts/prepare_web.py --site-url "$SITE_URL"
+      - run: flutter build web --release --no-pub --dart-define=APP_ENV=production
+      - name: Back up and migrate legacy share profiles
+        run: python scripts/migrate_profiles.py --project lumen-f2e07 --apply --confirm-project lumen-f2e07 --backup "$RUNNER_TEMP/profile-backup.json"
+      - name: Preserve private migration backup
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: profile-migration-backup
+          path: ${{ runner.temp }}/profile-backup.json
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: Deploy rules, indexes and Hosting
+        run: tooling/firestore/node_modules/.bin/firebase deploy --project lumen-f2e07 --only firestore:rules,firestore:indexes,hosting --non-interactive

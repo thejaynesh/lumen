@@ -1,66 +1,44 @@
-// Broadside FloatingCTA — §7.4
-// Animated "EMAIL ME ↗" button that appears when hero CTAs scroll out of view.
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-
-import '../../../theme/broadside_theme.dart';
+import '../../../widgets/broadside/primitives.dart';
 
 class FloatingCTA extends StatelessWidget {
   final bool dark;
   final String email;
   final bool visible;
-
   const FloatingCTA({
     required this.dark,
     required this.email,
     required this.visible,
     super.key,
   });
-
-  Future<void> _launch() async {
-    final uri = Uri.parse('mailto:$email');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    if (email.isEmpty) return const SizedBox.shrink();
+    final duration = MediaQuery.disableAnimationsOf(context)
+        ? Duration.zero
+        : const Duration(milliseconds: 220);
     return IgnorePointer(
       ignoring: !visible,
-      child: AnimatedSlide(
-        offset: visible ? Offset.zero : const Offset(0, 2),
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeInOut,
-        child: AnimatedOpacity(
-          opacity: visible ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 250),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: _launch,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 22,
-                  vertical: 14,
-                ),
-                decoration: BoxDecoration(
-                  color: Broadside.accent(dark),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.25),
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  'EMAIL ME ↗',
-                  style: BroadsideText.mono(
-                    size: 11,
-                    color: Broadside.accentInk(dark),
-                    trackingEm: 0.16,
-                  ),
+      child: ExcludeFocus(
+        excluding: !visible,
+        child: ExcludeSemantics(
+          excluding: !visible,
+          child: AnimatedSlide(
+            offset: visible ? Offset.zero : const Offset(0, .25),
+            duration: duration,
+            curve: Curves.easeOutCubic,
+            child: AnimatedOpacity(
+              opacity: visible ? 1 : 0,
+              duration: duration,
+              child: Material(
+                elevation: visible ? 8 : 0,
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(40),
+                child: BtnPrimary(
+                  key: const ValueKey('floating-email'),
+                  label: 'Email me ↗',
+                  dark: dark,
+                  href: 'mailto:$email',
                 ),
               ),
             ),

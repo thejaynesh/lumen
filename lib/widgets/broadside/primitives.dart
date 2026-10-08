@@ -1,16 +1,26 @@
-// Broadside shared primitives — Flutter port of components.jsx
-// Sharp corners everywhere (no BorderRadius). All mono/label text is UPPERCASE.
-
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../theme/broadside_theme.dart';
+import '../../utils/external_links.dart';
 
-// ---------------------------------------------------------------------------
-// 1. Kicker
-// ---------------------------------------------------------------------------
+Future<void> openExternalLink(BuildContext context, String value) async {
+  final normalized = normalizeExternalUrl(value);
+  try {
+    if (normalized.isNotEmpty && await launchUrl(Uri.parse(normalized))) {
+      return;
+    }
+  } catch (_) {
+    // Leave the portfolio usable if the visitor has no external app configured.
+  }
+  if (context.mounted) {
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      const SnackBar(
+        content: Text('Could not open this link. Please try again.'),
+      ),
+    );
+  }
+}
 
 class Kicker extends StatelessWidget {
   final String text;
@@ -18,33 +28,26 @@ class Kicker extends StatelessWidget {
   final double size;
   final Color? color;
   final double trackingEm;
-
   const Kicker(
     this.text, {
     required this.dark,
     this.size = 11,
     this.color,
-    this.trackingEm = 0.18,
+    this.trackingEm = 0.08,
     super.key,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Text(
-      text.toUpperCase(),
-      style: BroadsideText.mono(
-        size: size,
-        color: color ?? Broadside.inkSoft(dark),
-        trackingEm: trackingEm,
-        weight: FontWeight.w500,
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Text(
+    text.toUpperCase(),
+    style: BroadsideText.mono(
+      size: size,
+      color: color ?? Broadside.inkSoft(dark),
+      trackingEm: trackingEm,
+      weight: FontWeight.w500,
+    ),
+  );
 }
-
-// ---------------------------------------------------------------------------
-// 2. SectionHead
-// ---------------------------------------------------------------------------
 
 class SectionHead extends StatelessWidget {
   final String number;
@@ -52,108 +55,81 @@ class SectionHead extends StatelessWidget {
   final String sub;
   final bool dark;
   final String? id;
-
+  final bool compact;
   const SectionHead({
     required this.number,
     required this.title,
     required this.sub,
     required this.dark,
     this.id,
+    this.compact = false,
     super.key,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final w = MediaQuery.sizeOf(context).width;
-    final mobile = w < 760;
-    return Container(
-      margin: const EdgeInsets.only(top: 32),
-      padding: EdgeInsets.only(top: mobile ? 36 : 52, bottom: 24),
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: Broadside.ink(dark), width: 1.5),
+  Widget build(BuildContext context) => Container(
+    margin: EdgeInsets.only(top: compact ? 28 : 48),
+    padding: const EdgeInsets.only(top: 18, bottom: 24),
+    decoration: BoxDecoration(
+      border: Border(top: BorderSide(color: Broadside.rule(dark))),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [Expanded(child: Kicker(sub, dark: dark))],
         ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Kicker(number, dark: dark),
-                const SizedBox(width: 22),
-                Flexible(
-                  child: Text(
-                    title,
-                    style: BroadsideText.serif(
-                      size: mobile ? 40 : 72,
-                      color: Broadside.ink(dark),
-                      height: 1.0,
-                      letterSpacing: -0.02,
-                    ),
-                  ),
-                ),
-              ],
+        const SizedBox(height: 12),
+        Semantics(
+          header: true,
+          child: Text(
+            title,
+            style: BroadsideText.editorial(
+              size: compact
+                  ? 27
+                  : MediaQuery.sizeOf(context).width < 760
+                  ? 32
+                  : 40,
+              color: Broadside.ink(dark),
+              height: 1.06,
+              letterSpacing: -0.02,
             ),
           ),
-          const SizedBox(width: 8),
-          Kicker(sub, dark: dark),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
 }
-
-// ---------------------------------------------------------------------------
-// 3. BroadTag
-// ---------------------------------------------------------------------------
 
 class BroadTag extends StatelessWidget {
   final String text;
   final bool dark;
   final bool mini;
-
-  const BroadTag(
-    this.text, {
-    required this.dark,
-    this.mini = false,
-    super.key,
-  });
-
+  const BroadTag(this.text, {required this.dark, this.mini = false, super.key});
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: mini
-          ? const EdgeInsets.symmetric(horizontal: 8, vertical: 4)
-          : const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        border: Border.all(color: Broadside.rule(dark)),
+  Widget build(BuildContext context) => Container(
+    padding: EdgeInsets.symmetric(horizontal: mini ? 9 : 11, vertical: 6),
+    decoration: BoxDecoration(
+      color: Broadside.paperDeep(dark),
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Text(
+      text,
+      style: BroadsideText.sans(
+        size: mini ? 11 : 12,
+        color: Broadside.inkSoft(dark),
       ),
-      child: Text(
-        text.toUpperCase(),
-        style: BroadsideText.mono(
-          size: mini ? 9.5 : 10.5,
-          color: Broadside.inkSoft(dark),
-          trackingEm: 0.14,
-        ),
-      ),
-    );
-  }
+    ),
+  );
 }
 
-// ---------------------------------------------------------------------------
-// 4. BtnPrimary
-// ---------------------------------------------------------------------------
-
-class BtnPrimary extends StatefulWidget {
+class BtnPrimary extends StatelessWidget {
   final String label;
   final bool dark;
   final Widget? trailing;
   final VoidCallback? onTap;
   final String? href;
-
   const BtnPrimary({
     required this.label,
     required this.dark,
@@ -164,77 +140,35 @@ class BtnPrimary extends StatefulWidget {
   });
 
   @override
-  State<BtnPrimary> createState() => _BtnPrimaryState();
+  Widget build(BuildContext context) => FilledButton(
+    onPressed:
+        onTap ??
+        (href == null || href!.isEmpty
+            ? null
+            : () => openExternalLink(context, href!)),
+    style: FilledButton.styleFrom(
+      backgroundColor: Broadside.signal(dark),
+      foregroundColor: Broadside.signalInk(dark),
+      minimumSize: const Size(44, 48),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      shape: const StadiumBorder(),
+      textStyle: BroadsideText.sans(size: 13, weight: FontWeight.w500),
+    ),
+    child: Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 10,
+      children: [Text(label), if (trailing != null) trailing!],
+    ),
+  );
 }
 
-class _BtnPrimaryState extends State<BtnPrimary> {
-  bool _hover = false;
-
-  void _handleTap() {
-    if (widget.onTap != null) {
-      widget.onTap!();
-    } else if (widget.href != null) {
-      launchUrl(Uri.parse(widget.href!));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final bgColor = Broadside.ink(widget.dark);
-    final fgColor = Broadside.paper(widget.dark);
-
-    Widget content = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-      decoration: BoxDecoration(
-        color: bgColor,
-        border: Border.all(color: bgColor),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            widget.label.toUpperCase(),
-            style: BroadsideText.mono(
-              size: 11,
-              color: fgColor,
-              trackingEm: 0.16,
-            ),
-          ),
-          if (widget.trailing != null) ...[
-            const SizedBox(width: 10),
-            widget.trailing!,
-          ],
-        ],
-      ),
-    );
-
-    if (_hover) {
-      content = Opacity(opacity: 0.85, child: content);
-    }
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        onTap: _handleTap,
-        child: content,
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// 5. BtnGhost
-// ---------------------------------------------------------------------------
-
-class BtnGhost extends StatefulWidget {
+class BtnGhost extends StatelessWidget {
   final String label;
   final bool dark;
   final Widget? trailing;
   final VoidCallback? onTap;
   final String? href;
-
   const BtnGhost({
     required this.label,
     required this.dark,
@@ -245,71 +179,58 @@ class BtnGhost extends StatefulWidget {
   });
 
   @override
-  State<BtnGhost> createState() => _BtnGhostState();
+  Widget build(BuildContext context) => OutlinedButton(
+    onPressed:
+        onTap ??
+        (href == null || href!.isEmpty
+            ? null
+            : () => openExternalLink(context, href!)),
+    style: OutlinedButton.styleFrom(
+      foregroundColor: Broadside.ink(dark),
+      side: BorderSide(color: Broadside.rule(dark)),
+      minimumSize: const Size(44, 48),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      shape: const StadiumBorder(),
+      textStyle: BroadsideText.sans(size: 13, weight: FontWeight.w500),
+    ),
+    child: Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 10,
+      children: [Text(label), if (trailing != null) trailing!],
+    ),
+  );
 }
 
-class _BtnGhostState extends State<BtnGhost> {
-  bool _hover = false;
-
-  void _handleTap() {
-    if (widget.onTap != null) {
-      widget.onTap!();
-    } else if (widget.href != null) {
-      launchUrl(Uri.parse(widget.href!));
-    }
-  }
-
+class BroadsideLink extends StatelessWidget {
+  final String label;
+  final String href;
+  final bool dark;
+  const BroadsideLink({
+    required this.label,
+    required this.href,
+    required this.dark,
+    super.key,
+  });
   @override
-  Widget build(BuildContext context) {
-    final fgColor = Broadside.ink(widget.dark);
-    final borderColor =
-        _hover ? Broadside.ink(widget.dark) : Broadside.rule(widget.dark);
-
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        onTap: _handleTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-          decoration: BoxDecoration(
-            color: Colors.transparent,
-            border: Border.all(color: borderColor),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                widget.label.toUpperCase(),
-                style: BroadsideText.mono(
-                  size: 11,
-                  color: fgColor,
-                  trackingEm: 0.16,
-                ),
-              ),
-              if (widget.trailing != null) ...[
-                const SizedBox(width: 10),
-                widget.trailing!,
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => TextButton(
+    onPressed: () => openExternalLink(context, href),
+    style: TextButton.styleFrom(
+      foregroundColor: Broadside.accent(dark),
+      minimumSize: const Size(44, 44),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      shape: const RoundedRectangleBorder(),
+      textStyle: BroadsideText.sans(size: 14),
+    ),
+    child: Text(label),
+  );
 }
-
-// ---------------------------------------------------------------------------
-// 6. ImagePlaceholder
-// ---------------------------------------------------------------------------
 
 class ImagePlaceholder extends StatelessWidget {
   final double aspect;
   final String label;
   final bool dark;
   final String? imageUrl;
-
   const ImagePlaceholder({
     required this.aspect,
     required this.label,
@@ -320,39 +241,24 @@ class ImagePlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imageUrl != null && imageUrl!.isNotEmpty) {
-      return Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Broadside.rule(dark)),
-        ),
-        child: AspectRatio(
-          aspectRatio: aspect,
-          child: Image.network(imageUrl!, fit: BoxFit.cover),
-        ),
-      );
+    if (imageUrl == null || imageUrl!.trim().isEmpty) {
+      return const SizedBox.shrink();
     }
-
     return Container(
       decoration: BoxDecoration(
+        color: Broadside.paperDeep(dark),
         border: Border.all(color: Broadside.rule(dark)),
       ),
       child: AspectRatio(
         aspectRatio: aspect,
-        child: CustomPaint(
-          painter: _HatchPainter(dark),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Kicker(label, dark: dark),
-                    Kicker('drop image →', dark: dark),
-                  ],
-                ),
-              ],
+        child: Image.network(
+          resolveAssetUrl(imageUrl!),
+          fit: BoxFit.cover,
+          semanticLabel: label,
+          errorBuilder: (context, error, stackTrace) => Center(
+            child: Text(
+              'Image unavailable',
+              style: BroadsideText.sans(color: Broadside.inkSoft(dark)),
             ),
           ),
         ),
@@ -361,103 +267,22 @@ class ImagePlaceholder extends StatelessWidget {
   }
 }
 
-class _HatchPainter extends CustomPainter {
-  final bool dark;
-
-  const _HatchPainter(this.dark);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Fill background with paper color.
-    final bgPaint = Paint()..color = Broadside.paper(dark);
-    canvas.drawRect(Offset.zero & size, bgPaint);
-
-    // Draw 135-degree repeating stripes: 8px paperDeep, 8px paper (16px period).
-    // At 135deg the stripe direction is top-right to bottom-left.
-    // We iterate along the diagonal offset and paint paperDeep bands.
-    final stripePaint = Paint()..color = Broadside.paperDeep(dark);
-
-    // The diagonal length across the widget (bounding diagonal).
-    final diagonal = math.sqrt(size.width * size.width + size.height * size.height);
-    const period = 16.0;
-    const bandWidth = 8.0;
-
-    canvas.save();
-    // Clip to widget bounds.
-    canvas.clipRect(Offset.zero & size);
-
-    // Rotate canvas 45 degrees around center so stripes go at 135deg.
-    // 135deg from horizontal = 45deg from vertical, which visually matches
-    // repeating-linear-gradient(135deg, ...).
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-    canvas.translate(cx, cy);
-    canvas.rotate(math.pi / 4); // 45 deg
-    canvas.translate(-cx, -cy);
-
-    // After rotation, draw horizontal bands that map to 135deg stripes.
-    // The diagonal of the original rect is now the "width" of our band area.
-    // We need to cover [-diagonal/2, diagonal/2] around center in both axes.
-    final halfDiag = diagonal / 2 + period;
-    final startY = cy - halfDiag;
-    final endY = cy + halfDiag;
-
-    double y = startY;
-    // Align to period boundary.
-    y = (y / period).floor() * period;
-
-    while (y < endY) {
-      final bandStart = y;
-      final bandEnd = y + bandWidth;
-      canvas.drawRect(
-        Rect.fromLTRB(cx - halfDiag, bandStart, cx + halfDiag, bandEnd),
-        stripePaint,
-      );
-      y += period;
-    }
-
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(_HatchPainter old) => old.dark != dark;
-}
-
-// ---------------------------------------------------------------------------
-// 7. ThemeToggleButton
-// ---------------------------------------------------------------------------
-
 class ThemeToggleButton extends StatelessWidget {
   final bool dark;
   final VoidCallback onToggle;
-
   const ThemeToggleButton({
     required this.dark,
     required this.onToggle,
     super.key,
   });
-
   @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: onToggle,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          decoration: BoxDecoration(
-            border: Border.all(color: Broadside.rule(dark)),
-          ),
-          child: Text(
-            dark ? 'DAY' : 'NIGHT',
-            style: BroadsideText.mono(
-              size: 10,
-              color: Broadside.ink(dark),
-              trackingEm: 0.16,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => IconButton(
+    tooltip: dark ? 'Use light theme' : 'Use dark theme',
+    onPressed: onToggle,
+    color: Broadside.ink(dark),
+    icon: Icon(
+      dark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+      size: 20,
+    ),
+  );
 }

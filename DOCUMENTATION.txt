@@ -1,676 +1,366 @@
-================================================================================
-                              LUMEN PORTFOLIO
-                       Complete Application Documentation
-================================================================================
-
-Last Updated: February 4, 2026
-Version: 1.0.0
-
-
-================================================================================
-                              TABLE OF CONTENTS
-================================================================================
-
-1. PROJECT OVERVIEW
-2. TECHNOLOGY STACK
-3. ARCHITECTURE & PROJECT STRUCTURE
-4. FEATURES
-5. DATA MODELS
-6. SERVICES & BUSINESS LOGIC
-7. USER INTERFACE COMPONENTS
-8. THEMING SYSTEM
-9. ROUTING & NAVIGATION
-10. FIREBASE INTEGRATION
-11. ADMIN DASHBOARD
-12. DEVELOPMENT & RUNNING LOCALLY
-13. FUTURE ENHANCEMENTS
-
-
-================================================================================
-                           1. PROJECT OVERVIEW
-================================================================================
-
-Lumen is a dynamic, high-performance personal portfolio website built with 
-Flutter Web. It is designed for software developers to showcase their work, 
-experience, and skills in a visually stunning and modern interface.
-
-KEY HIGHLIGHTS:
-- Single-page application with smooth scrolling
-- Light/Dark mode theme switching
-- Parallax scrolling effects
-- Animated UI elements with glow effects
-- Job-specific portfolio customization
-- Firebase-powered backend with real-time updates
-- Admin dashboard for content management
-- Responsive design for all screen sizes
-
-
-================================================================================
-                          2. TECHNOLOGY STACK
-================================================================================
-
-FRONTEND:
----------
-- Flutter Web (Dart) - Cross-platform UI framework
-- Google Fonts - Typography (Inter font family)
-- Flutter Animate - Animation library for smooth transitions
-- Font Awesome Flutter - Icon library
-- Provider - State management
-
-BACKEND & DATABASE:
--------------------
-- Firebase Core - Firebase initialization
-- Firebase Auth - User authentication for admin access
-- Cloud Firestore - NoSQL database for portfolio content
-
-ROUTING:
---------
-- Go Router - Declarative routing for Flutter web
-
-UTILITIES:
-----------
-- URL Launcher - Opening external links (email, social media)
-
-
-================================================================================
-                    3. ARCHITECTURE & PROJECT STRUCTURE
-================================================================================
-
-The application follows a modular, layered architecture:
-
-lib/
-├── main.dart                    # App entry point
-├── router.dart                  # Route configuration
-├── firebase_options.dart        # Firebase config (auto-generated)
-│
-├── models/                      # Data models
-│   └── portfolio_data.dart      # All data classes
-│
-├── providers/                   # State management
-│   ├── auth_provider.dart       # Authentication state
-│   └── theme_provider.dart      # Theme (light/dark) state
-│
-├── services/                    # Business logic
-│   └── portfolio_service.dart   # Firebase CRUD operations
-│
-├── theme/                       # UI theming
-│   └── app_theme.dart           # Colors, typography, styles
-│
-├── screens/                     # Application screens
-│   ├── home/                    # Public portfolio (modular)
-│   │   ├── home.dart            # Barrel export
-│   │   ├── home_screen.dart     # Main screen coordinator
-│   │   ├── sections/            # Page sections
-│   │   │   ├── hero_section.dart
-│   │   │   ├── projects_section.dart
-│   │   │   ├── experience_section.dart
-│   │   │   ├── skills_section.dart
-│   │   │   ├── contact_section.dart
-│   │   │   └── footer_section.dart
-│   │   ├── widgets/             # Reusable widgets
-│   │   │   ├── background_glow.dart
-│   │   │   ├── theme_toggle.dart
-│   │   │   ├── project_card.dart
-│   │   │   └── experience_card.dart
-│   │   └── utils/               # Utilities
-│   │       └── mock_data.dart
-│   │
-│   └── admin/                   # Admin dashboard
-│       ├── admin_dashboard.dart # Main admin screen
-│       └── login_screen.dart    # Admin login
-│
-└── widgets/                     # Shared widgets
-    └── [additional widgets]
-
-
-================================================================================
-                               4. FEATURES
-================================================================================
-
-PUBLIC PORTFOLIO FEATURES:
---------------------------
-
-1. HERO SECTION
-   - Large animated name display with glow effect
-   - Tagline with electric blue accent
-   - About/bio text
-   - "View Work" call-to-action button
-   - Resume download button
-
-2. PROJECTS CAROUSEL
-   - Horizontal scrolling showcase
-   - Project cards with hover effects:
-     * Lift animation on hover
-     * Border color change to blue
-     * Glow shadow effect
-   - Each card displays:
-     * Project title
-     * Category (e.g., "Web Application")
-     * Description
-     * Technology stack tags
-
-3. EXPERIENCE CAROUSEL
-   - Horizontal scrolling timeline
-   - Experience cards with:
-     * Role/position title
-     * Company name
-     * Time period
-     * Description
-     * Skill highlights
-
-4. SKILLS SECTION
-   - Grid of skill tags
-   - Staggered animation on scroll
-   - Visual skill representation
-
-5. CONTACT SECTION
-   - Email link with glow effect
-   - Social media links (GitHub, LinkedIn, Twitter)
-   - Opens in new tab/email client
-
-6. FOOTER
-   - Copyright notice
-   - "Built with Flutter" credit
-
-7. THEME TOGGLE
-   - Light/Dark mode switch
-   - Persistent sun/moon icon button
-   - Smooth transition animation
-
-8. PARALLAX EFFECTS
-   - Hero section moves slower than scroll
-   - Projects section has subtle parallax offset
-   - Background glow follows scroll position
-
-9. JOB-SPECIFIC PORTFOLIOS
-   - Custom URL parameter: /?job=<slug>
-   - Per-job project/experience selection
-   - Custom tagline and about text per job
-   - View count tracking
-
-
-ADMIN DASHBOARD FEATURES:
--------------------------
-
-1. AUTHENTICATION
-   - Email/password login
-   - Session persistence
-   - Protected routes
-
-2. CONTENT MANAGEMENT
-   - Projects CRUD (Create, Read, Update, Delete)
-   - Experience CRUD
-   - Job postings management
-   - Portfolio settings
-
-3. DATA SEEDING
-   - One-click sample data generation
-   - Initial setup helper
-
-
-================================================================================
-                             5. DATA MODELS
-================================================================================
-
-All data models are defined in: lib/models/portfolio_data.dart
-
-1. PORTFOLIO SETTINGS
-   ┌─────────────────────────────────────────────────────────────────┐
-   │ Field                  │ Type           │ Description           │
-   ├─────────────────────────────────────────────────────────────────┤
-   │ name                   │ String         │ Your full name        │
-   │ tagline                │ String         │ Professional title    │
-   │ about                  │ String         │ Bio/description       │
-   │ email                  │ String         │ Contact email         │
-   │ github                 │ String?        │ GitHub URL            │
-   │ linkedin               │ String?        │ LinkedIn URL          │
-   │ twitter                │ String?        │ Twitter URL           │
-   │ instagram              │ String?        │ Instagram URL         │
-   │ resumeUrl              │ String?        │ Resume download link  │
-   │ defaultProjectIds      │ List<String>   │ Featured project IDs  │
-   │ defaultExperienceIds   │ List<String>   │ Featured exp IDs      │
-   │ skills                 │ List<Skill>    │ Skill list            │
-   │ stats                  │ List<Stat>     │ Statistics            │
-   └─────────────────────────────────────────────────────────────────┘
-
-2. PROJECT
-   ┌─────────────────────────────────────────────────────────────────┐
-   │ Field                  │ Type           │ Description           │
-   ├─────────────────────────────────────────────────────────────────┤
-   │ id                     │ String         │ Firestore document ID │
-   │ title                  │ String         │ Project name          │
-   │ category               │ String         │ Category label        │
-   │ description            │ String         │ Project description   │
-   │ techStack              │ List<String>   │ Technologies used     │
-   │ link                   │ String?        │ Live/repo link        │
-   │ imageUrl               │ String?        │ Preview image         │
-   │ colorHex               │ int            │ Accent color          │
-   │ tags                   │ List<String>   │ Filter tags           │
-   │ order                  │ int            │ Display order         │
-   │ isActive               │ bool           │ Visibility toggle     │
-   │ createdAt              │ DateTime       │ Creation timestamp    │
-   │ updatedAt              │ DateTime       │ Last update           │
-   └─────────────────────────────────────────────────────────────────┘
-
-3. EXPERIENCE
-   ┌─────────────────────────────────────────────────────────────────┐
-   │ Field                  │ Type           │ Description           │
-   ├─────────────────────────────────────────────────────────────────┤
-   │ id                     │ String         │ Firestore document ID │
-   │ role                   │ String         │ Job title             │
-   │ company                │ String         │ Company name          │
-   │ period                 │ String         │ Time period           │
-   │ description            │ String         │ Role description      │
-   │ highlights             │ List<String>   │ Skills/technologies   │
-   │ tags                   │ List<String>   │ Filter tags           │
-   │ order                  │ int            │ Display order         │
-   │ isActive               │ bool           │ Visibility toggle     │
-   │ createdAt              │ DateTime       │ Creation timestamp    │
-   │ updatedAt              │ DateTime       │ Last update           │
-   └─────────────────────────────────────────────────────────────────┘
-
-4. JOB POSTING
-   ┌─────────────────────────────────────────────────────────────────┐
-   │ Field                  │ Type           │ Description           │
-   ├─────────────────────────────────────────────────────────────────┤
-   │ id                     │ String         │ Firestore document ID │
-   │ slug                   │ String         │ URL-friendly ID       │
-   │ title                  │ String         │ Job title             │
-   │ company                │ String         │ Company name          │
-   │ description            │ String?        │ Application notes     │
-   │ projectIds             │ List<String>   │ Selected projects     │
-   │ experienceIds          │ List<String>   │ Selected experience   │
-   │ customTagline          │ String?        │ Override tagline      │
-   │ customAbout            │ String?        │ Override about        │
-   │ isActive               │ bool           │ Active status         │
-   │ viewCount              │ int            │ Profile view count    │
-   │ createdAt              │ DateTime       │ Creation timestamp    │
-   │ updatedAt              │ DateTime       │ Last update           │
-   │ expiresAt              │ DateTime?      │ Expiration date       │
-   └─────────────────────────────────────────────────────────────────┘
-
-5. SKILL
-   ┌─────────────────────────────────────────────────────────────────┐
-   │ name                   │ String         │ Skill name            │
-   │ level                  │ double         │ Proficiency (0.0-1.0) │
-   └─────────────────────────────────────────────────────────────────┘
-
-6. STAT
-   ┌─────────────────────────────────────────────────────────────────┐
-   │ value                  │ String         │ Metric value          │
-   │ label                  │ String         │ Metric label          │
-   └─────────────────────────────────────────────────────────────────┘
-
-7. PORTFOLIO VIEW DATA
-   - Container class for public portfolio view
-   - Combines settings, projects, experiences
-   - Handles job-specific customizations
-
-
-================================================================================
-                       6. SERVICES & BUSINESS LOGIC
-================================================================================
-
-PORTFOLIO SERVICE (lib/services/portfolio_service.dart)
---------------------------------------------------------
-
-The PortfolioService handles all Firebase interactions:
-
-AUTHENTICATION:
-- signIn(email, password) - Admin login
-- signOut() - Logout
-- currentUser - Get current user
-- authStateChanges - Auth state stream
-
-SETTINGS:
-- getSettings() - Fetch portfolio settings
-- watchSettings() - Real-time settings stream
-- updateSettings(settings) - Save settings
-
-PROJECTS:
-- getAllProjects() - Get all projects
-- watchProjects() - Real-time projects stream
-- getActiveProjects() - Get visible projects
-- getProjectsByIds(ids) - Get specific projects
-- addProject(project) - Create project
-- updateProject(project) - Update project
-- deleteProject(id) - Delete project
-
-EXPERIENCE:
-- getAllExperience() - Get all experience
-- watchExperience() - Real-time experience stream
-- getActiveExperience() - Get visible experience
-- getExperienceByIds(ids) - Get specific experience
-- addExperience(experience) - Create experience
-- updateExperience(experience) - Update experience
-- deleteExperience(id) - Delete experience
-
-JOBS:
-- getAllJobs() - Get all job postings
-- watchJobs() - Real-time jobs stream
-- getJobBySlug(slug) - Get job by URL slug
-- isSlugAvailable(slug) - Check slug uniqueness
-- addJob(job) - Create job posting
-- updateJob(job) - Update job posting
-- deleteJob(id) - Delete job posting
-- incrementJobViewCount(jobId) - Track views
-
-PORTFOLIO VIEW:
-- getPortfolioViewData(jobSlug?) - Aggregated data for display
-
-DATA SEEDING:
-- seedInitialData() - Initialize with sample data
-
-
-================================================================================
-                       7. USER INTERFACE COMPONENTS
-================================================================================
-
-HOME SCREEN SECTIONS:
----------------------
-
-1. BackgroundGlow (widgets/background_glow.dart)
-   - Animated radial gradient
-   - Follows scroll position
-   - Fade-in animation
-
-2. ThemeToggleButton (widgets/theme_toggle.dart)
-   - Positioned top-right
-   - Sun/moon icon toggle
-   - Smooth icon transition
-   - Glass-like container
-
-3. HeroSection (sections/hero_section.dart)
-   - Full viewport height
-   - Parallax scrolling effect
-   - Name with glow shadow
-   - Animated tagline and about
-   - CTA and resume buttons
-
-4. ProjectsSection (sections/projects_section.dart)
-   - Section header "SELECTED WORK"
-   - Horizontal scrolling ListView
-   - ProjectCard widgets
-
-5. ExperienceSection (sections/experience_section.dart)
-   - Section header "EXPERIENCE"
-   - Rounded container with surface color
-   - Horizontal scrolling ListView
-   - ExperienceCard widgets
-
-6. SkillsSection (sections/skills_section.dart)
-   - Section header "SKILLS"
-   - Wrapped grid layout
-   - Staggered fade-in animation
-   - Rounded skill tags
-
-7. ContactSection (sections/contact_section.dart)
-   - Section header "GET IN TOUCH"
-   - Large email link with glow
-   - Social media buttons
-   - Rounded container
-
-8. FooterSection (sections/footer_section.dart)
-   - Copyright text
-   - "Built with Flutter" credit
-
-
-CARD WIDGETS:
--------------
-
-1. ProjectCard (widgets/project_card.dart)
-   - Hover state management
-   - AnimatedContainer for smooth transitions
-   - Features:
-     * Image placeholder area
-     * Category tag
-     * Title
-     * Description (3 line max)
-     * Tech stack pills
-   - Animations:
-     * Lift on hover (-8px)
-     * Border color change
-     * Glow shadow on hover
-     * Staggered fade-in
-
-2. ExperienceCard (widgets/experience_card.dart)
-   - Hover state management
-   - Features:
-     * Period badge
-     * Role title
-     * Company name
-     * Description
-     * Highlight/skill tags
-   - Same animations as ProjectCard
-
-
-================================================================================
-                            8. THEMING SYSTEM
-================================================================================
-
-Theme configuration: lib/theme/app_theme.dart
-
-COLOR PALETTE:
---------------
-Primary (Electric Blue): #0066FF
-Primary Light: #3388FF
-Accent: #00A3FF
-
-DARK MODE COLORS:
-- Background: #000000
-- Background Alt: #0A0A0A
-- Surface: #111111
-- Surface Light: #1A1A1A
-- Text Primary: #FFFFFF
-- Text Secondary: #AAAAAA
-- Text Muted: #666666
-
-LIGHT MODE COLORS:
-- Background: #FAFAFA
-- Background Alt: #FFFFFF
-- Surface: #FFFFFF
-- Surface Light: #F0F0F0
-- Text Primary: #000000
-- Text Secondary: #555555
-- Text Muted: #999999
-
-BORDER RADII:
-- Small: 12px
-- Medium: 20px
-- Large: 28px
-- XL: 40px
-
-EFFECTS:
-- Glow Shadow: Blue glow for emphasis
-- Soft Shadow: Subtle depth shadow
-- Accent Gradient: Primary to Accent gradient
-
-THEME-AWARE HELPERS:
-- AppTheme.background(isDark) - Returns theme-aware color
-- AppTheme.textPrimary(isDark) - Returns theme-aware color
-- AppTheme.glowShadow(isDark) - Returns theme-aware shadow
-- etc.
-
-
-================================================================================
-                         9. ROUTING & NAVIGATION
-================================================================================
-
-Routes are defined in: lib/router.dart
-
-DEFINED ROUTES:
----------------
-┌─────────────┬─────────────────────────────────────────────────────────┐
-│ Path        │ Description                                             │
-├─────────────┼─────────────────────────────────────────────────────────┤
-│ /           │ Public portfolio homepage                               │
-│ /?job=slug  │ Job-specific portfolio view                             │
-│ /login      │ Admin login page                                        │
-│ /admin      │ Admin dashboard (protected)                             │
-└─────────────┴─────────────────────────────────────────────────────────┘
-
-ROUTE PROTECTION:
-- /admin route requires authentication
-- Unauthenticated users redirected to /login
-- Public routes (/, /login) always accessible
-
-
-================================================================================
-                        10. FIREBASE INTEGRATION
-================================================================================
-
-FIRESTORE COLLECTIONS:
-----------------------
-
-1. settings/main (Document)
-   - Single document storing PortfolioSettings
-
-2. projects (Collection)
-   - Documents storing Project data
-   - Indexed by 'order' field
-
-3. experience (Collection)
-   - Documents storing Experience data
-   - Indexed by 'order' field
-
-4. jobs (Collection)
-   - Documents storing JobPosting data
-   - Indexed by 'createdAt' (descending)
-
-REQUIRED FIREBASE SERVICES:
----------------------------
-1. Firebase Authentication
-   - Email/Password provider enabled
-
-2. Cloud Firestore
-   - Database in production mode
-   - Indexes for queries
-
-SECURITY RULES (Recommended):
------------------------------
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Public read access
-    match /settings/{doc} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-    
-    match /projects/{doc} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-    
-    match /experience/{doc} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-    
-    match /jobs/{doc} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-  }
-}
-```
-
-
-================================================================================
-                          11. ADMIN DASHBOARD
-================================================================================
-
-The admin dashboard provides content management:
-
-ACCESS:
-- URL: /admin
-- Requires email/password authentication
-- Protected by route guard
-
-TABS:
-1. Projects - Manage portfolio projects
-2. Experience - Manage work experience
-3. Jobs - Manage job-specific portfolios
-4. Settings - Portfolio settings
-
-FEATURES:
-- View all items in each category
-- Add new items
-- Edit existing items
-- Delete items
-- Toggle active/inactive status
-- Seed sample data (first-time setup)
-- View portfolio (opens public site)
-
-
-================================================================================
-                   12. DEVELOPMENT & RUNNING LOCALLY
-================================================================================
-
-PREREQUISITES:
---------------
-- Flutter SDK (3.10.1+)
-- Dart SDK (3.10.1+)
-- Firebase CLI
-- A Firebase project
-
-SETUP:
-------
-1. Clone the repository
-2. Run: flutter pub get
-3. Configure Firebase:
-   - Run: flutterfire configure
-   - Select your Firebase project
-   - This generates firebase_options.dart
-
-4. Enable Firebase services:
-   - Authentication (Email/Password)
-   - Cloud Firestore
-
-RUNNING LOCALLY:
-----------------
-flutter run -d chrome --web-port=50164
-
-Access at: http://localhost:50164
-
-BUILDING FOR PRODUCTION:
-------------------------
-flutter build web --release
-
-Output: build/web/
-
-HOT RELOAD:
------------
-During development:
-- Press 'r' for hot reload
-- Press 'R' for hot restart
-
-
-================================================================================
-                        13. FUTURE ENHANCEMENTS
-================================================================================
-
-PLANNED FEATURES:
------------------
-1. Image upload for project thumbnails
-2. Blog/writing section
-3. Testimonials section
-4. Analytics dashboard (view counts, engagement)
-5. Multiple portfolio themes
-6. PDF resume generation
-7. Contact form with email notifications
-8. Project filtering by technology
-9. Search functionality
-10. Internationalization (i18n)
-11. SEO optimization
-12. PWA support
-
-
-================================================================================
-                               END OF DOCUMENT
-================================================================================
-
-For questions or contributions, please contact the repository owner.
-
-Built with ❤️ using Flutter
+LUMEN PORTFOLIO — IMPLEMENTATION AND OPERATIONS
+Updated: October 8, 2026
+
+This reference describes the repository implementation. It is not a record of
+production deployment or verification of external Firebase/GitHub settings.
+Use README.md for copyable setup, verification, seed, and build commands.
+
+1. APPLICATION AND OWNERSHIP
+
+Lumen is a single-owner Flutter web portfolio with an Index club interface
+and a protected content studio. It uses Firebase Authentication, Cloud Firestore,
+Firebase Analytics for one optional production event, and Firebase Hosting.
+It does not have a custom API server or Cloud Functions deployment.
+
+Only web is configured. Other Flutter platform configurations are not supplied.
+CI pins Flutter 3.44.6, Node 24, Java 21, and Python 3.12. Dart comes with Flutter;
+the language constraint in pubspec.yaml is not a Flutter version requirement.
+Both Dart and Node dependencies have committed lockfiles; Python maintenance
+uses the version pinned in scripts/requirements.txt.
+
+The owner identity is intentional: the administrator fallback email is
+thejaynesh@gmail.com and must be verified. An admin:true ID-token custom claim
+also authorizes an account. Change the client policy and Firestore policy
+together if ownership changes. Credentials and claims are provisioned through
+Firebase/privileged administrative tools, not through a public registration UI.
+
+2. CODE MAP
+
+lib/main.dart
+  Runs a visible bootstrap/loading state, initializes the selected Firebase
+  environment, connects emulators when selected, and owns the service, auth
+  provider, and router lifetimes. Startup failure provides retry/contact UI.
+
+lib/config/app_environment.dart
+  Validates build-time environment selection. The default is emulator/demo-lumen.
+  A separate real project is mandatory for staging. Production uses the
+  committed web configuration from lib/firebase_options.dart.
+
+lib/router.dart
+  Declares public, alternate-experience, login, admin, and access-denied routes.
+  Auth changes refresh routing. Session initialization is handled before showing
+  admin content. New tailored links use ?job=slug; ?jobId=slug remains an alias.
+
+lib/models/portfolio_data.dart and portfolio_validation.dart
+  Define profile, project, experience, and tailored-link models; defensive
+  parsing; explicit nullable-field clearing; and service-side input validation.
+  Firestore rules independently validate persisted documents and permissions.
+
+lib/services/portfolio_service.dart
+  Provides auth operations, profile/library streams, public data selection, and
+  transactional tailored-link CRUD. Dependencies can be injected for tests.
+  Creation/update timestamps use server timestamps. Content reads for selected
+  IDs run in bounded parallel groups and omit archived, missing, or inaccessible
+  items while preserving the requested order. Other network errors propagate.
+
+lib/services/profile_view_tracker.dart
+  Deduplicates optional profile-view events within a service instance and keeps
+  analytics failure separate from successful portfolio loading.
+
+lib/providers/
+  AuthProvider tracks initialized, signed-in, authorized, loading, and error
+  states; token changes can refresh permissions. ThemeProvider restores/persists
+  the light/dark preference and starts in light mode when unset.
+  ExperienceProvider manages the optional mode selection.
+
+lib/screens/manual/ and lib/screens/manual/sections/
+  Public portfolio composition: introduction, work, experience, skills,
+  education, certifications, awards, highlights, contact, and related controls.
+  Index club uses top navigation with a mobile menu, shared tabbed folders for
+  projects and experience, technical project visuals, and aligned credentials.
+  Email starts in the introduction and floats after it scrolls out of view;
+  the floating action hides when the contact section is reached.
+  Public data load/retry and empty states are explicit.
+
+lib/screens/automated/, lucky/, and mode_selector/
+  Alternate guided and playful experiences, available from /modes. The guided
+  experience accepts the tailored-link query parameter. These are optional
+  experiences, not the normal landing route.
+
+lib/screens/admin/
+  Responsive dashboard with a drawer on narrow windows and a sidebar on wide
+  windows; a themed login screen; content_forms.dart; shared editor_fields.dart;
+  and form_dialogs.dart as a compatibility export. Editors use labeled rows and
+  list controls rather than JSON or delimiter-based profile fields.
+
+lib/theme/, lib/widgets/, assets/fonts/
+  Index club styling uses cobalt, apricot, blue-gray, and light paper surfaces,
+  and matching dark-theme colors. Manrope provides public interface/display
+  typography; DM Serif Display provides editorial accents and the contact
+  closing. Fonts and license files are bundled locally, alongside accessible
+  shared controls.
+
+scripts/render_brand.mjs
+  Optionally regenerates PNG icons and social artwork from the checked-in SVG
+  originals. Requires an existing Sharp installation (normal Node resolution or
+  NODE_PATH); uses the bundled fonts. Generated PNGs are committed web assets, so
+  normal Flutter builds do not need Sharp or this rendering step.
+
+lib/utils/external_links.dart
+  Normalizes external URLs and resolves allowed site-relative asset URLs.
+
+web/
+  App shell, a static readable overview/contact fallback, social metadata,
+  structured Person metadata, icons/social image, manifest, robots/sitemap,
+  bootstrap support, and the bundled PDF resume.
+
+3. DATA AND AUTHORIZATION BOUNDARIES
+
+settings/main
+  Public profile/contact data deliberately published by the owner: identity,
+  role, introduction, location, summary, availability, links, structured profile
+  sections, and default selections. Visitors can read this document. Only an
+  authorized admin can create/update it; client deletion is denied. Do not store
+  private application notes in settings.
+
+projects/{id}
+  Title, category, description, technologies, tags, project context, key result,
+  optional problem/contribution/outcome/source URL, image/live link, appearance,
+  order, active flag, and timestamps. Visitors can read only active projects.
+  Admins can read all projects. Client deletion is denied; the service's legacy
+  deleteProject method now archives by setting isActive=false.
+
+experience/{id}
+  Role, organization, period, location, description, highlights/tags, order,
+  active flag, and timestamps. The same public-active/admin-all read split and
+  archive policy apply. Existing selection IDs remain intact when archived.
+
+jobs/{id}
+  PRIVATE application records: slug, job title, organization, notes, selected
+  project/experience IDs, public text overrides, active state, expiry, and
+  timestamps. Only admins may read these documents. The legacy viewCount field
+  is retained but cannot be modified by client updates.
+
+profileSlugs/{slug}
+  PRIVATE slug reservations containing the owning jobId. Reservations prevent
+  concurrent creation/renaming from assigning the same slug to different jobs.
+
+publicProfiles/{slug}
+  Minimal PUBLIC projection of a job: slug, selected IDs, customTagline,
+  customAbout, isActive, expiresAt, createdAt, and updatedAt. It excludes the
+  private title, organization, description/notes, job ID, and legacy view count.
+  Visitors may fetch a known active/unexpired document; public listing is denied.
+  Expiry is enforced against the server request time in rules. Admins can inspect
+  all projections. A known published URL is shareable, not recipient-authenticated.
+
+Job, reservation, and projection writes must agree in the same transaction.
+Changing a slug removes the old reservation/projection: the old URL stops being
+tailored. Deleting a job removes all three records transactionally. Rules deny
+other collections and invalid schema/field additions by default.
+
+Public behavior:
+  - Empty homepage selections show all active items in display order.
+  - Nonempty selections preserve the chosen order and skip inactive/missing items.
+  - Empty selections on a tailored link show no selected items for that section.
+  - An invalid, expired, archived, or absent link falls back to the normal profile.
+  - Public pages do not query the private jobs collection or write view counters.
+
+Bounds are intentional: up to 100 unique document IDs per selection, up to 12
+entries in each structured profile section, 30 skills per group, 2–8 quiz options,
+and typically 50 entries in simple lists. Text fields also have bounded lengths.
+The validation/rules files are authoritative when extending the schema; update
+models, admin UI, Python validators, rules, and tests together.
+
+4. ENVIRONMENTS
+
+APP_ENV=emulator (default)
+  Project demo-lumen, Firestore 127.0.0.1:8080, Auth 127.0.0.1:9099, Emulator UI
+  127.0.0.1:4000. A demo- project ID and loopback host are required. Optional
+  FIREBASE_PROJECT_ID, FIREBASE_EMULATOR_HOST, FIRESTORE_EMULATOR_PORT, and
+  AUTH_EMULATOR_PORT Dart defines override these defaults within validation.
+  Plain flutter run/build commands use this target. Start/seed emulators before
+  expecting content. Firestore seed tooling does not create an Auth account;
+  use the separate local-owner setup helper described below.
+  Web emulator startup pre-initializes Auth with the exact SDK version/options
+  used by FlutterFire, then connects synchronously before session restoration.
+  Keep web/firebase_emulator_bootstrap.js aligned with firebase_auth_web when
+  updating that dependency. Firestore receives early emulator defaults as well.
+
+APP_ENV=staging
+  Requires a separate real Firebase project and complete FIREBASE_PROJECT_ID,
+  FIREBASE_API_KEY, FIREBASE_APP_ID, FIREBASE_MESSAGING_SENDER_ID, and
+  FIREBASE_AUTH_DOMAIN web configuration. Optional measurement ID is supported
+  by AppEnvironment, though profile-view reporting is wired only for production.
+  scripts/write_staging_config.py creates ignored config/staging.local.json
+  from environment variables. Staging cannot silently fall back to production.
+
+APP_ENV=production
+  Uses the committed lumen-f2e07 configuration. A mismatching project override
+  is rejected. Build with --dart-define=APP_ENV=production. Running or serving
+  this build locally does not make its backend local.
+
+.firebaserc remains pointed at production for Firebase CLI compatibility.
+Always specify --project for maintenance, emulator, and deployment operations.
+Firebase SDK configuration is not administrative authority: user tokens/rules
+control client data access; service-account credentials belong outside git.
+
+5. CONTENT MAINTENANCE
+
+tooling/firestore/setup_emulator_user.mjs
+  Run npm --prefix tooling/firestore run setup:emulator-user after starting the
+  Auth emulator, or run node tooling/firestore/setup_emulator_user.mjs directly.
+  It creates or updates the fixed demo-lumen UID lumen-local-owner, using verified
+  email thejaynesh@gmail.com and disposable password Lumen-local-only-2026!.
+  LUMEN_EMULATOR_PASSWORD can override the password for local testing and is not
+  printed. These credentials are never intended for a real Firebase account.
+
+  The helper uses project-scoped Auth emulator REST endpoints and the emulator's
+  owner token; it has no cloud SDK credential lookup or production endpoint.
+  Only demo-lumen and a literal loopback host/port are allowed. The default is
+  127.0.0.1:9099; AUTH_EMULATOR_HOST or FIREBASE_AUTH_EMULATOR_HOST can override
+  it, but conflicting targets, non-demo environment IDs, cloud credential/config
+  variables, and redirects are refused. It does not overwrite a different UID
+  already using the owner email. Resolve such a local collision in Emulator UI.
+
+scripts/seed_firestore.py
+  Requires --project and defaults to dry run. --emulator explicitly opts into
+  demo-project emulator access; --apply opts into writes. The default input is
+  scripts/seed_data.json; --data selects another file. Stable new IDs and matching
+  legacy IDs prevent duplicate insertion on unchanged reruns. Ambiguous duplicate
+  identity matches and unrelated ID collisions stop the operation.
+
+  Existing homepage selections survive unless --reset-defaults is specified.
+  Seed-defined profile/content fields replace matching stored values, so a seed
+  can overwrite subsequent studio edits. Removed seed entries are not deleted
+  from Firestore. It is not a synchronization or production release requirement.
+  The destructive historical --wipe option is intentionally unsupported.
+
+scripts/migrate_profiles.py
+  Reads existing jobs, reservations, and public projections; validates records;
+  refuses duplicate/conflicting slugs; and plans the missing/changed minimal
+  projections and reservations. It preserves existing job/content IDs and private
+  job data. It does not repair malformed legacy records automatically.
+
+scripts/firestore_tools.py
+  Uses explicit project IDs, Application Default Credentials or an explicit
+  matching service-account file, and anonymous credentials for emulator work.
+  Real-project writes need --apply, matching --confirm-project, and an unused
+  --backup path. Existing backup files are never overwritten.
+
+  An applied plan writes its before-image backup before a transaction. The
+  transaction rechecks source revisions; migration also rechecks collection
+  membership. Concurrent changes cause refusal/replanning instead of a partial
+  overwrite. More than 450 writes is refused for reviewed batching.
+
+  Backups cover only documents being modified, with null denoting a previously
+  nonexistent document and timestamps serialized as __timestamp__ objects.
+  They are not complete database exports. No automatic restoration tool exists.
+  Use a full operational backup/export before the first production transition,
+  and handle restoration through a reviewed administrative process.
+
+6. RELEASE ORDER AND AUTOMATION
+
+The repository does not provision Firebase projects, enable Auth providers,
+verify owner accounts, grant custom claims, configure DNS, or create GitHub
+secrets/environment protections. Set these up separately for staging/production.
+
+Initial production transition:
+  1. Verify the target project/database, owner access, and existing content.
+  2. Make a full database backup/export and review migration dry-run output.
+  3. Resolve conflicting slugs or legacy validation failures before applying.
+  4. Apply the migration with a new backup path before stricter public/private
+     rules and the new frontend go live.
+  5. Deploy rules, required indexes, and the production web build together.
+  6. Confirm index readiness and test an existing tailored URL, an expired URL,
+     signed-out browsing, admin sign-in, and archive/publish behavior.
+
+The explicit Release portfolio GitHub workflow automates steps 4–5 after checks.
+It is workflow_dispatch-only, publish defaults false, and deployment is restricted
+to main. The production environment uses FIREBASE_SERVICE_ACCOUNT_LUMEN_F2E07;
+the credential needs the actual Firestore migration and Hosting/deploy privileges.
+SITE_URL optionally supplies the verified canonical HTTPS origin. The workflow
+migrates first, preserves the migration backup as an artifact for seven days,
+then runs a deployment of firestore:rules, firestore:indexes, and hosting.
+Production releases are serialized. Environment approval/reviewer requirements
+must be configured in GitHub; naming an environment alone is not such a policy.
+
+PR previews reuse checks and deploy only for same-repository PRs with the staging
+project variable configured. They use a separate staging web configuration and
+FIREBASE_SERVICE_ACCOUNT_STAGING. Hosting preview deployment does not deploy
+Firestore rules/indexes or seed staging content. Staging must be provisioned
+independently. Preview metadata is noindex and robots disallows crawling.
+
+scripts/prepare_web.py
+  Validates an HTTPS origin; replaces the current canonical/social/structured-data
+  origin; and writes robots.txt/sitemap.xml. --preview adds noindex and blocks
+  crawling; a subsequent production invocation restores normal robots/sitemap
+  behavior. Preparation can be repeated and modifies tracked web assets.
+
+The Hosting config serves build/web with SPA fallback. Entry scripts and HTML/JSON
+are revalidated; image/font assets have a week-long cache policy. The local
+scripts/serve_spa.py server binds loopback, serves build/web with route fallback,
+and disables caching for verification. It does not choose a Firebase environment.
+
+No deployment or live service changes are implied by passing local tests or by
+these documents. Verify an actual release in the target environment.
+
+7. VERIFICATION AND TEST OWNERSHIP
+
+.github/workflows/ci.yml runs formatting, Flutter analysis/tests, Python tests,
+Firestore emulator rules tests, and a default-emulator web build. The release
+workflow separately builds the production configuration after checks.
+
+test/models/ and test/services/ cover parsing, explicit clearing, public data
+selection, archive handling, fallback paths, and view-event deduplication.
+test/config_and_routing_test.dart covers environment/authorization/routing rules.
+test/admin_editors_test.dart covers structured editors, order, optional URL and
+override clearing, validation, expired-date editing, retry, and narrow layouts.
+test/public_portfolio_test.dart and primitive tests cover public rendering and
+interactive/empty/responsive behavior. No test result is a substitute for a live
+Auth/rules/index/account check after deployment.
+
+tooling/firestore/rules.test.mjs exercises the committed rules through the actual
+Firestore emulator, including unauthenticated reads, verified-owner/custom-claim
+authorization, private data denial, schema bounds, timestamp controls, archived
+content, expiry, and transactional slug/projection consistency.
+
+scripts/test_*.py cover maintenance planning, stable IDs, private/public field
+separation, target/write safeguards, content validation, and metadata preparation.
+These tests do not contact the production database.
+
+tooling/firestore/setup_emulator_user.test.mjs covers target/credential rejection,
+identity conflicts, deterministic create/update behavior, and password handling
+using an injected REST mock. npm run test:setup in that directory needs no running
+emulator; the normal npm test command also includes these tests alongside rules.
+
+The tooling package contains targeted overrides for patched transitive Firebase
+CLI dependencies: @grpc/grpc-js 1.14.5, @google-cloud/pubsub's @opentelemetry/core
+2.11.0, gaxios's uuid 11.1.1, and re2 1.27.0. They are limited to development tools,
+not the deployed Flutter dependency graph. The locked dependency tree's npm audit
+reported zero vulnerabilities during this update. Rerun npm audit, maintain the
+lockfile, and run emulator tests when changing the CLI or these overrides; that
+recorded result is not a guarantee about future advisory updates.
+
+See README.md for the exact commands. Install locked dependencies first. Do not
+leave another Firestore emulator on the configured port when running the isolated
+emulator suite. CI does not run exhaustive end-to-end coverage across browsers,
+assistive technologies, mobile devices, or real production credentials.
+
+8. ANALYTICS AND DELIBERATE LIMITS
+
+Only the production app wires Firebase Analytics event portfolio_profile_view.
+It is a generic event: the application supplies no slug, job title, company, or
+notes as parameters. The tracker deduplicates each slug for the service-instance
+lifetime, not across browser restarts/devices. Failures are ignored so viewing
+content remains functional. SDK/configuration/browser behavior can affect what
+is actually collected or reported. Deployment-specific consent controls and
+Analytics settings remain an operational decision. There is no analytics
+dashboard and no client-writable Firestore view counter.
+
+The HTML overview and social metadata are static repository assets. Studio edits
+change Firestore-rendered content but do not rewrite the fallback HTML, image,
+Person metadata, or bundled resume. Update those assets and rebuild as needed.
+The app is not server-rendered and does not generate per-job social preview pages.
+robots directives discourage indexing; they do not enforce data authorization.
+
+Image and resume URLs support hosted assets; there is no authenticated storage
+upload pipeline, PDF generation, contact submission/email backend, blog, or
+multi-user role-management interface. The public project case-study fields are
+optional and should contain actual evidence rather than generated claims.
+
+The code is sized for a personal portfolio, not an unbounded content platform.
+Admin collections are loaded as library streams without pagination, structured
+sections have explicit caps, and a maintenance plan must fit one bounded
+transaction. Larger installations need a deliberate schema/query/migration
+design. App Check, external error monitoring, automated full backups/restoration,
+and live uptime alerting are not configured by this repository.

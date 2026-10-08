@@ -16,73 +16,77 @@ class BroadsideSkills extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final w = MediaQuery.sizeOf(context).width;
-    final mobile = w < 760;
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final mobile =
+          constraints.maxWidth /
+              (MediaQuery.textScalerOf(context).scale(16) / 16) <
+          760;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionHead(
-          number: '§ 04',
-          title: 'STACK',
-          sub: 'What I reach for',
-          dark: dark,
-        ),
-        Container(
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(color: Broadside.rule(dark)),
-            ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHead(
+            number: '§ 04',
+            title: 'Skills & tools',
+            sub: 'What I work with',
+            dark: dark,
+            compact: true,
           ),
-          child: Column(
-            children: settings.skillGroups.map((group) {
-              return Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Broadside.rule(dark)),
+          Container(
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: Broadside.rule(dark))),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: settings.skillGroups.map((group) {
+                return Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: Broadside.rule(dark)),
+                    ),
                   ),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: mobile
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Kicker(group.category, dark: dark),
-                          const SizedBox(height: 10),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: group.items
-                                .map((s) => BroadTag(s, dark: dark))
-                                .toList(),
-                          ),
-                        ],
-                      )
-                    : Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 140,
-                            child: Kicker(group.category, dark: dark),
-                          ),
-                          const SizedBox(width: 18),
-                          Expanded(
-                            child: Wrap(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: mobile
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Kicker(group.category, dark: dark),
+                            const SizedBox(height: 10),
+                            Wrap(
                               spacing: 8,
                               runSpacing: 8,
                               children: group.items
                                   .map((s) => BroadTag(s, dark: dark))
                                   .toList(),
                             ),
-                          ),
-                        ],
-                      ),
-              );
-            }).toList(),
+                          ],
+                        )
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 140,
+                              child: Kicker(group.category, dark: dark),
+                            ),
+                            const SizedBox(width: 18),
+                            Expanded(
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: group.items
+                                    .map((s) => BroadTag(s, dark: dark))
+                                    .toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                );
+              }).toList(),
+            ),
           ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
+    },
+  );
 }

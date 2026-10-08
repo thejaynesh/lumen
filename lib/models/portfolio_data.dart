@@ -1,13 +1,52 @@
-// Data models for the portfolio with Firestore serialization
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+// Tolerant reads preserve older documents; writes validate before publication.
+const _unchanged = Object();
+String _text(Object? value) => value is String ? value : '';
+String? _optionalText(Object? value) =>
+    value is String && value.isNotEmpty ? value : null;
+int _integer(Object? value, [int fallback = 0]) =>
+    value is int ? value : fallback;
+bool _active(Object? value) => value is bool ? value : false;
+List<String> _strings(Object? value) =>
+    value is List ? value.whereType<String>().toList() : <String>[];
+DateTime? _date(Object? value) => value is Timestamp
+    ? value.toDate()
+    : value is DateTime
+    ? value
+    : null;
+final _epoch = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+List<T> _objects<T>(Object? value, T Function(Map<String, dynamic>) decode) =>
+    value is List
+    ? value
+          .whereType<Map>()
+          .map(
+            (item) => decode(
+              Map<String, dynamic>.fromEntries(
+                item.entries
+                    .where((entry) => entry.key is String)
+                    .map((entry) => MapEntry(entry.key as String, entry.value)),
+              ),
+            ),
+          )
+          .toList()
+    : <T>[];
 
 class Highlight {
   final String label;
   final String value;
   final String note;
   Highlight({required this.label, required this.value, this.note = ''});
-  factory Highlight.fromMap(Map<String, dynamic> m) =>
-      Highlight(label: m['label'] ?? '', value: m['value'] ?? '', note: m['note'] ?? '');
-  Map<String, dynamic> toMap() => {'label': label, 'value': value, 'note': note};
+  factory Highlight.fromMap(Map<String, dynamic> m) => Highlight(
+    label: _text(m['label']),
+    value: _text(m['value']),
+    note: _text(m['note']),
+  );
+  Map<String, dynamic> toMap() => {
+    'label': label,
+    'value': value,
+    'note': note,
+  };
 }
 
 class SkillGroup {
@@ -15,7 +54,7 @@ class SkillGroup {
   final List<String> items;
   SkillGroup({required this.category, this.items = const []});
   factory SkillGroup.fromMap(Map<String, dynamic> m) =>
-      SkillGroup(category: m['category'] ?? '', items: List<String>.from(m['items'] ?? []));
+      SkillGroup(category: _text(m['category']), items: _strings(m['items']));
   Map<String, dynamic> toMap() => {'category': category, 'items': items};
 }
 
@@ -24,8 +63,11 @@ class EducationEntry {
   final String where;
   final String what;
   EducationEntry({required this.when, required this.where, required this.what});
-  factory EducationEntry.fromMap(Map<String, dynamic> m) =>
-      EducationEntry(when: m['when'] ?? '', where: m['where'] ?? '', what: m['what'] ?? '');
+  factory EducationEntry.fromMap(Map<String, dynamic> m) => EducationEntry(
+    when: _text(m['when']),
+    where: _text(m['where']),
+    what: _text(m['what']),
+  );
   Map<String, dynamic> toMap() => {'when': when, 'where': where, 'what': what};
 }
 
@@ -34,14 +76,24 @@ class QuizQuestion {
   final List<String> options;
   final int answer;
   final String funFact;
-  QuizQuestion({required this.q, required this.options, required this.answer, this.funFact = ''});
+  QuizQuestion({
+    required this.q,
+    required this.options,
+    required this.answer,
+    this.funFact = '',
+  });
   factory QuizQuestion.fromMap(Map<String, dynamic> m) => QuizQuestion(
-        q: m['q'] ?? '',
-        options: List<String>.from(m['options'] ?? []),
-        answer: (m['answer'] ?? 0) as int,
-        funFact: m['funFact'] ?? '',
-      );
-  Map<String, dynamic> toMap() => {'q': q, 'options': options, 'answer': answer, 'funFact': funFact};
+    q: _text(m['q']),
+    options: _strings(m['options']),
+    answer: _integer(m['answer']),
+    funFact: _text(m['funFact']),
+  );
+  Map<String, dynamic> toMap() => {
+    'q': q,
+    'options': options,
+    'answer': answer,
+    'funFact': funFact,
+  };
 }
 
 class PersonalityItem {
@@ -49,7 +101,7 @@ class PersonalityItem {
   final String value;
   PersonalityItem({required this.label, required this.value});
   factory PersonalityItem.fromMap(Map<String, dynamic> m) =>
-      PersonalityItem(label: m['label'] ?? '', value: m['value'] ?? '');
+      PersonalityItem(label: _text(m['label']), value: _text(m['value']));
   Map<String, dynamic> toMap() => {'label': label, 'value': value};
 }
 
@@ -59,12 +111,15 @@ class Certification {
   final String year;
   Certification({required this.name, this.issuer = '', this.year = ''});
   factory Certification.fromMap(Map<String, dynamic> m) => Certification(
-        name: m['name'] ?? '',
-        issuer: m['issuer'] ?? '',
-        year: m['year'] ?? '',
-      );
-  Map<String, dynamic> toMap() =>
-      {'name': name, 'issuer': issuer, 'year': year};
+    name: _text(m['name']),
+    issuer: _text(m['issuer']),
+    year: _text(m['year']),
+  );
+  Map<String, dynamic> toMap() => {
+    'name': name,
+    'issuer': issuer,
+    'year': year,
+  };
 }
 
 class PortfolioSettings {
@@ -77,6 +132,7 @@ class PortfolioSettings {
   final String summary;
   final String email;
   final String phone;
+  final String availability;
   final String? github;
   final String? linkedin;
   final String? twitter;
@@ -103,6 +159,7 @@ class PortfolioSettings {
     this.summary = '',
     required this.email,
     this.phone = '',
+    this.availability = '',
     this.github,
     this.linkedin,
     this.twitter,
@@ -122,70 +179,90 @@ class PortfolioSettings {
 
   factory PortfolioSettings.fromMap(Map<String, dynamic> map) {
     List<T> list<T>(String k, T Function(Map<String, dynamic>) f) =>
-        (map[k] as List<dynamic>?)?.map((e) => f(Map<String, dynamic>.from(e))).toList() ?? <T>[];
+        _objects(map[k], f);
     return PortfolioSettings(
-      name: map['name'] ?? '',
-      initials: map['initials'] ?? '',
-      role: map['role'] ?? '',
-      tagline: map['tagline'] ?? '',
-      location: map['location'] ?? '',
-      about: map['about'] ?? '',
-      summary: map['summary'] ?? '',
-      email: map['email'] ?? '',
-      phone: map['phone'] ?? '',
-      github: map['github'],
-      linkedin: map['linkedin'],
-      twitter: map['twitter'],
-      instagram: map['instagram'],
-      resumeUrl: map['resumeUrl'],
+      name: _text(map['name']),
+      initials: _text(map['initials']),
+      role: _text(map['role']),
+      tagline: _text(map['tagline']),
+      location: _text(map['location']),
+      about: _text(map['about']),
+      summary: _text(map['summary']),
+      email: _text(map['email']),
+      phone: _text(map['phone']),
+      availability: _text(map['availability']),
+      github: _optionalText(map['github']),
+      linkedin: _optionalText(map['linkedin']),
+      twitter: _optionalText(map['twitter']),
+      instagram: _optionalText(map['instagram']),
+      resumeUrl: _optionalText(map['resumeUrl']),
       highlights: list('highlights', Highlight.fromMap),
       skillGroups: list('skillGroups', SkillGroup.fromMap),
-      awards: List<String>.from(map['awards'] ?? []),
+      awards: _strings(map['awards']),
       education: list('education', EducationEntry.fromMap),
       quiz: list('quiz', QuizQuestion.fromMap),
       personality: list('personality', PersonalityItem.fromMap),
       certifications: list('certifications', Certification.fromMap),
-      now: List<String>.from(map['now'] ?? []),
-      defaultProjectIds: List<String>.from(map['defaultProjectIds'] ?? []),
-      defaultExperienceIds: List<String>.from(map['defaultExperienceIds'] ?? []),
+      now: _strings(map['now']),
+      defaultProjectIds: _strings(map['defaultProjectIds']),
+      defaultExperienceIds: _strings(map['defaultExperienceIds']),
     );
   }
 
   Map<String, dynamic> toMap() => {
-        'name': name,
-        'initials': initials,
-        'role': role,
-        'tagline': tagline,
-        'location': location,
-        'about': about,
-        'summary': summary,
-        'email': email,
-        'phone': phone,
-        'github': github,
-        'linkedin': linkedin,
-        'twitter': twitter,
-        'instagram': instagram,
-        'resumeUrl': resumeUrl,
-        'highlights': highlights.map((e) => e.toMap()).toList(),
-        'skillGroups': skillGroups.map((e) => e.toMap()).toList(),
-        'awards': awards,
-        'education': education.map((e) => e.toMap()).toList(),
-        'quiz': quiz.map((e) => e.toMap()).toList(),
-        'personality': personality.map((e) => e.toMap()).toList(),
-        'certifications': certifications.map((e) => e.toMap()).toList(),
-        'now': now,
-        'defaultProjectIds': defaultProjectIds,
-        'defaultExperienceIds': defaultExperienceIds,
-      };
+    'name': name,
+    'initials': initials,
+    'role': role,
+    'tagline': tagline,
+    'location': location,
+    'about': about,
+    'summary': summary,
+    'email': email,
+    'phone': phone,
+    'availability': availability,
+    'github': github,
+    'linkedin': linkedin,
+    'twitter': twitter,
+    'instagram': instagram,
+    'resumeUrl': resumeUrl,
+    'highlights': highlights.map((e) => e.toMap()).toList(),
+    'skillGroups': skillGroups.map((e) => e.toMap()).toList(),
+    'awards': awards,
+    'education': education.map((e) => e.toMap()).toList(),
+    'quiz': quiz.map((e) => e.toMap()).toList(),
+    'personality': personality.map((e) => e.toMap()).toList(),
+    'certifications': certifications.map((e) => e.toMap()).toList(),
+    'now': now,
+    'defaultProjectIds': defaultProjectIds,
+    'defaultExperienceIds': defaultExperienceIds,
+  };
 
   PortfolioSettings copyWith({
-    String? name, String? initials, String? role, String? tagline, String? location,
-    String? about, String? summary, String? email, String? phone,
-    String? github, String? linkedin, String? twitter, String? instagram, String? resumeUrl,
-    List<Highlight>? highlights, List<SkillGroup>? skillGroups, List<String>? awards,
-    List<EducationEntry>? education, List<QuizQuestion>? quiz, List<PersonalityItem>? personality,
-    List<Certification>? certifications, List<String>? now,
-    List<String>? defaultProjectIds, List<String>? defaultExperienceIds,
+    String? name,
+    String? initials,
+    String? role,
+    String? tagline,
+    String? location,
+    String? about,
+    String? summary,
+    String? email,
+    String? phone,
+    String? availability,
+    Object? github = _unchanged,
+    Object? linkedin = _unchanged,
+    Object? twitter = _unchanged,
+    Object? instagram = _unchanged,
+    Object? resumeUrl = _unchanged,
+    List<Highlight>? highlights,
+    List<SkillGroup>? skillGroups,
+    List<String>? awards,
+    List<EducationEntry>? education,
+    List<QuizQuestion>? quiz,
+    List<PersonalityItem>? personality,
+    List<Certification>? certifications,
+    List<String>? now,
+    List<String>? defaultProjectIds,
+    List<String>? defaultExperienceIds,
   }) {
     return PortfolioSettings(
       name: name ?? this.name,
@@ -197,11 +274,20 @@ class PortfolioSettings {
       summary: summary ?? this.summary,
       email: email ?? this.email,
       phone: phone ?? this.phone,
-      github: github ?? this.github,
-      linkedin: linkedin ?? this.linkedin,
-      twitter: twitter ?? this.twitter,
-      instagram: instagram ?? this.instagram,
-      resumeUrl: resumeUrl ?? this.resumeUrl,
+      availability: availability ?? this.availability,
+      github: identical(github, _unchanged) ? this.github : github as String?,
+      linkedin: identical(linkedin, _unchanged)
+          ? this.linkedin
+          : linkedin as String?,
+      twitter: identical(twitter, _unchanged)
+          ? this.twitter
+          : twitter as String?,
+      instagram: identical(instagram, _unchanged)
+          ? this.instagram
+          : instagram as String?,
+      resumeUrl: identical(resumeUrl, _unchanged)
+          ? this.resumeUrl
+          : resumeUrl as String?,
       highlights: highlights ?? this.highlights,
       skillGroups: skillGroups ?? this.skillGroups,
       awards: awards ?? this.awards,
@@ -215,7 +301,8 @@ class PortfolioSettings {
     );
   }
 
-  static PortfolioSettings empty() => PortfolioSettings(name: '', tagline: '', email: '');
+  static PortfolioSettings empty() =>
+      PortfolioSettings(name: '', tagline: '', email: '');
 }
 
 class Project {
@@ -230,6 +317,10 @@ class Project {
   final List<String>
   tags; // Tags for filtering (e.g., 'flutter', 'web', 'mobile', 'ai')
   final String tag; // Broadside badge label (e.g. "Hackathon · 2024")
+  final String problem;
+  final String contribution;
+  final String outcome;
+  final String sourceUrl;
   final String kpi; // Broadside KPI line (e.g. "2nd of ~40 teams")
   final int order; // Display order
   final bool isActive;
@@ -247,6 +338,10 @@ class Project {
     this.colorHex = 0xFFFF6B35,
     this.tags = const [],
     this.tag = '',
+    this.problem = '',
+    this.contribution = '',
+    this.outcome = '',
+    this.sourceUrl = '',
     this.kpi = '',
     this.order = 0,
     this.isActive = true,
@@ -258,20 +353,24 @@ class Project {
   factory Project.fromMap(Map<String, dynamic> map, String id) {
     return Project(
       id: id,
-      title: map['title'] ?? '',
-      category: map['category'] ?? '',
-      description: map['description'] ?? '',
-      techStack: List<String>.from(map['techStack'] ?? []),
-      link: map['link'],
-      imageUrl: map['imageUrl'],
-      colorHex: map['colorHex'] ?? 0xFFFF6B35,
-      tags: List<String>.from(map['tags'] ?? []),
-      tag: map['tag'] ?? '',
-      kpi: map['kpi'] ?? '',
-      order: map['order'] ?? 0,
-      isActive: map['isActive'] ?? true,
-      createdAt: map['createdAt'] is DateTime ? map['createdAt'] as DateTime : (map['createdAt']?.toDate() ?? DateTime.now()),
-      updatedAt: map['updatedAt'] is DateTime ? map['updatedAt'] as DateTime : (map['updatedAt']?.toDate() ?? DateTime.now()),
+      title: _text(map['title']),
+      category: _text(map['category']),
+      description: _text(map['description']),
+      techStack: _strings(map['techStack']),
+      link: _optionalText(map['link']),
+      imageUrl: _optionalText(map['imageUrl']),
+      colorHex: _integer(map['colorHex'], 0xFFFF6B35),
+      tags: _strings(map['tags']),
+      tag: _text(map['tag']),
+      problem: _text(map['problem']),
+      contribution: _text(map['contribution']),
+      outcome: _text(map['outcome']),
+      sourceUrl: _text(map['sourceUrl']),
+      kpi: _text(map['kpi']),
+      order: _integer(map['order'], 0),
+      isActive: _active(map['isActive']),
+      createdAt: _date(map['createdAt']) ?? _epoch,
+      updatedAt: _date(map['updatedAt']) ?? _epoch,
     );
   }
 
@@ -286,11 +385,15 @@ class Project {
       'colorHex': colorHex,
       'tags': tags,
       'tag': tag,
+      'problem': problem,
+      'contribution': contribution,
+      'outcome': outcome,
+      'sourceUrl': sourceUrl,
       'kpi': kpi,
       'order': order,
       'isActive': isActive,
       'createdAt': createdAt,
-      'updatedAt': DateTime.now(),
+      'updatedAt': updatedAt,
     };
   }
 
@@ -300,11 +403,15 @@ class Project {
     String? category,
     String? description,
     List<String>? techStack,
-    String? link,
-    String? imageUrl,
+    Object? link = _unchanged,
+    Object? imageUrl = _unchanged,
     int? colorHex,
     List<String>? tags,
     String? tag,
+    String? problem,
+    String? contribution,
+    String? outcome,
+    String? sourceUrl,
     String? kpi,
     int? order,
     bool? isActive,
@@ -315,15 +422,22 @@ class Project {
       category: category ?? this.category,
       description: description ?? this.description,
       techStack: techStack ?? this.techStack,
-      link: link ?? this.link,
-      imageUrl: imageUrl ?? this.imageUrl,
+      link: identical(link, _unchanged) ? this.link : link as String?,
+      imageUrl: identical(imageUrl, _unchanged)
+          ? this.imageUrl
+          : imageUrl as String?,
       colorHex: colorHex ?? this.colorHex,
       tags: tags ?? this.tags,
       tag: tag ?? this.tag,
+      problem: problem ?? this.problem,
+      contribution: contribution ?? this.contribution,
+      outcome: outcome ?? this.outcome,
+      sourceUrl: sourceUrl ?? this.sourceUrl,
       kpi: kpi ?? this.kpi,
       order: order ?? this.order,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 }
@@ -361,17 +475,17 @@ class Experience {
   factory Experience.fromMap(Map<String, dynamic> map, String id) {
     return Experience(
       id: id,
-      role: map['role'] ?? '',
-      company: map['company'] ?? '',
-      period: map['period'] ?? '',
-      description: map['description'] ?? '',
-      highlights: List<String>.from(map['highlights'] ?? []),
-      tags: List<String>.from(map['tags'] ?? []),
-      city: map['city'] ?? '',
-      order: map['order'] ?? 0,
-      isActive: map['isActive'] ?? true,
-      createdAt: map['createdAt'] is DateTime ? map['createdAt'] as DateTime : (map['createdAt']?.toDate() ?? DateTime.now()),
-      updatedAt: map['updatedAt'] is DateTime ? map['updatedAt'] as DateTime : (map['updatedAt']?.toDate() ?? DateTime.now()),
+      role: _text(map['role']),
+      company: _text(map['company']),
+      period: _text(map['period']),
+      description: _text(map['description']),
+      highlights: _strings(map['highlights']),
+      tags: _strings(map['tags']),
+      city: _text(map['city']),
+      order: _integer(map['order'], 0),
+      isActive: _active(map['isActive']),
+      createdAt: _date(map['createdAt']) ?? _epoch,
+      updatedAt: _date(map['updatedAt']) ?? _epoch,
     );
   }
 
@@ -387,7 +501,7 @@ class Experience {
       'order': order,
       'isActive': isActive,
       'createdAt': createdAt,
-      'updatedAt': DateTime.now(),
+      'updatedAt': updatedAt,
     };
   }
 
@@ -415,6 +529,7 @@ class Experience {
       order: order ?? this.order,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 }
@@ -456,19 +571,21 @@ class JobPosting {
   factory JobPosting.fromMap(Map<String, dynamic> map, String id) {
     return JobPosting(
       id: id,
-      slug: map['slug'] ?? '',
-      title: map['title'] ?? '',
-      company: map['company'] ?? '',
-      description: map['description'],
-      projectIds: List<String>.from(map['projectIds'] ?? []),
-      experienceIds: List<String>.from(map['experienceIds'] ?? []),
-      customTagline: map['customTagline'],
-      customAbout: map['customAbout'],
-      isActive: map['isActive'] ?? true,
-      viewCount: map['viewCount'] ?? 0,
-      createdAt: map['createdAt']?.toDate() ?? DateTime.now(),
-      updatedAt: map['updatedAt']?.toDate() ?? DateTime.now(),
-      expiresAt: map['expiresAt']?.toDate(),
+      slug: _text(map['slug']),
+      title: _text(map['title']),
+      company: _text(map['company']),
+      description: _optionalText(map['description']),
+      projectIds: _strings(map['projectIds']),
+      experienceIds: _strings(map['experienceIds']),
+      customTagline: _optionalText(map['customTagline']),
+      customAbout: _optionalText(map['customAbout']),
+      isActive: _active(map['isActive']),
+      viewCount: _integer(map['viewCount'], 0),
+      createdAt: _date(map['createdAt']) ?? _epoch,
+      updatedAt: _date(map['updatedAt']) ?? _epoch,
+      expiresAt: map['expiresAt'] == null
+          ? null
+          : (_date(map['expiresAt']) ?? _epoch),
     );
   }
 
@@ -485,9 +602,39 @@ class JobPosting {
       'isActive': isActive,
       'viewCount': viewCount,
       'createdAt': createdAt,
-      'updatedAt': DateTime.now(),
+      'updatedAt': updatedAt,
       'expiresAt': expiresAt,
     };
+  }
+
+  Map<String, dynamic> toPublicMap() => {
+    'slug': slug,
+    'projectIds': projectIds,
+    'experienceIds': experienceIds,
+    'customTagline': customTagline,
+    'customAbout': customAbout,
+    'isActive': isActive,
+    'createdAt': createdAt,
+    'updatedAt': updatedAt,
+    'expiresAt': expiresAt,
+  };
+
+  factory JobPosting.fromPublicMap(Map<String, dynamic> map, String slug) {
+    final decoded = JobPosting.fromMap(map, slug);
+    return JobPosting(
+      id: slug,
+      slug: slug,
+      title: '',
+      company: '',
+      projectIds: decoded.projectIds,
+      experienceIds: decoded.experienceIds,
+      customTagline: decoded.customTagline,
+      customAbout: decoded.customAbout,
+      isActive: decoded.isActive,
+      createdAt: decoded.createdAt,
+      updatedAt: decoded.updatedAt,
+      expiresAt: decoded.expiresAt,
+    );
   }
 
   JobPosting copyWith({
@@ -495,34 +642,48 @@ class JobPosting {
     String? slug,
     String? title,
     String? company,
-    String? description,
+    Object? description = _unchanged,
     List<String>? projectIds,
     List<String>? experienceIds,
-    String? customTagline,
-    String? customAbout,
+    Object? customTagline = _unchanged,
+    Object? customAbout = _unchanged,
     bool? isActive,
     int? viewCount,
-    DateTime? expiresAt,
+    Object? expiresAt = _unchanged,
   }) {
     return JobPosting(
       id: id ?? this.id,
       slug: slug ?? this.slug,
       title: title ?? this.title,
       company: company ?? this.company,
-      description: description ?? this.description,
+      description: identical(description, _unchanged)
+          ? this.description
+          : description as String?,
       projectIds: projectIds ?? this.projectIds,
       experienceIds: experienceIds ?? this.experienceIds,
-      customTagline: customTagline ?? this.customTagline,
-      customAbout: customAbout ?? this.customAbout,
+      customTagline: identical(customTagline, _unchanged)
+          ? this.customTagline
+          : customTagline as String?,
+      customAbout: identical(customAbout, _unchanged)
+          ? this.customAbout
+          : customAbout as String?,
       isActive: isActive ?? this.isActive,
       viewCount: viewCount ?? this.viewCount,
       createdAt: createdAt,
-      expiresAt: expiresAt ?? this.expiresAt,
+      updatedAt: updatedAt,
+      expiresAt: identical(expiresAt, _unchanged)
+          ? this.expiresAt
+          : expiresAt as DateTime?,
     );
   }
 
   /// Get the full URL for this job posting
-  String getUrl(String baseUrl) => '$baseUrl?job=$slug';
+  String getUrl(String baseUrl) {
+    final uri = Uri.parse(baseUrl);
+    return uri
+        .replace(queryParameters: {...uri.queryParameters, 'job': slug})
+        .toString();
+  }
 }
 
 /// Data container for the public portfolio view
@@ -540,10 +701,14 @@ class PortfolioViewData {
   });
 
   /// Gets the tagline - from job if provided, otherwise from settings
-  String get tagline => jobPosting?.customTagline ?? settings.tagline;
+  String get tagline =>
+      _optionalText(jobPosting?.customTagline) ?? settings.tagline;
 
   /// Gets the about text - from job if provided, otherwise from settings
-  String get about => jobPosting?.customAbout ?? settings.about;
+  String get about =>
+      _optionalText(jobPosting?.customAbout) ??
+      _optionalText(settings.summary) ??
+      settings.about;
 
   /// Whether this is a job-specific view
   bool get isJobView => jobPosting != null;

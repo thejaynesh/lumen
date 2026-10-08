@@ -1,0 +1,136 @@
+CURRENT UI — October 8, 2026 (America/Los_Angeles)
+
+The selected design is Index club in cobalt and apricot, with light mode as
+the default. Projects and experience use shared folders with visible tabs,
+keyboard selection, and overflow controls. Education, certifications, and
+mobile skills share consistent alignment. Location and availability sit with
+the introduction. Email floats after the original action leaves the viewport
+and hides at contact. Technical project diagrams and an interactive sorting
+demo replace abstract covers. README.md describes the final page hierarchy.
+
+Validation: 85 Flutter tests passed; subsequent public-page regression checks,
+static analysis, and the release web build passed after the final spacing fix.
+Desktop/mobile browser checks cover contact visibility, tab navigation, project
+visuals, and responsive alignment. No production deployment was performed.
+
+HISTORICAL UI — October 2, 2026 (America/Los_Angeles)
+
+The selected public design is Forest atelier, replacing the technical
+field-notes direction recorded below. Sage surfaces, deep forest ink, and lemon
+accents pair with locally bundled Manrope and DM Serif Display. The desktop
+profile sidebar becomes a mobile navigation menu. Artwork-led project covers,
+compact outcomes after selected work, and unnumbered experience rows create a
+quieter personal gallery. The serif closing reads "Good things start with a
+conversation." and includes a rounded lemon contact action; existing contact
+links, email copying, and alternate presentation access are retained.
+
+This is a visual revision. Backend, authorization, content boundaries,
+environment selection, and release instructions remain as documented.
+
+Forest validation: all 70 Flutter tests pass (including the 320px layout at
+200% text size), static analysis is clean, and the release web build succeeds.
+The two web preparation tests and five emulator bootstrap tests also pass.
+Browser checks cover desktop/phone layouts, both palettes, section navigation,
+and full-width project artwork against local demo-lumen content. No deployment
+was performed. Results below record the earlier completion pass separately.
+
+HISTORICAL COMPLETION PASS — September 30, 2026 (America/Los_Angeles)
+
+This implements the findings in PROJECT_REVIEW_2026-09-30.txt and the subsequent
+technical field-notes redesign. The earlier review is a historical baseline.
+Production resources have not been modified or deployed by this work.
+
+BACKEND AND DATA
+
+Private application records and notes now remain in jobs. Published links use
+minimal publicProfiles documents and private transactional slug reservations.
+Rules enforce verified-owner/admin access, active content, individual unexpired
+profile reads, immutable creation timestamps, and atomic publication/rename/
+deletion. Selected content is read in bounded groups and omits inaccessible
+archived/deleted records without changing the requested order.
+
+Models defensively decode legacy records and distinguish omitted copyWith
+arguments from explicit null, so optional values can be cleared. Project case
+study fields and availability are editable. Analytics is nonblocking and
+deduplicated per link per service session; anonymous clients never write view
+counters, and content edits preserve old counters.
+
+The seed uses stable IDs, preserves matched legacy IDs and existing selections,
+and runs as a dry run unless explicitly applied. Seed and migration scripts
+validate content, refuse unknown/conflicting/orphan legacy data, recheck source
+documents and collection membership in the committing transaction, and require
+explicit project confirmation plus a fresh backup for real-project writes.
+
+ADMIN AND PUBLIC EXPERIENCE
+
+The content studio now supports all settings, structured nested editors,
+homepage and tailored-link selection/order, archive/restore, confirmed link
+deletion, preview/share, safe URL normalization, past expiry editing, validation,
+and recoverable save errors. Session restoration waits for trusted token claims;
+same-account refresh keeps the dashboard mounted and revocation clears access.
+
+The public site uses a technical field-notes identity: mineral paper, cobalt,
+green-black ink, restrained chartreuse markers, InterTight display type and
+GeistMono details. A custom geometric JB mark, asymmetric introduction, numbered
+project records, evidence index and contact colophon replace the beige/red serif
+theme. Navigation, optional case studies, responsive layouts, keyboard controls,
+local fonts, persisted theme preference and explicit loading/error/empty states
+remain available. The narrow-screen regression now verifies 200% text scaling.
+Presentation length follows content and the quiz works on small screens.
+Tailored query changes reload the appropriate content. Startup preserves direct
+paths and query parameters while Firebase initializes. Static HTML, metadata,
+social preview artwork and custom icons replace the stock web shell.
+
+ENVIRONMENTS AND DELIVERY
+
+Development defaults to demo-lumen on loopback emulators. Early Firebase web
+initialization uses the JS SDK version exported by firebase_core_web. Auth is
+created with firebase_auth_web 6.3.0's exact dependencies and connected to the
+emulator synchronously before persisted-session restoration. Firestore receives
+early emulator defaults. Existing mismatched emulator connections fail clearly;
+matching retries reuse the connection. Recheck reload/new-tab persistence when
+upgrading FlutterFire's auth initialization dependencies. Production requires an explicit
+build define. Preview configuration requires a separate staging project and
+matching service-account identity; unconfigured previews skip clearly.
+
+CI verifies formatting, analysis, Flutter/Python/rules tests and release build.
+Production release is manual, runs verification, migrates existing links with a
+backup, and deploys rules/indexes/Hosting together. Local disposable admin setup
+is available without cloud credentials. Firebase development-tool overrides
+pin patched transitive dependencies; the audited dependency tree has no known
+advisories at the time of this verification.
+
+VALIDATION
+
+70 Flutter tests pass (widgets/services/models/auth/startup routing/emulator
+configuration), along with 14 Python maintenance/metadata tests, 10 Firestore
+authorization/transaction tests, 4 emulator-user setup safety tests and 5 offline
+web bootstrap ordering/retry tests. Run the latter independently with
+`npm --prefix tooling/firestore run test:bootstrap`; CI includes this check. Static
+analysis is clean and the release web build succeeds.
+
+Actual local browser checks cover desktop/mobile rendering and navigation,
+sign-in, full settings save, tailored-link creation/publication, custom public
+copy and selected content, link archival/default fallback, and authenticated
+reload/new-tab session persistence. Browser console checks report no runtime
+warnings or errors in the verified final views. Seeding seven documents commits
+atomically; a second run plans zero writes. Migration also plans zero writes
+after the new studio creates a valid job/reservation/public-profile trio.
+
+RELEASE BOUNDARIES
+
+- Run the documented migration before switching production rules/client. Live
+  legacy data, staging configuration, deployed indexes and GitHub environments
+  still require release verification. Local test success does not deploy them.
+- Settings rules enforce top-level schema and bounds. Detailed nested settings
+  validation is enforced by Dart/Python to stay within Firestore's expression
+  budget. Only trusted admins can write; an alternate admin client can bypass
+  nested content-quality checks, but cannot bypass the privacy boundaries.
+- Published links are unlisted selections, not recipient authentication.
+- Static SEO/social metadata changes require a rebuild. This remains Flutter
+  web, not a server-rendered site. No per-recipient analytics dashboard is added.
+- Case-study copy/images render when supplied; no achievements were invented.
+- Maintenance backups contain changed-document before-images, not full database
+  exports. Keep them private and review restoration separately.
+
+The README and DOCUMENTATION.txt provide exact setup, test and release commands.

@@ -1,0 +1,324 @@
+LUMEN — PROJECT REVIEW AND COMPLETION PLAN
+Reviewed September 30, 2026 (America/Los_Angeles)
+Workspace: C:/Users/theja/PowerAttack/lumen
+
+VERDICT
+
+The project has a useful foundation: a modular Flutter web portfolio, a real
+Firebase content service, admin forms, tailored application links, and a distinct
+editorial visual language. It compiles, but several core workflows are incomplete
+or inconsistent. Complete the content/permission/publishing loop before redesign.
+
+This was a review. Application source and deployed resources were not changed.
+Existing edits to lib/theme/broadside_theme.dart and
+lib/widgets/broadside/primitives.dart were preserved. File references below are
+relative to the workspace above; line numbers refer to the reviewed checkout.
+
+VERIFICATION
+
+- Dart MCP analysis: no errors or warnings; two informational diagnostics:
+  main.dart:3 imports flutter_web_plugins without declaring the SDK dependency;
+  auth_provider.dart:3 has an unnecessary firebase_core import.
+- Existing Flutter tests: 16 passed (flutter test --no-pub).
+- Production web build: passed (flutter build web --release --no-pub).
+  Nonfatal build warning: CupertinoIcons font referenced but its font asset was
+  not found. Resolve the dependency/icon usage before release.
+- Fresh release build opened locally and displayed the real public homepage.
+  Browser console recorded "Bad state: RenderBox was not laid out" with a
+  minified stack during initial rendering. The page still displayed content.
+  Root cause and reproducibility need a debug-mode investigation; this is not
+  evidence that a particular widget is responsible or that every visit fails.
+- Source review covered models, services, rules, routing/providers, all screens,
+  shared components/themes, scripts, web shell, tests, workflows, and docs.
+- No authenticated admin writes, seed execution, deployments, or direct cloud
+  database inspection. Deployed rules/indexes/provider configuration/database
+  edition are unverified. Public homepage viewing made its normal data reads.
+- Existing tests mostly cover serialization, mode state, and three primitives;
+  they do not verify permissions, CMS workflows, or application-link behavior.
+
+CURRENT ARCHITECTURE
+
+Public Flutter pages and the admin call PortfolioService directly. It handles
+Firebase Auth and Firestore collections settings, projects, experience, and jobs.
+There is no separate application server. Firestore rules are therefore the actual
+authorization boundary. Hosting rewrites support path-based navigation. GitHub
+Actions build and deploy Hosting, but do not deploy Firestore rules/indexes.
+
+Keep Firebase for this scale. A separate API for every CRUD operation would add
+complexity without addressing the main problems. A narrow server operation may
+be useful for publishing/analytics, with private application data separate from
+minimal public portfolio content.
+
+PRIORITIZED FINDINGS
+
+P1 = address before treating the app as ready for use with private application data.
+P2 = functional/reliability gap to resolve in the completion pass.
+
+1. P1 — Application notes are public under the committed rules.
+   Evidence: firestore.rules:28-30; lib/models/portfolio_data.dart:427;
+   lib/screens/admin/form_dialogs.dart:740.
+   The jobs collection allows unrestricted reads, including collection listing.
+   Each job contains application notes. Inactive and expired jobs are still
+   readable directly; expiry is checked only by the client.
+   Fix: separate private applications/notes/analytics from public portfolio-link
+   documents. Define whether a share link is discoverable or unlisted. Enforce
+   publication and expiry in backend authorization, not just filtering in Dart.
+   Done when: anonymous and non-admin users cannot read/list private applications,
+   notes or unpublished records, while published links render successfully.
+
+2. P1 — Deactivation does not consistently unpublish content.
+   Evidence: lib/services/portfolio_service.dart:91,160,292,313.
+   ID-based selections ignore isActive. Curated defaults and job selections use
+   those methods, so a deactivated selected item remains on the portfolio.
+   Rules also allow direct reads of inactive project/experience documents.
+   Fix: one publication policy across defaults, tailored views, queries and rules.
+   Done when: deactivated items disappear from all public paths, including direct
+   reads if inactive is intended to mean private/unpublished.
+
+3. P1 — Local and preview builds share the production Firebase configuration.
+   Evidence: lib/main.dart:19; lib/firebase_options.dart:55;
+   .github/workflows/firebase-hosting-pull-request.yml:20-26.
+   Admin edits from a preview target the same backend as the live site. There is
+   no emulator/environment switch. Firebase Hosting previews do not isolate data.
+   Fix: explicit dev/staging/production configuration, emulator wiring, and
+   visible admin environment identification.
+   Done when: development/preview CRUD cannot modify production content.
+
+4. P2 — Public view tracking fails and content saves can overwrite counts.
+   Evidence: lib/services/portfolio_service.dart:254,265,289;
+   firestore.rules:30.
+   A visitor increments a jobs document even though only admin writes are allowed.
+   The future is unawaited and uncaught. A full job edit also writes a stale count.
+   Fix: analytics events or a narrow validated server endpoint; keep statistics
+   separate from editable content and handle tracking failures nonfatally.
+   Done when: an anonymous visit records an event without broad public writes,
+   duplicate behavior is defined, and editing content cannot reset analytics.
+
+5. P2 — Clearing optional fields does not clear stored values.
+   Evidence: lib/models/portfolio_data.dart:200,318,512-520;
+   lib/screens/admin/form_dialogs.dart:663-680,1142-1146.
+   Forms pass null for cleared values, but copyWith treats null as "keep old".
+   Affects social/resume URLs, project links/images, custom job text and expiry.
+   Fix: distinguish omitted from explicitly null values (sentinel/generated
+   copyWith or explicit update operations).
+   Done when: edit -> clear -> save -> reload stays empty for every nullable field.
+
+6. P2 — The admin cannot maintain all of the published site.
+   Evidence: lib/screens/admin/admin_dashboard.dart:487,543-566;
+   lib/screens/admin/form_dialogs.dart:1131-1153.
+   Edit Defaults is a coming-soon message. Fixed seeded default lists mean new
+   active records are not automatically featured. Certifications and Currently
+   have no editor. Delete callbacks exist but _AdminCard never exposes them.
+   Fix: selection/reordering, complete section editors, archive/delete controls,
+   reference cleanup and explicit feedback. Prefer structured rows to raw JSON.
+   Done when: all visible content can be changed, previewed, ordered and removed
+   without editing Firestore manually.
+
+7. P2 — Job-specific introductions are saved but not displayed.
+   Evidence: lib/models/portfolio_data.dart:542-545;
+   lib/screens/manual/sections/hero.dart:84-149.
+   The view model resolves customTagline/customAbout, but the hero uses hardcoded
+   copy and settings.summary instead. Role and availability are also hardcoded.
+   Fix: settle the role/tagline/about/summary contract, render resolved values,
+   and add an application-profile preview before copying its link.
+   Done when: two profiles show their distinct introduction and content selection.
+
+8. P2 — Auth restoration and authorization states are incomplete.
+   Evidence: lib/providers/auth_provider.dart:8-16; lib/router.dart:71-75.
+   The provider starts signed out until its async event arrives, while redirect
+   checks immediately with context.read. There is no ready state/router refresh.
+   Any signed-in user passes the UI gate even when rules deny admin writes.
+   The auth subscription is never canceled.
+   Fix: initializing/signed-out/authorized/unauthorized states, reactive redirect,
+   shared admin identity policy, and subscription disposal.
+   Done when: refresh restores an authorized session and unauthorized identities
+   get a clear denied state without editable admin controls.
+
+9. P2 — Seed operations are non-idempotent and can break tailored links.
+   Evidence: scripts/seed_firestore.py:78-81,88,98,109.
+   Reruns create random IDs and duplicate records. --wipe deletes referenced
+   projects/experience and recreates different IDs without migrating jobs.
+   Settings are overwritten before sequential writes complete.
+   Fix: deterministic IDs, project preflight, dry-run diff, backup/export and a
+   batched/idempotent migration that preserves or remaps references.
+   Done when: running twice changes nothing unexpectedly; failures do not leave
+   partial content; existing shared profiles remain intact.
+
+10. P2 — Load failures can masquerade as an empty portfolio.
+    Evidence: lib/screens/manual/manual_page.dart:131-136;
+    lib/screens/lucky/lucky_mode.dart:78; lib/main.dart:19.
+    Manual mode converts fetch/decode failure to empty identity/content. Lucky
+    mode lacks an error branch and can show a spinner indefinitely. Firebase
+    initialization also has no failure presentation.
+    Fix: explicit loading/empty/error/retry states, error reporting, defensive
+    decoding and a deliberate last-published/static fallback for the public page.
+    Done when: a network/decode failure leaves useful information and a recovery
+    action, rather than an empty profile or endless spinner.
+
+11. P2 — Tailored URL changes and expired-link editing have edge-case failures.
+    Evidence: lib/screens/manual/manual_page.dart:31,47-51;
+    lib/screens/admin/form_dialogs.dart:608-615;
+    lib/services/portfolio_service.dart:237-249.
+    The page's final future is not refreshed on jobId changes. Expired dates can
+    be passed outside the date picker's allowed range. Slug availability checking
+    is separate from insertion, so two tabs can create duplicate slugs.
+    Fix: reactive route loading; clamp picker initial date; reserve slugs atomically.
+    Done when: A -> B -> browser Back shows the right profile, expired links can
+    be extended/cleared, and concurrent attempts cannot duplicate a slug.
+
+12. P2 — Normal social URLs become malformed.
+    Evidence: lib/screens/manual/sections/contact.dart:71-82;
+    lib/screens/admin/form_dialogs.dart:1142-1143,1250-1256.
+    Contact always prepends https://, while admin accepts a normal full URL.
+    Fix: normalize/validate URL schemes once, including site-relative resume URLs,
+    and consume a canonical value in the view.
+    Done when: both github.com/name and https://github.com/name save as a working
+    https URL; malformed/unsupported schemes show useful validation errors.
+
+13. P2 — CI can release untested frontend changes and omit backend changes.
+    Evidence: .github/workflows/firebase-hosting-deploy.yml:19-37;
+    .github/workflows/firebase-hosting-pull-request.yml:16-26.
+    Both use moving stable Flutter, build only, and deploy Hosting only. Rules
+    and indexes in Git are not applied by this workflow.
+    Fix: pin Flutter, run analysis/tests, emulator permission/CRUD checks, browser
+    smoke checks, and deliberate rules/index release with deployment concurrency.
+    Done when: a failing check prevents release and deployed rules/indexes can be
+    traced to the same intended revision as the frontend.
+
+SECURITY / DATA HARDENING TO VERIFY
+
+- firestore.rules:7-9 checks admin email without email_verified. Prefer a fixed
+  owner UID or server-managed claim. If using email, verify ownership. This is
+  a missing safeguard, not proof of a live takeover; provider settings were not
+  inspected. Never put trust in a role field writable by the client.
+- No rule validation of allowed keys, types, lengths, array bounds or immutable
+  timestamps. Apply validation consistently on create/update. Admin SDK imports
+  bypass rules and also need script-side validation.
+- firestore.indexes.json has no declared composite indexes. Active queries use
+  isActive + order. Verify edition and deployed query indexes, then check needed
+  definitions into source; absence locally does not prove a live outage.
+- ID-based queries pass arbitrary selection length into whereIn. Standard
+  Firestore has a disjunction limit; cap or chunk/merge with preserved ordering.
+- Validate quiz option count/answer bounds, dates, email, links and ordering.
+- Keep generated Firebase client configuration public as intended; it is not an
+  admin credential. The authorization controls are Auth, rules and server IAM.
+
+UI / PRODUCT REVIEW
+
+The existing cream/ink/rust palette and serif typography are coherent. Preserve
+their identity while improving content evidence and interaction quality.
+
+- Shared buttons/nav/project links use GestureDetector/MouseRegion without
+  focus/actions. Provide keyboard-operable, labeled buttons and real link
+  semantics. Source: lib/widgets/broadside/primitives.dart:215,268;
+  lib/screens/manual/sections/nav.dart:157.
+- Mobile nav hides all section links below 760px with no replacement menu.
+  Admin reserves a 260px sidebar. Presentation/selector/quiz layouts lack robust
+  narrow-screen treatment. Confirm each at 360/390px and tablet widths.
+- Consolidate the two design systems: Broadside public pages and the blue/dark
+  admin have different typography, colors and component conventions.
+- Public load is one-shot, despite documentation claiming real-time updates.
+  Decide explicitly whether a published snapshot or live updates are intended.
+- Alternate /modes experiences are already unlisted. Keep them secondary until
+  the main portfolio is complete. Presentation has fixed slide/project slots,
+  generic rather than tailored data, and unfinished image placeholders.
+- Mode selector creates its settings future during build, so hover rebuilds
+  trigger repeated reads (mode_selector_screen.dart:85,117). Cache the future.
+- Replace hidden string logic (e.g. filtering projects because tag contains
+  "hackathon" in sections/work.dart:31) with an explicit content category.
+- Reconcile marketing claims: web/index.html says three-time hackathon winner;
+  seed content lists two podiums, one first and one second. Verify actual claims.
+- README incorrectly describes mock mode and ?jobId=. Current code uses live
+  Firebase and ?job=. DOCUMENTATION.txt describes removed files/methods and
+  includes weaker any-authenticated-user write rules. Rewrite against reality.
+- Add social preview metadata, language, canonical strategy, appropriate crawler
+  policy, custom install icons/manifest and useful public fallback content.
+
+DESIGN DIRECTIONS
+
+A. Refined editorial (recommended): keep paper/ink/rust, serif display type and
+   restrained rules. Reduce the hero footprint, simplify navigation and lead with
+   two strong projects. Add case-study evidence and increase control readability.
+
+B. Engineering case studies: neutral/graphite surfaces, restrained teal/blue,
+   clear sans-serif typography, architectural decisions and failure-handling
+   explanations. Strong full-redesign option for backend/full-stack positioning.
+
+C. Concise recruiter portfolio: compact desktop profile rail, chronological
+   experience, two featured projects, prominent resume/contact and little motion.
+   Optimize for quick reading and mobile access.
+
+Recommended visitor journey:
+Role + proof -> selected projects -> experience -> supporting credentials -> contact.
+Navigation: Work / Experience / About / Contact. Supporting credentials can sit
+under About. Presentation/personality remain optional footer destinations.
+
+For every featured project, collect problem, your role, constraints, technical
+decision, outcome, real screenshot/diagram, and separate demo/source links. The
+current one-paragraph/one-link model needs a small extension to support this.
+Keep outcome claims tied to their context and evidence; do not invent metrics.
+
+Recommended admin journey:
+Content -> preview -> publish -> application profile -> copy share link.
+Add structured repeatable editors, ordering, draft/published state, archive/restore
+and desktop/mobile previews. Draft/publish is a proposed addition, not an existing
+feature. A release snapshot could simplify consistency and public fallback.
+
+RENDERING DECISION BEFORE A COMPLETE REDESIGN
+
+Keep Flutter to minimize changes if this is primarily a directly shared portfolio.
+If search discoverability and fast readable public content are central, evaluate
+an HTML-first public frontend (prerendered/SSR) while retaining Firebase and possibly
+the Flutter admin. Flutter's own guidance identifies text-rich static websites and
+SEO as poor fits. Migration is a product choice; it is not required to repair the
+confirmed backend issues and should not block that work.
+
+COMPLETION ORDER AND RELEASE GATES
+
+1. Safety foundation: isolate environments; private/public data split; owner
+   authorization; publication rules and schema validation; inspect actual indexes.
+   Gate: emulator tests for anonymous/non-admin/admin access and expired content.
+2. Reliable content: nullable updates, active selections, slug uniqueness, stable
+   seeding, reference cleanup and timestamps. Gate: round-trip CRUD and seed tests.
+3. Complete admin: all sections, defaults/reorder, archive/delete, profile preview,
+   auth restoration and useful failures. Gate: publish a complete portfolio using
+   only the admin, then edit/clear/archive it without manually touching Firestore.
+4. Reliable public flows: actual tailoring, URL changes, canonical links, sensible
+   errors/fallback, tracking, and root-cause fix for observed RenderBox error.
+   Gate: public/default/two-profile/expired/offline browser checks.
+5. Release process: analysis/tests/build/emulator checks, backend deploy procedure,
+   current documentation and reproducible environment. Gate: staging deployment
+   with fresh-session smoke tests and a known recovery path.
+6. UI: choose direction, collect project evidence, implement accessible primitives,
+   responsive navigation/admin, case studies, metadata and branding.
+   Gate: keyboard-only use, narrow widths, zoom/text scaling, light/dark appearance,
+   working resume/contact/source links and a clean runtime console.
+
+OFFICIAL REFERENCES CONSULTED
+
+Firebase field-level reads (documents must be split to protect private fields):
+https://firebase.google.com/docs/firestore/security/rules-fields
+Rules and query alignment:
+https://firebase.google.com/docs/firestore/security/rules-query
+Unverified email authorization:
+https://firebase.google.com/docs/firestore/security/insecure-rules#access_for_unverified_email_addresses
+Hosting previews use real backend resources:
+https://firebase.google.com/docs/hosting/test-preview-deploy
+Indexes and query limits:
+https://firebase.google.com/docs/firestore/query-data/index-overview
+https://firebase.google.com/docs/firestore/query-data/queries#query_limitations
+Flutter web suitability and SEO:
+https://docs.flutter.dev/platform-integration/web/faq
+
+LOCAL RULES AUDITOR ASSESSMENT
+
+{
+  "score": 2,
+  "summary": "Local rules deny anonymous writes but expose application notes, omit verified admin identity and schema validation, and conflict with visitor analytics. Deployed state was not inspected.",
+  "findings": [
+    {"check": "Business Logic vs. Rules", "severity": "major", "issue": "All job documents and application notes are public.", "recommendation": "Separate private applications from minimal public portfolio-link documents."},
+    {"check": "Authority Source", "severity": "moderate", "issue": "Admin email is checked without verified ownership; live exploitability is unverified.", "recommendation": "Use a fixed UID or trusted claim, or require email_verified."},
+    {"check": "Business Logic vs. Rules", "severity": "major", "issue": "Anonymous view-count updates are denied.", "recommendation": "Use a dedicated analytics mechanism and nonfatal error handling."},
+    {"check": "Type Safety and Storage Abuse", "severity": "minor", "issue": "Authorized writes lack schema and bounded-field validation.", "recommendation": "Validate creates and updates consistently and decode defensively."}
+  ]
+}

@@ -1,25 +1,22 @@
-// Broadside Nav — fixed top bar with blur-on-scroll.
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-
+import '../../../models/portfolio_data.dart';
 import '../../../theme/broadside_theme.dart';
+import '../../../widgets/broadside/folio_mark.dart';
 import '../../../widgets/broadside/primitives.dart';
 
 class BroadsideNav extends StatelessWidget {
   final bool dark;
   final bool scrolled;
   final String name;
-  final VoidCallback onWork;
-  final VoidCallback onExperience;
-  final VoidCallback onAwards;
-  final VoidCallback onSkills;
-  final VoidCallback onEducation;
-  final VoidCallback onCertifications;
-  final VoidCallback onContact;
-  final VoidCallback onToggle;
-  final VoidCallback onHome;
-
+  final VoidCallback onWork,
+      onExperience,
+      onAwards,
+      onSkills,
+      onEducation,
+      onCertifications,
+      onContact,
+      onToggle,
+      onHome;
   const BroadsideNav({
     required this.dark,
     required this.scrolled,
@@ -38,138 +35,208 @@ class BroadsideNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final w = MediaQuery.sizeOf(context).width;
-    final mobile = w < 760;
-    Widget bar = Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: scrolled ? Broadside.paper(dark) : Colors.transparent,
-        border: Border(
-          bottom: BorderSide(
-            color: scrolled ? Broadside.rule(dark) : Colors.transparent,
-          ),
-        ),
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: Broadside.maxWidth),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: Broadside.pagePad,
-              vertical: 18,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Brand
-                GestureDetector(
-                  onTap: onHome,
-                  child: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          name.toUpperCase(),
-                          style: BroadsideText.serif(
-                            size: mobile ? 17 : 22,
-                            color: Broadside.ink(dark),
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Kicker('· SWE', dark: dark, size: 9),
-                      ],
-                    ),
+    final destinations = <String, VoidCallback>{
+      'Work': onWork,
+      'Experience': onExperience,
+      'About': onEducation,
+      'Contact': onContact,
+    };
+    return Container(
+      color: Broadside.paper(dark),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: onHome,
+                style: TextButton.styleFrom(
+                  foregroundColor: Broadside.ink(dark),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 6,
                   ),
                 ),
-                const SizedBox(width: 24),
-                // Nav links + toggle. On mobile show only the toggle.
-                if (mobile)
-                  ThemeToggleButton(dark: dark, onToggle: onToggle)
-                else
-                  Flexible(
-                    child: Wrap(
-                      alignment: WrapAlignment.end,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 20,
-                      runSpacing: 10,
-                      children: [
-                        _NavLink(
-                            label: 'Experience',
-                            dark: dark,
-                            onTap: onExperience),
-                        _NavLink(label: 'Projects', dark: dark, onTap: onWork),
-                        _NavLink(
-                            label: 'Education', dark: dark, onTap: onEducation),
-                        _NavLink(label: 'Skills', dark: dark, onTap: onSkills),
-                        _NavLink(label: 'Awards', dark: dark, onTap: onAwards),
-                        _NavLink(
-                            label: 'Certifications',
-                            dark: dark,
-                            onTap: onCertifications),
-                        _NavLink(label: 'Contact', dark: dark, onTap: onContact),
-                        ThemeToggleButton(dark: dark, onToggle: onToggle),
-                      ],
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FolioMark(dark: dark, size: 34),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        name.isEmpty ? 'Portfolio' : name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: BroadsideText.editorial(
+                          size: 19,
+                          color: Broadside.ink(dark),
+                        ),
+                      ),
                     ),
-                  ),
-              ],
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+          PopupMenuButton<String>(
+            tooltip: 'Open navigation',
+            icon: Icon(Icons.menu, color: Broadside.ink(dark)),
+            color: Broadside.paper(dark),
+            onSelected: (label) => destinations[label]!(),
+            itemBuilder: (_) => destinations.keys
+                .map(
+                  (label) => PopupMenuItem(
+                    value: label,
+                    child: Text(
+                      label,
+                      style: BroadsideText.sans(color: Broadside.ink(dark)),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+          ThemeToggleButton(dark: dark, onToggle: onToggle),
+        ],
       ),
     );
-
-    // Blur backdrop when scrolled
-    if (scrolled) {
-      bar = ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: bar,
-        ),
-      );
-    }
-
-    return bar;
   }
 }
 
-class _NavLink extends StatefulWidget {
-  final String label;
+class BroadsideProfileRail extends StatelessWidget {
+  final PortfolioSettings settings;
   final bool dark;
-  final VoidCallback onTap;
+  final String activeSection;
+  final VoidCallback onHome, onWork, onExperience, onAbout, onContact, onToggle;
 
-  const _NavLink({
-    required this.label,
+  const BroadsideProfileRail({
+    required this.settings,
     required this.dark,
-    required this.onTap,
+    required this.activeSection,
+    required this.onHome,
+    required this.onWork,
+    required this.onExperience,
+    required this.onAbout,
+    required this.onContact,
+    required this.onToggle,
+    super.key,
   });
 
   @override
-  State<_NavLink> createState() => _NavLinkState();
-}
-
-class _NavLinkState extends State<_NavLink> {
-  bool _hover = false;
-
-  @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: Text(
-          widget.label.toUpperCase(),
-          style: BroadsideText.mono(
-            size: 10,
-            color: _hover
-                ? Broadside.ink(widget.dark)
-                : Broadside.inkSoft(widget.dark),
-            trackingEm: 0.16,
+    final links = <String, (String, VoidCallback)>{
+      'Work': ('Selected work', onWork),
+      'Experience': ('Experience', onExperience),
+      'About': ('A little about me', onAbout),
+      'Contact': ('Get in touch', onContact),
+    };
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(24, 48, 16, 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextButton(
+            onPressed: onHome,
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              alignment: Alignment.centerLeft,
+            ),
+            child: Semantics(
+              label: settings.name,
+              excludeSemantics: true,
+              child: FolioMark(
+                dark: dark,
+                size: 48,
+                initials: settings.initials,
+              ),
+            ),
           ),
-        ),
+          const SizedBox(height: 25),
+          Text(
+            settings.name,
+            style: BroadsideText.editorial(
+              size: 30,
+              color: Broadside.ink(dark),
+              height: 1.06,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            settings.role,
+            style: BroadsideText.sans(size: 12, color: Broadside.inkSoft(dark)),
+          ),
+          if (settings.location.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              settings.location,
+              style: BroadsideText.sans(
+                size: 11,
+                color: Broadside.inkSoft(dark),
+              ),
+            ),
+          ],
+          const SizedBox(height: 35),
+          ...links.entries.map(
+            (entry) => Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: TextButton(
+                onPressed: entry.value.$2,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 2,
+                  ),
+                  alignment: Alignment.centerLeft,
+                  foregroundColor: Broadside.ink(dark),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 14,
+                      height: 2,
+                      color: activeSection == entry.key
+                          ? Broadside.ink(dark)
+                          : Colors.transparent,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        entry.value.$1,
+                        style: BroadsideText.sans(
+                          size: 12,
+                          color: activeSection == entry.key
+                              ? Broadside.ink(dark)
+                              : Broadside.inkSoft(dark),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 38),
+          ThemeToggleButton(dark: dark, onToggle: onToggle),
+          if (settings.education.isNotEmpty) ...[
+            const SizedBox(height: 46),
+            Text(
+              'Study & foundations',
+              style: BroadsideText.sans(
+                size: 11,
+                weight: FontWeight.w600,
+                color: Broadside.ink(dark),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              settings.education.first.where,
+              style: BroadsideText.sans(
+                size: 11,
+                color: Broadside.inkSoft(dark),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

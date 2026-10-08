@@ -5,6 +5,7 @@ Usage: python serve_spa.py [port]   (run from a dir; serves ../build/web)
 import http.server
 import os
 import sys
+from urllib.parse import urlsplit
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "build", "web")
 
@@ -20,9 +21,9 @@ class SPAHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         path = self.translate_path(self.path)
-        if not os.path.exists(path) or os.path.isdir(path) and not os.path.exists(
+        if (not os.path.exists(path) or os.path.isdir(path) and not os.path.exists(
             os.path.join(path, "index.html")
-        ):
+        )) and not os.path.splitext(urlsplit(self.path).path)[1]:
             # SPA fallback
             self.path = "/index.html"
         return super().do_GET()

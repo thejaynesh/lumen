@@ -1,38 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
-
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Jaynesh Bhandari · Software Engineer. Full-stack developer, three-time hackathon winner.">
-
-  <!-- iOS meta tags & icons -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Jaynesh Bhandari — software engineer building back-end systems, full-stack products, and practical AI. Explore ClickDrobe, AlgoView, and engineering experience.">
+  <meta name="theme-color" content="#EDF1F8">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Jaynesh Bhandari · Software Engineer">
+  <meta property="og:description" content="Back-end systems. Full-stack products. Practical AI. Explore the work and the engineering decisions behind it.">
+  <meta property="og:url" content="https://lumen-f2e07.web.app/">
+  <meta property="og:image" content="https://lumen-f2e07.web.app/social-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Jaynesh Bhandari · Software Engineer">
+  <meta name="twitter:description" content="Back-end systems, full-stack products, and practical AI.">
+  <meta name="twitter:image" content="https://lumen-f2e07.web.app/social-preview.png">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Jaynesh Bhandari">
+  <link rel="canonical" href="https://lumen-f2e07.web.app/">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon (Broadside J) -->
-  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
-
-  <title>Jaynesh Bhandari · Software Engineer</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="manifest" href="manifest.json">
+  <title>Jaynesh Bhandari · Software Engineer</title>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Jaynesh Bhandari","jobTitle":"Software Engineer","url":"https://lumen-f2e07.web.app/","sameAs":["https://github.com/thejaynesh","https://www.linkedin.com/in/thejaynesh"]}</script>
+  <style>
+    @font-face{font-family:Manrope;src:url('assets/assets/fonts/Manrope.ttf') format('truetype');font-style:normal;font-weight:200 800;font-display:swap}
+    @font-face{font-family:DMSerifDisplay;src:url('assets/assets/fonts/DMSerifDisplay-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+    @font-face{font-family:DMSerifDisplay;src:url('assets/assets/fonts/DMSerifDisplay-Italic.ttf') format('truetype');font-style:italic;font-weight:400;font-display:swap}
+    body{margin:0;background:#EDF1F8;color:#17264B;font:400 16px/1.75 Manrope,system-ui,sans-serif}
+    #portfolio-fallback{max-width:960px;margin:auto;padding:48px 24px}
+    #portfolio-fallback .brand-seal{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border:1px solid #17264B;border-radius:50%;font:400 24px/1 DMSerifDisplay,Georgia,serif;transform:rotate(-8deg);margin-bottom:28px}
+    #portfolio-fallback>p{color:#475673}
+    #portfolio-fallback>p:first-of-type{font:500 11px/1.6 Manrope,sans-serif;letter-spacing:.1em;color:#475673}
+    #portfolio-fallback h1{font:400 clamp(42px,8vw,80px)/1.06 DMSerifDisplay,Georgia,serif;letter-spacing:-.035em;margin:20px 0}
+    #portfolio-fallback h2{font:500 28px/1.3 Manrope,system-ui,sans-serif;letter-spacing:-.03em;margin-top:40px}
+    #portfolio-fallback a{color:#2549CD;text-underline-offset:4px}
+    #portfolio-fallback a:focus-visible{outline:2px solid #2549CD;outline-offset:5px}
+    #portfolio-fallback nav{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:18px 0;font:500 13px/1.65 Manrope,sans-serif}
+    #portfolio-fallback nav a:first-child{background:#F1C1A0;color:#4B2F23;padding:11px 18px;border-radius:28px;text-decoration:none}
+    #portfolio-fallback article{border-top:1px solid #A1B1CE;padding:16px 0}
+    #portfolio-fallback article h3{margin:8px 0;font-size:22px;font-weight:500;letter-spacing:-.025em}
+    #portfolio-fallback article p{color:#475673}
+    #portfolio-fallback .status{font:400 12px/1.75 Manrope,sans-serif;color:#475673}
+    #portfolio-fallback[hidden]{display:none}
+  </style>
 </head>
 <body>
+  <main id="portfolio-fallback">
+    <span class="brand-seal" aria-hidden="true">jb.</span>
+    <p>SOFTWARE ENGINEER · SAN JOSE, CA</p>
+    <h1>Jaynesh Bhandari</h1>
+    <p>Back-end systems, full-stack products, and AI features built for real data.</p>
+    <nav aria-label="Portfolio links"><a href="mailto:thejaynesh@gmail.com">Email me</a><a href="Jaynesh-Bhandari-Resume.pdf">Résumé</a><a href="https://github.com/thejaynesh">GitHub</a><a href="https://www.linkedin.com/in/thejaynesh">LinkedIn</a></nav>
+    <p class="status" id="startup-status" role="status">Loading the interactive portfolio. You can browse this overview while it starts.</p>
+    <noscript><p>The interactive portfolio needs JavaScript. These projects and contact links remain available.</p></noscript>
+    <h2>Selected work</h2>
+    <article><h3><a href="https://clickdrobe.com">ClickDrobe</a></h3><p>An AI wardrobe and styling application built with Flutter, PostgreSQL, and Gemini. Asynchronous ingestion turns clothing photos into structured wardrobe items.</p></article>
+    <article><h3><a href="https://algoview.jaynesh.dev">AlgoView</a></h3><p>An interactive algorithm visualizer with execution snapshots, synchronized explanations, and background benchmarking.</p></article>
+    <h2>Experience</h2><p>Software engineering at Tata Consultancy Services and graduate teaching at Northeastern University. M.S. in Computer Science.</p>
+  </main>
+  <script src="firebase_emulator_bootstrap.js"></script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

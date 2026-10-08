@@ -1,336 +1,225 @@
-// Broadside Work section — §6.2
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import '../../../models/portfolio_data.dart';
 import '../../../theme/broadside_theme.dart';
 import '../../../widgets/broadside/primitives.dart';
+import '../../../widgets/broadside/project_artwork.dart';
+import '../../../widgets/broadside/folder_tabs.dart';
 
 class BroadsideWork extends StatelessWidget {
+  const BroadsideWork({super.key, required this.projects, required this.dark});
   final List<Project> projects;
-  final List<String> now;
   final bool dark;
 
-  const BroadsideWork({
-    required this.projects,
-    required this.dark,
-    this.now = const [],
-    super.key,
-  });
-
   @override
-  Widget build(BuildContext context) {
-    final w = MediaQuery.sizeOf(context).width;
-    final mobile = w < 760;
-
-    // Projects = real builds only; hackathons live in the Awards section.
-    final builds = projects
-        .where((p) => !p.tag.toLowerCase().contains('hackathon'))
-        .toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionHead(
-          number: '§ 02',
-          title: 'PROJECTS',
-          sub: 'Selected builds',
-          dark: dark,
-        ),
-        // "Currently" sub-block — what's in flight right now.
-        if (now.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 20, bottom: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Kicker('Currently', dark: dark, color: Broadside.accent(dark)),
-                const SizedBox(height: 10),
-                ...now.map(
-                  (item) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '→',
-                          style: BroadsideText.serif(
-                            size: 16,
-                            color: Broadside.accent(dark),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            item,
-                            style: BroadsideText.sans(
-                              size: 14.5,
-                              color: Broadside.inkSoft(dark),
-                              height: 1.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 48),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Kicker(
+              'Selected work / ${projects.length.toString().padLeft(2, '0')} projects',
+              dark: dark,
             ),
-          ),
-        ...List.generate(builds.length, (i) {
-          final p = builds[i];
-          if (mobile) {
-            return Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: Broadside.rule(dark)),
+            const SizedBox(height: 14),
+            Semantics(
+              header: true,
+              child: Text(
+                'Software I’ve built.',
+                style: BroadsideText.editorial(
+                  size: 42,
+                  color: Broadside.ink(dark),
                 ),
               ),
-              padding: const EdgeInsets.symmetric(vertical: 22),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Number (smaller, inline with tag kickers)
-                  Text(
-                    '0${i + 1}',
-                    style: BroadsideText.serif(
-                      size: 44,
-                      height: 0.85,
-                      letterSpacing: -0.04,
-                      color: Broadside.accent(dark),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // Tag + KPI kickers
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 4,
-                    children: [
-                      if (p.tag.isNotEmpty) Kicker(p.tag, dark: dark),
-                      if (p.kpi.isNotEmpty)
-                        Kicker(
-                          '↳ ${p.kpi}',
-                          dark: dark,
-                          color: Broadside.accent(dark),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // Title
-                  Text(
-                    p.title,
-                    style: BroadsideText.serif(
-                      size: 30,
-                      height: 1.05,
-                      letterSpacing: -0.02,
-                      color: Broadside.ink(dark),
-                    ),
-                  ),
-                  if (p.category.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      p.category,
-                      style: BroadsideText.serif(
-                        size: 16,
-                        color: Broadside.inkSoft(dark),
-                        style: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                  if (p.link != null && p.link!.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    _ProjectLink(url: p.link!, dark: dark),
-                  ],
-                  const SizedBox(height: 8),
-                  // Description (full width)
-                  Text(
-                    p.description,
-                    style: BroadsideText.sans(
-                      size: 14,
-                      color: Broadside.inkSoft(dark),
-                      height: 1.6,
-                    ),
-                  ),
-                  // Image (only if set)
-                  if (p.imageUrl != null && p.imageUrl!.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    ImagePlaceholder(
-                      aspect: 16 / 7,
-                      label: 'FIG. 0${i + 1} · ${p.title.toUpperCase()}',
-                      dark: dark,
-                      imageUrl: p.imageUrl,
-                    ),
-                  ],
-                  const SizedBox(height: 12),
-                  // Tech stack tags (left-aligned)
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: p.techStack
-                        .map((s) => BroadTag(s, dark: dark, mini: true))
-                        .toList(),
-                  ),
-                ],
-              ),
-            );
-          }
-          return Container(
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Broadside.rule(dark)),
-              ),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 22),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Number column
-                SizedBox(
-                  width: 64,
-                  child: Text(
-                    '0${i + 1}',
-                    style: BroadsideText.serif(
-                      size: 56,
-                      height: 0.85,
-                      letterSpacing: -0.04,
-                      color: Broadside.accent(dark),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 24),
-                // Content column
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Tag + KPI kickers
-                      Row(
-                        children: [
-                          if (p.tag.isNotEmpty) ...[
-                            Kicker(p.tag, dark: dark),
-                            const SizedBox(width: 16),
-                          ],
-                          if (p.kpi.isNotEmpty)
-                            Kicker(
-                              '↳ ${p.kpi}',
-                              dark: dark,
-                              color: Broadside.accent(dark),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      // Title
-                      Text(
-                        p.title,
-                        style: BroadsideText.serif(
-                          size: 30,
-                          height: 1.05,
-                          letterSpacing: -0.02,
-                          color: Broadside.ink(dark),
-                        ),
-                      ),
-                      if (p.category.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          p.category,
-                          style: BroadsideText.serif(
-                            size: 17,
-                            color: Broadside.inkSoft(dark),
-                            style: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                      if (p.link != null && p.link!.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        _ProjectLink(url: p.link!, dark: dark),
-                      ],
-                      const SizedBox(height: 8),
-                      // Description
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 620),
-                        child: Text(
-                          p.description,
-                          style: BroadsideText.sans(
-                            size: 14,
-                            color: Broadside.inkSoft(dark),
-                            height: 1.6,
-                          ),
-                        ),
-                      ),
-                      // Show a screenshot only when one exists; the empty
-                      // placeholder made each project feel oversized.
-                      if (p.imageUrl != null && p.imageUrl!.isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        ImagePlaceholder(
-                          aspect: 16 / 7,
-                          label: 'FIG. 0${i + 1} · ${p.title.toUpperCase()}',
-                          dark: dark,
-                          imageUrl: p.imageUrl,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 28),
-                // Tech stack tags column
-                SizedBox(
-                  width: 220,
-                  child: Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    alignment: WrapAlignment.end,
-                    children: p.techStack
-                        .map((s) => BroadTag(s, dark: dark, mini: true))
-                        .toList(),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
-    );
-  }
-}
-
-/// Small mono link under a project title. Shows the bare domain/path, not the
-/// scheme — "clickdrobe.com" reads better in the grid than the full URL.
-class _ProjectLink extends StatefulWidget {
-  final String url;
-  final bool dark;
-
-  const _ProjectLink({required this.url, required this.dark});
-
-  @override
-  State<_ProjectLink> createState() => _ProjectLinkState();
-}
-
-class _ProjectLinkState extends State<_ProjectLink> {
-  bool _hover = false;
-
-  String get _display =>
-      widget.url.replaceFirst(RegExp(r'^https?://(www\.)?'), '');
-
-  @override
-  Widget build(BuildContext context) {
-    final color = Broadside.accent(widget.dark);
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        onTap: () => launchUrl(Uri.parse(widget.url)),
-        child: Text(
-          '$_display ↗',
-          style: BroadsideText.mono(
-            size: 11,
-            color: color,
-            trackingEm: 0.08,
-          ).copyWith(
-            decoration: _hover ? TextDecoration.underline : TextDecoration.none,
-            decorationColor: color,
-          ),
+          ],
         ),
       ),
+      if (projects.isEmpty)
+        Text(
+          'Project details will be available here soon.',
+          style: BroadsideText.sans(color: Broadside.inkSoft(dark)),
+        ),
+      if (projects.isNotEmpty) ...[
+        FolderTabs(
+          dark: dark,
+          tabPrefix: 'project',
+          entries: [
+            for (final project in projects)
+              FolderEntry(
+                id: project.id,
+                label: project.title,
+                child: _ProjectFile(project: project, dark: dark),
+              ),
+          ],
+        ),
+        const SizedBox(height: 24),
+      ],
+    ],
+  );
+}
+
+class _ProjectFile extends StatelessWidget {
+  const _ProjectFile({required this.project, required this.dark});
+  final Project project;
+  final bool dark;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = project;
+    final details = <String, String>{
+      if (p.problem.isNotEmpty) 'The problem': p.problem,
+      if (p.contribution.isNotEmpty) 'My contribution': p.contribution,
+      if (p.outcome.isNotEmpty) 'The outcome': p.outcome,
+    };
+    final copy = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (p.category.isNotEmpty) Kicker(p.category, dark: dark),
+        if (p.tag.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Kicker(p.tag, dark: dark),
+        ],
+        const SizedBox(height: 12),
+        Semantics(
+          header: true,
+          child: Text(
+            p.title,
+            style: BroadsideText.editorial(
+              size: 39,
+              color: Broadside.ink(dark),
+            ),
+          ),
+        ),
+        if (p.description.isNotEmpty) ...[
+          const SizedBox(height: 18),
+          Text(
+            p.description,
+            style: BroadsideText.sans(
+              size: 15,
+              height: 1.8,
+              color: Broadside.inkSoft(dark),
+            ),
+          ),
+        ],
+        if (p.techStack.isNotEmpty) ...[
+          const SizedBox(height: 21),
+          Text(
+            p.techStack.join(' / '),
+            style: BroadsideText.mono(
+              size: 11,
+              trackingEm: 0,
+              color: Broadside.ink(dark),
+            ),
+          ),
+        ],
+        if (p.kpi.isNotEmpty) ...[
+          const SizedBox(height: 18),
+          Text(
+            p.kpi,
+            style: BroadsideText.sans(
+              size: 14,
+              weight: FontWeight.w500,
+              color: Broadside.ink(dark),
+            ),
+          ),
+        ],
+        if (details.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          Theme(
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            child: Material(
+              type: MaterialType.transparency,
+              child: ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                title: Text(
+                  'Project details',
+                  style: BroadsideText.sans(
+                    size: 14,
+                    color: Broadside.ink(dark),
+                  ),
+                ),
+                children: [
+                  for (final entry in details.entries)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 18),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            entry.key,
+                            style: BroadsideText.sans(
+                              size: 13,
+                              weight: FontWeight.w600,
+                              color: Broadside.ink(dark),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            entry.value,
+                            style: BroadsideText.sans(
+                              size: 14,
+                              color: Broadside.inkSoft(dark),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+        Wrap(
+          spacing: 15,
+          runSpacing: 8,
+          children: [
+            if (p.link?.isNotEmpty == true)
+              BroadsideLink(
+                label: 'Visit project ↗',
+                href: p.link!,
+                dark: dark,
+              ),
+            if (p.sourceUrl.isNotEmpty)
+              BroadsideLink(
+                label: 'View source ↗',
+                href: p.sourceUrl,
+                dark: dark,
+              ),
+          ],
+        ),
+      ],
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide =
+            constraints.maxWidth /
+                (MediaQuery.textScalerOf(context).scale(16) / 16) >=
+            740;
+        final art = ProjectArtwork(project: p, dark: dark);
+        final hasVisual = ProjectArtwork.hasVisual(p);
+        return Padding(
+          padding: EdgeInsets.all(wide ? 30 : 18),
+          child: !hasVisual
+              ? copy
+              : wide
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 6, child: copy),
+                    const SizedBox(width: 40),
+                    Expanded(flex: 5, child: art),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [copy, const SizedBox(height: 30), art],
+                ),
+        );
+      },
     );
   }
 }

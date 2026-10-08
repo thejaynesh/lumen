@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import '../../models/portfolio_data.dart';
 import '../../providers/experience_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -9,63 +7,28 @@ import '../../services/portfolio_service.dart';
 import '../../theme/broadside_theme.dart';
 import '../../widgets/broadside/primitives.dart';
 
-// ---------------------------------------------------------------------------
-// Step enum
-// ---------------------------------------------------------------------------
-
 enum _Step { intro, quiz, results, personality }
-
-// ---------------------------------------------------------------------------
-// LuckyMode
-// ---------------------------------------------------------------------------
 
 class LuckyMode extends StatefulWidget {
   const LuckyMode({super.key});
-
   @override
   State<LuckyMode> createState() => _LuckyModeState();
 }
 
 class _LuckyModeState extends State<LuckyMode> {
-  // Future guard so we only assign once
   late Future<PortfolioSettings> _settingsFuture;
-  bool _futureAssigned = false;
-
-  // Quiz state
   _Step _step = _Step.intro;
-  int _qIdx = 0;
+  int _question = 0;
   int _score = 0;
   int? _selected;
-  bool _revealed = false;
-
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_futureAssigned) {
-      _settingsFuture = context.read<PortfolioService>().getSettings();
-      _futureAssigned = true;
-    }
+  void initState() {
+    super.initState();
+    _load();
   }
 
-  void _pickAnswer(int i, List<QuizQuestion> quiz) {
-    if (_revealed) return;
-    setState(() {
-      _selected = i;
-      _revealed = true;
-      if (i == quiz[_qIdx].answer) _score++;
-    });
-  }
-
-  void _nextQ(List<QuizQuestion> quiz) {
-    if (_qIdx < quiz.length - 1) {
-      setState(() {
-        _qIdx++;
-        _selected = null;
-        _revealed = false;
-      });
-    } else {
-      setState(() => _step = _Step.results);
-    }
+  void _load() {
+    _settingsFuture = context.read<PortfolioService>().getSettings();
   }
 
   void _exit() => context.read<ExperienceProvider>().reset();
@@ -73,782 +36,413 @@ class _LuckyModeState extends State<LuckyMode> {
   @override
   Widget build(BuildContext context) {
     final dark = context.watch<ThemeProvider>().isDarkMode;
-    final accent = Broadside.accent(dark);
-
-    return FutureBuilder<PortfolioSettings>(
-      future: _settingsFuture,
-      builder: (context, snap) {
-        if (!snap.hasData) {
-          return Container(
-            color: Broadside.paper(dark),
-            child: Center(
-              child: CircularProgressIndicator(color: accent),
-            ),
-          );
-        }
-        final s = snap.data!;
-        final quiz = s.quiz;
-        final personality = s.personality;
-        final email = s.email;
-        final name = s.name.isNotEmpty ? s.name : 'Jaynesh Bhandari';
-
-        return Container(
-          color: Broadside.paper(dark),
-          constraints: const BoxConstraints.expand(),
-          child: Column(
-            children: [
-              _TopBar(name: name, dark: dark, onExit: _exit),
-              Expanded(
-                child: Center(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(40),
-                    child: _buildBody(
-                      dark: dark,
-                      quiz: quiz,
-                      personality: personality,
-                      email: email,
-                      name: name,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildBody({
-    required bool dark,
-    required List<QuizQuestion> quiz,
-    required List<PersonalityItem> personality,
-    required String email,
-    required String name,
-  }) {
-    switch (_step) {
-      case _Step.intro:
-        return _IntroStep(
-          dark: dark,
-          quizEmpty: quiz.isEmpty,
-          onStartQuiz: () => setState(() => _step = _Step.quiz),
-          onSkip: () => setState(() => _step = _Step.personality),
-        );
-      case _Step.quiz:
-        return _QuizStep(
-          dark: dark,
-          quiz: quiz,
-          qIdx: _qIdx,
-          score: _score,
-          selected: _selected,
-          revealed: _revealed,
-          onPickAnswer: _pickAnswer,
-          onNextQ: _nextQ,
-          onExit: _exit,
-        );
-      case _Step.results:
-        return _ResultsStep(
-          dark: dark,
-          score: _score,
-          total: quiz.length,
-          email: email,
-          onPersonality: () => setState(() => _step = _Step.personality),
-        );
-      case _Step.personality:
-        return _PersonalityStep(
-          dark: dark,
-          personality: personality,
-          email: email,
-          onExit: _exit,
-        );
-    }
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Top bar
-// ---------------------------------------------------------------------------
-
-class _TopBar extends StatelessWidget {
-  final String name;
-  final bool dark;
-  final VoidCallback onExit;
-
-  const _TopBar({
-    required this.name,
-    required this.dark,
-    required this.onExit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Broadside.rule(dark)),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: [
-          // Left: name + kicker
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                name.toUpperCase(),
-                style: BroadsideText.serif(
-                  size: 22,
-                  color: Broadside.ink(dark),
-                ),
-              ),
-              const SizedBox(width: 14),
-              Kicker(
-                '· Lucky Mode',
-                dark: dark,
-                color: Broadside.accent(dark),
-              ),
-            ],
-          ),
-          // Right: back button
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: onExit,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Broadside.rule(dark)),
-                ),
-                child: Text(
-                  '← BACK TO MENU',
-                  style: BroadsideText.mono(
-                    size: 10,
-                    color: Broadside.ink(dark),
-                    trackingEm: 0.16,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Intro step
-// ---------------------------------------------------------------------------
-
-class _IntroStep extends StatelessWidget {
-  final bool dark;
-  final bool quizEmpty;
-  final VoidCallback onStartQuiz;
-  final VoidCallback onSkip;
-
-  const _IntroStep({
-    required this.dark,
-    required this.quizEmpty,
-    required this.onStartQuiz,
-    required this.onSkip,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 700),
+    return ColoredBox(
+      color: Broadside.paper(dark),
+      child: SizedBox.expand(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            // Headline
-            Text.rich(
-              TextSpan(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
                 children: [
-                  TextSpan(
-                    text: 'So you chose\n',
-                    style: BroadsideText.serif(
-                      size: 80,
-                      height: 0.9,
-                      letterSpacing: -0.03,
-                      color: Broadside.ink(dark),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: _exit,
+                        icon: const Icon(Icons.arrow_back, size: 18),
+                        label: const Text('Experiences'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Broadside.ink(dark),
+                        ),
+                      ),
                     ),
                   ),
-                  TextSpan(
-                    text: 'lucky.',
-                    style: BroadsideText.serif(
-                      size: 80,
-                      height: 0.9,
-                      letterSpacing: -0.03,
-                      color: Broadside.accent(dark),
-                      style: FontStyle.italic,
-                    ),
+                  ThemeToggleButton(
+                    dark: dark,
+                    onToggle: () => context.read<ThemeProvider>().toggleTheme(),
                   ),
                 ],
               ),
-              textAlign: TextAlign.center,
+            ),
+            Expanded(
+              child: FutureBuilder<PortfolioSettings>(
+                future: _settingsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: Broadside.accent(dark),
+                      ),
+                    );
+                  }
+                  if (snapshot.hasError || !snapshot.hasData) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'This page could not load.',
+                              style: BroadsideText.display(
+                                height: 1.0,
+                                letterSpacing: 0,
+                                size: 32,
+                                color: Broadside.ink(dark),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            BtnPrimary(
+                              label: 'Try again',
+                              dark: dark,
+                              onTap: () => setState(_load),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+                  final settings = snapshot.data!;
+                  final quiz = settings.quiz
+                      .where(
+                        (q) =>
+                            q.q.trim().isNotEmpty &&
+                            q.options.length >= 2 &&
+                            q.answer >= 0 &&
+                            q.answer < q.options.length,
+                      )
+                      .toList();
+                  return SingleChildScrollView(
+                    key: ValueKey('${_step.name}-$_question'),
+                    padding: const EdgeInsets.all(24),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 760),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 30),
+                          child: _body(settings, quiz, dark),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _body(PortfolioSettings settings, List<QuizQuestion> quiz, bool dark) {
+    switch (_step) {
+      case _Step.intro:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Kicker('Beyond the résumé', dark: dark),
+            const SizedBox(height: 20),
+            Text(
+              'A little more about me.',
+              style: BroadsideText.display(
+                letterSpacing: 0,
+                size: 48,
+                color: Broadside.ink(dark),
+                height: 1.1,
+              ),
             ),
             const SizedBox(height: 24),
             Text(
-              'Five questions. No Googling. Let\'s see how well you know me — or how well you can guess.',
+              quiz.isEmpty && settings.personality.isEmpty
+                  ? 'More personal notes are on the way. You can explore my work in the portfolio.'
+                  : 'Try a short quiz, or browse the interests behind the work.',
               style: BroadsideText.sans(
                 size: 17,
                 color: Broadside.inkSoft(dark),
-                height: 1.6,
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            const SizedBox(height: 28),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
               children: [
-                if (!quizEmpty) ...[
+                if (quiz.isNotEmpty)
                   BtnPrimary(
-                    label: 'Start the quiz ↘',
+                    label: 'Start ${quiz.length}-question quiz',
                     dark: dark,
-                    onTap: onStartQuiz,
+                    onTap: () => setState(() {
+                      _question = 0;
+                      _score = 0;
+                      _selected = null;
+                      _step = _Step.quiz;
+                    }),
                   ),
-                  const SizedBox(width: 12),
-                ],
-                BtnGhost(
-                  label: 'Skip to the fun stuff',
-                  dark: dark,
-                  onTap: onSkip,
-                ),
+                if (settings.personality.isNotEmpty)
+                  BtnGhost(
+                    label: 'Skip to personal notes',
+                    dark: dark,
+                    onTap: () => setState(() => _step = _Step.personality),
+                  ),
+                if (quiz.isEmpty && settings.personality.isEmpty)
+                  BtnGhost(
+                    label: 'Back to experiences',
+                    dark: dark,
+                    onTap: _exit,
+                  ),
               ],
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Quiz step
-// ---------------------------------------------------------------------------
-
-class _QuizStep extends StatelessWidget {
-  final bool dark;
-  final List<QuizQuestion> quiz;
-  final int qIdx;
-  final int score;
-  final int? selected;
-  final bool revealed;
-  final void Function(int, List<QuizQuestion>) onPickAnswer;
-  final void Function(List<QuizQuestion>) onNextQ;
-  final VoidCallback onExit;
-
-  const _QuizStep({
-    required this.dark,
-    required this.quiz,
-    required this.qIdx,
-    required this.score,
-    required this.selected,
-    required this.revealed,
-    required this.onPickAnswer,
-    required this.onNextQ,
-    required this.onExit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    // Guard: empty quiz
-    if (quiz.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        );
+      case _Step.quiz:
+        if (quiz.isEmpty) {
+          return BtnGhost(
+            label: 'Back to experiences',
+            dark: dark,
+            onTap: _exit,
+          );
+        }
+        final question = quiz[_question.clamp(0, quiz.length - 1)];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Kicker('No quiz configured', dark: dark),
-            const SizedBox(height: 24),
-            BtnGhost(label: '← Back to menu', dark: dark, onTap: onExit),
-          ],
-        ),
-      );
-    }
-
-    final q = quiz[qIdx];
-    final answer = q.answer;
-
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 700),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Progress header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Kicker('Question ${qIdx + 1} / ${quiz.length}', dark: dark),
-              Kicker('Score: $score', dark: dark),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // Progress bar
-          Container(
-            height: 3,
-            color: Broadside.rule(dark),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: FractionallySizedBox(
-                widthFactor: (qIdx + 1) / quiz.length,
-                child: Container(color: Broadside.accent(dark)),
-              ),
-            ),
-          ),
-          const SizedBox(height: 32),
-
-          // Question text
-          Text(
-            q.q,
-            style: BroadsideText.serif(
-              size: 36,
-              height: 1.15,
-              letterSpacing: -0.01,
-              color: Broadside.ink(dark),
-            ),
-          ),
-          const SizedBox(height: 28),
-
-          // Answer grid (2 columns via Column of Rows)
-          ..._buildAnswerGrid(q, answer),
-
-          // Fun fact card (revealed)
-          if (revealed) ...[
-            const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-              color: Broadside.paperDeep(dark),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Kicker(
-                    selected == answer ? '✓ Correct!' : '✗ Not quite.',
-                    dark: dark,
-                    color: selected == answer
-                        ? Broadside.accent(dark)
-                        : Broadside.inkSoft(dark),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    q.funFact,
-                    style: BroadsideText.sans(
-                      size: 14,
-                      color: Broadside.inkSoft(dark),
-                      height: 1.55,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  BtnPrimary(
-                    label: qIdx < quiz.length - 1 ? 'Next question →' : 'See results →',
-                    dark: dark,
-                    onTap: () => onNextQ(quiz),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildAnswerGrid(QuizQuestion q, int answer) {
-    final opts = q.options;
-    // Build rows of 2
-    final rows = <Widget>[];
-    for (int r = 0; r < opts.length; r += 2) {
-      final hasSecond = r + 1 < opts.length;
-      final i0 = r;
-      final i1 = r + 1;
-      rows.add(
-        Row(
-          children: [
-            Expanded(
-              child: _AnswerButton(
-                index: i0,
-                text: opts[i0],
-                dark: dark,
-                answer: answer,
-                selected: selected,
-                revealed: revealed,
-                onTap: () => onPickAnswer(i0, quiz),
-              ),
-            ),
-            if (hasSecond) ...[
-              const SizedBox(width: 12),
-              Expanded(
-                child: _AnswerButton(
-                  index: i1,
-                  text: opts[i1],
-                  dark: dark,
-                  answer: answer,
-                  selected: selected,
-                  revealed: revealed,
-                  onTap: () => onPickAnswer(i1, quiz),
-                ),
-              ),
-            ] else
-              const Expanded(child: SizedBox()),
-          ],
-        ),
-      );
-      if (r + 2 < opts.length) rows.add(const SizedBox(height: 12));
-    }
-    return rows;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Answer button
-// ---------------------------------------------------------------------------
-
-class _AnswerButton extends StatelessWidget {
-  final int index;
-  final String text;
-  final bool dark;
-  final int answer;
-  final int? selected;
-  final bool revealed;
-  final VoidCallback onTap;
-
-  const _AnswerButton({
-    required this.index,
-    required this.text,
-    required this.dark,
-    required this.answer,
-    required this.selected,
-    required this.revealed,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isCorrect = index == answer;
-    final isSelected = index == selected;
-
-    Color bg;
-    Color border;
-    Color textColor;
-
-    if (revealed && isCorrect) {
-      bg = Broadside.accent(dark);
-      border = Broadside.accent(dark);
-      textColor = Broadside.accentInk(dark);
-    } else if (revealed && isSelected && !isCorrect) {
-      bg = Broadside.paperDeep(dark);
-      border = Broadside.inkSoft(dark);
-      textColor = Broadside.inkSoft(dark);
-    } else {
-      bg = Colors.transparent;
-      border = Broadside.rule(dark);
-      textColor = Broadside.ink(dark);
-    }
-
-    return MouseRegion(
-      cursor: revealed ? SystemMouseCursors.basic : SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: revealed ? null : onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-          decoration: BoxDecoration(
-            color: bg,
-            border: Border.all(color: border),
-          ),
-          child: Row(
-            children: [
-              Text(
-                String.fromCharCode(65 + index),
-                style: BroadsideText.mono(
-                  size: 10,
-                  color: textColor.withValues(alpha: 0.6),
-                  trackingEm: 0.16,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  text,
-                  style: BroadsideText.sans(
-                    size: 15,
-                    color: textColor,
-                    height: 1.4,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Results step
-// ---------------------------------------------------------------------------
-
-class _ResultsStep extends StatelessWidget {
-  final bool dark;
-  final int score;
-  final int total;
-  final String email;
-  final VoidCallback onPersonality;
-
-  const _ResultsStep({
-    required this.dark,
-    required this.score,
-    required this.total,
-    required this.email,
-    required this.onPersonality,
-  });
-
-  String get _scoreLabel {
-    if (score == total) return "Perfect. You stalked my LinkedIn, didn't you?";
-    if (score >= 3) return "Not bad. You clearly read more than the headline.";
-    if (score >= 1) return "Room for improvement. Maybe try the Manual mode first.";
-    return "Zero? We clearly haven't met. Let's fix that.";
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 700),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Kicker('Quiz Complete', dark: dark),
+            Kicker('Question ${_question + 1} of ${quiz.length}', dark: dark),
             const SizedBox(height: 16),
+            LinearProgressIndicator(
+              value: (_question + 1) / quiz.length,
+              color: Broadside.accent(dark),
+              backgroundColor: Broadside.rule(dark),
+              minHeight: 3,
+            ),
+            const SizedBox(height: 26),
             Text(
-              '$score/$total',
-              style: BroadsideText.serif(
-                size: 120,
-                height: 0.9,
+              question.q,
+              style: BroadsideText.display(
+                letterSpacing: 0,
+                size: 36,
+                color: Broadside.ink(dark),
+                height: 1.2,
+              ),
+            ),
+            const SizedBox(height: 26),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final width = constraints.maxWidth < 560
+                    ? constraints.maxWidth
+                    : (constraints.maxWidth - 12) / 2;
+                return Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: question.options.indexed.map((entry) {
+                    final correct =
+                        _selected != null && entry.$1 == question.answer;
+                    final chosen = _selected == entry.$1;
+                    return SizedBox(
+                      width: width,
+                      child: OutlinedButton(
+                        onPressed: _selected != null
+                            ? null
+                            : () => setState(() {
+                                _selected = entry.$1;
+                                if (entry.$1 == question.answer) {
+                                  _score++;
+                                }
+                              }),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.all(20),
+                          foregroundColor: Broadside.ink(dark),
+                          disabledForegroundColor: Broadside.ink(dark),
+                          backgroundColor: correct || chosen
+                              ? Broadside.paperDeep(dark)
+                              : null,
+                          side: BorderSide(
+                            color: correct
+                                ? Broadside.accent(dark)
+                                : Broadside.rule(dark),
+                          ),
+                          shape: const RoundedRectangleBorder(),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              correct
+                                  ? '✓'
+                                  : chosen
+                                  ? '•'
+                                  : String.fromCharCode(65 + entry.$1),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                entry.$2,
+                                style: BroadsideText.sans(
+                                  size: 16,
+                                  color: Broadside.ink(dark),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+            if (_selected != null) ...[
+              const SizedBox(height: 24),
+              Semantics(
+                liveRegion: true,
+                child: Text(
+                  _selected == question.answer
+                      ? 'That’s right.'
+                      : 'The answer is ${question.options[question.answer]}.',
+                  style: BroadsideText.sans(
+                    size: 16,
+                    weight: FontWeight.w600,
+                    color: Broadside.ink(dark),
+                  ),
+                ),
+              ),
+              if (question.funFact.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Text(
+                  question.funFact,
+                  style: BroadsideText.sans(
+                    size: 16,
+                    color: Broadside.inkSoft(dark),
+                  ),
+                ),
+              ],
+              const SizedBox(height: 24),
+              BtnPrimary(
+                label: _question + 1 < quiz.length
+                    ? 'Next question →'
+                    : 'See results →',
+                dark: dark,
+                onTap: () => setState(() {
+                  if (_question + 1 < quiz.length) {
+                    _question++;
+                    _selected = null;
+                  } else {
+                    _step = _Step.results;
+                  }
+                }),
+              ),
+            ],
+          ],
+        );
+      case _Step.results:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Kicker('Quiz complete', dark: dark),
+            const SizedBox(height: 20),
+            Text(
+              '$_score / ${quiz.length}',
+              style: BroadsideText.display(
+                height: 1.0,
+                letterSpacing: 0,
+                size: 88,
                 color: Broadside.accent(dark),
               ),
             ),
             const SizedBox(height: 20),
             Text(
-              _scoreLabel,
-              style: BroadsideText.serif(
-                size: 28,
-                height: 1.3,
+              'Thanks for getting to know me.',
+              style: BroadsideText.display(
+                height: 1.0,
+                letterSpacing: 0,
+                size: 36,
                 color: Broadside.ink(dark),
-                style: FontStyle.italic,
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            const SizedBox(height: 26),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
               children: [
-                BtnPrimary(
-                  label: 'See the personality page ↘',
-                  dark: dark,
-                  onTap: onPersonality,
-                ),
-                const SizedBox(width: 12),
+                if (settings.personality.isNotEmpty)
+                  BtnPrimary(
+                    label: 'Read personal notes',
+                    dark: dark,
+                    onTap: () => setState(() => _step = _Step.personality),
+                  ),
+                if (settings.email.isNotEmpty)
+                  BtnGhost(
+                    label: 'Get in touch',
+                    dark: dark,
+                    href: 'mailto:${settings.email}',
+                  ),
                 BtnGhost(
-                  label: 'Just email me already',
+                  label: 'Back to experiences',
                   dark: dark,
-                  href: 'mailto:$email',
+                  onTap: _exit,
                 ),
               ],
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Personality step
-// ---------------------------------------------------------------------------
-
-class _PersonalityStep extends StatelessWidget {
-  final bool dark;
-  final List<PersonalityItem> personality;
-  final String email;
-  final VoidCallback onExit;
-
-  const _PersonalityStep({
-    required this.dark,
-    required this.personality,
-    required this.email,
-    required this.onExit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 800),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Kicker('The Unfiltered Version', dark: dark),
-          const SizedBox(height: 16),
-          // Headline
-          Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: 'Things that don\'t fit\n',
-                  style: BroadsideText.serif(
-                    size: 52,
-                    height: 1.05,
-                    letterSpacing: -0.02,
-                    color: Broadside.ink(dark),
-                  ),
-                ),
-                TextSpan(
-                  text: 'on a résumé.',
-                  style: BroadsideText.serif(
-                    size: 52,
-                    height: 1.05,
-                    letterSpacing: -0.02,
-                    color: Broadside.accent(dark),
-                    style: FontStyle.italic,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 36),
-
-          // 2-col grid of personality items
-          if (personality.isNotEmpty) ..._buildPersonalityGrid(),
-
-          // Call Me Maybe block
-          const SizedBox(height: 36),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 32),
-            color: Broadside.accent(dark),
-            width: double.infinity,
-            child: Column(
-              children: [
-                Text(
-                  'Hey, I just met you, and this is crazy…',
-                  style: BroadsideText.serif(
-                    size: 36,
-                    height: 1.1,
-                    color: Broadside.accentInk(dark),
-                    style: FontStyle.italic,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 14),
-                Opacity(
-                  opacity: 0.9,
-                  child: Text(
-                    'But here\'s my email, so hire me maybe?',
-                    style: BroadsideText.sans(
-                      size: 15,
-                      color: Broadside.accentInk(dark),
-                      height: 1.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: () => launchUrl(Uri.parse('mailto:$email')),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 14,
-                      ),
-                      color: Broadside.accentInk(dark),
-                      child: Text(
-                        '${email.toUpperCase()} ↗',
-                        style: BroadsideText.mono(
-                          size: 11,
-                          color: Broadside.accent(dark),
-                          trackingEm: 0.16,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 24),
-          Center(
-            child: BtnGhost(label: '← Back to menu', dark: dark, onTap: onExit),
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildPersonalityGrid() {
-    final rows = <Widget>[];
-    for (int r = 0; r < personality.length; r += 2) {
-      final hasSecond = r + 1 < personality.length;
-      rows.add(
-        Row(
+        );
+      case _Step.personality:
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: _PersonalityCard(item: personality[r], dark: dark)),
-            const SizedBox(width: 20),
-            hasSecond
-                ? Expanded(
-                    child: _PersonalityCard(
-                      item: personality[r + 1],
-                      dark: dark,
-                    ),
-                  )
-                : const Expanded(child: SizedBox()),
-          ],
-        ),
-      );
-      if (r + 2 < personality.length) rows.add(const SizedBox(height: 20));
-    }
-    return rows;
-  }
-}
-
-class _PersonalityCard extends StatelessWidget {
-  final PersonalityItem item;
-  final bool dark;
-
-  const _PersonalityCard({required this.item, required this.dark});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      decoration: BoxDecoration(
-        border: Border.all(color: Broadside.rule(dark)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Kicker(item.label, dark: dark),
-          const SizedBox(height: 8),
-          Text(
-            item.value,
-            style: BroadsideText.serif(
-              size: 18,
-              height: 1.3,
-              color: Broadside.ink(dark),
+            Kicker('Personal notes', dark: dark),
+            const SizedBox(height: 20),
+            Text(
+              'Behind the work.',
+              style: BroadsideText.display(
+                height: 1.0,
+                letterSpacing: 0,
+                size: 48,
+                color: Broadside.ink(dark),
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+            const SizedBox(height: 28),
+            ...settings.personality.map(
+              (item) => Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 22),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: Broadside.rule(dark))),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Kicker(item.label, dark: dark),
+                    const SizedBox(height: 10),
+                    Text(
+                      item.value,
+                      style: BroadsideText.sans(
+                        size: 18,
+                        color: Broadside.ink(dark),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                if (settings.email.isNotEmpty)
+                  BtnPrimary(
+                    label: 'Get in touch',
+                    dark: dark,
+                    href: 'mailto:${settings.email}',
+                  ),
+                BtnGhost(
+                  label: 'Back to experiences',
+                  dark: dark,
+                  onTap: _exit,
+                ),
+              ],
+            ),
+          ],
+        );
+    }
   }
 }

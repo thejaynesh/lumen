@@ -5,7 +5,11 @@ import 'package:lumen/providers/experience_provider.dart';
 void main() {
   group('Broadside model serialization', () {
     test('Highlight round-trips', () {
-      final h = Highlight(label: 'Hackathons won', value: '3×', note: 'Roux · Start ×2');
+      final h = Highlight(
+        label: 'Hackathons won',
+        value: '3×',
+        note: 'Roux · Start ×2',
+      );
       final r = Highlight.fromMap(h.toMap());
       expect(r.label, h.label);
       expect(r.value, h.value);
@@ -13,44 +17,72 @@ void main() {
     });
 
     test('SkillGroup round-trips and preserves order', () {
-      final g = SkillGroup(category: 'Languages', items: ['Java', 'Python', 'Dart']);
+      final g = SkillGroup(
+        category: 'Languages',
+        items: ['Java', 'Python', 'Dart'],
+      );
       final r = SkillGroup.fromMap(g.toMap());
       expect(r.category, 'Languages');
       expect(r.items, ['Java', 'Python', 'Dart']);
     });
 
     test('EducationEntry round-trips', () {
-      final e = EducationEntry(when: '2024–25', where: 'Northeastern University', what: 'M.S. Computer Science');
+      final e = EducationEntry(
+        when: '2024–25',
+        where: 'Northeastern University',
+        what: 'M.S. Computer Science',
+      );
       final r = EducationEntry.fromMap(e.toMap());
       expect(r.where, 'Northeastern University');
       expect(r.what, 'M.S. Computer Science');
     });
 
     test('QuizQuestion round-trips', () {
-      final q = QuizQuestion(q: 'Go-to language?', options: ['Java', 'Python'], answer: 1, funFact: 'Python.');
+      final q = QuizQuestion(
+        q: 'Go-to language?',
+        options: ['Java', 'Python'],
+        answer: 1,
+        funFact: 'Python.',
+      );
       final r = QuizQuestion.fromMap(q.toMap());
       expect(r.options, ['Java', 'Python']);
       expect(r.answer, 1);
     });
 
     test('PersonalityItem round-trips', () {
-      final p = PersonalityItem(label: 'Coffee order', value: 'Black, no sugar');
+      final p = PersonalityItem(
+        label: 'Coffee order',
+        value: 'Black, no sugar',
+      );
       final r = PersonalityItem.fromMap(p.toMap());
       expect(r.value, 'Black, no sugar');
     });
 
     test('PortfolioSettings carries all Broadside fields', () {
       final s = PortfolioSettings(
-        name: 'Jaynesh Bhandari', initials: 'JB', role: 'Software Engineer',
-        tagline: 'Full-stack developer.', location: 'Portland, Maine',
-        email: 'thejaynesh@gmail.com', phone: '+1 207·313·7210',
-        linkedin: 'linkedin.com/in/thejaynesh', github: 'github.com/thejaynesh',
+        name: 'Jaynesh Bhandari',
+        initials: 'JB',
+        role: 'Software Engineer',
+        tagline: 'Full-stack developer.',
+        location: 'Portland, Maine',
+        email: 'thejaynesh@gmail.com',
+        phone: '+1 207·313·7210',
+        linkedin: 'linkedin.com/in/thejaynesh',
+        github: 'github.com/thejaynesh',
         summary: "Master's student in CS.",
-        highlights: [Highlight(label: 'Years coding', value: '5+', note: 'since 2018')],
-        skillGroups: [SkillGroup(category: 'Languages', items: ['Java'])],
+        highlights: [
+          Highlight(label: 'Years coding', value: '5+', note: 'since 2018'),
+        ],
+        skillGroups: [
+          SkillGroup(category: 'Languages', items: ['Java']),
+        ],
         awards: ['1st Place — Start Summit'],
-        education: [EducationEntry(when: '2024–25', where: 'NEU', what: 'M.S. CS')],
-        quiz: [QuizQuestion(q: 'Q', options: ['a', 'b'], answer: 0, funFact: 'f')],
+        education: [
+          EducationEntry(when: '2024–25', where: 'NEU', what: 'M.S. CS'),
+        ],
+        quiz: [
+          QuizQuestion(q: 'Q', options: ['a', 'b'], answer: 0, funFact: 'f'),
+        ],
         personality: [PersonalityItem(label: 'IDE', value: 'VS Code')],
       );
       final r = PortfolioSettings.fromMap(s.toMap());
@@ -96,8 +128,13 @@ void main() {
 
     test('Project carries Broadside tag + kpi', () {
       final p = Project(
-        id: 'p1', title: 'Inventory System', category: '', description: 'blurb',
-        techStack: ['Flutter', 'Dart'], tag: 'Freelance · 2023', kpi: 'End-to-end · solo',
+        id: 'p1',
+        title: 'Inventory System',
+        category: '',
+        description: 'blurb',
+        techStack: ['Flutter', 'Dart'],
+        tag: 'Freelance · 2023',
+        kpi: 'End-to-end · solo',
       );
       final r = Project.fromMap(p.toMap(), 'p1');
       expect(r.tag, 'Freelance · 2023');
@@ -107,8 +144,12 @@ void main() {
 
     test('Experience carries city + when/org mapping', () {
       final e = Experience(
-        id: 'e1', role: 'Assistant System Engineer', company: 'TCS',
-        period: '2022–24', description: 'blurb', city: 'Mumbai, India',
+        id: 'e1',
+        role: 'Assistant System Engineer',
+        company: 'TCS',
+        period: '2022–24',
+        description: 'blurb',
+        city: 'Mumbai, India',
         tags: ['Java', 'API Mocking'],
       );
       final r = Experience.fromMap(e.toMap(), 'e1');

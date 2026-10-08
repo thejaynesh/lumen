@@ -1,619 +1,756 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../config/app_environment.dart';
 import '../../models/portfolio_data.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../services/portfolio_service.dart';
-import '../../theme/app_theme.dart';
+import 'editor_fields.dart';
 import 'form_dialogs.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
-
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
-  int _selectedIndex = 0;
-  final List<String> _tabs = ['Projects', 'Experience', 'Jobs', 'Settings'];
+  int _selected = 0;
+  bool _signingOut = false;
+  static const _tabs = ['Projects', 'Experience', 'Tailored links', 'Profile'];
+  static const _icons = [
+    Icons.folder_outlined,
+    Icons.work_outline,
+    Icons.link,
+    Icons.person_outline,
+  ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Row(
-        children: [
-          // Sidebar
-          _buildSidebar(),
-          // Content
-          Expanded(
-            child: Column(
-              children: [
-                _buildAppBar(),
-                Expanded(child: _buildContent()),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSidebar() {
-    return Container(
-      width: 260,
-      decoration: BoxDecoration(
-        color: AppTheme.darkSurface,
-        border: Border(
-          right: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
-        ),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 24),
-          // Logo
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.accentGradient,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'L',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Lumen',
-                  style: GoogleFonts.spaceGrotesk(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    'Admin',
-                    style: TextStyle(
-                      color: AppTheme.primary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 40),
-          // Navigation
-          ..._tabs.asMap().entries.map((entry) {
-            final index = entry.key;
-            final title = entry.value;
-            final isSelected = _selectedIndex == index;
-            final icons = [
-              Icons.folder_outlined,
-              Icons.work_outline,
-              Icons.link,
-              Icons.settings_outlined,
-            ];
-            return _buildNavItem(
-              title,
-              icons[index],
-              isSelected,
-              () => setState(() => _selectedIndex = index),
-            );
-          }),
-          const Spacer(),
-          // Sign out
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextButton.icon(
-              onPressed: () async {
-                final router = GoRouter.of(context);
-                await context.read<AuthProvider>().signOut();
-                if (mounted) router.go('/login');
-              },
-              icon: const Icon(Icons.logout, size: 20),
-              label: const Text('Sign Out'),
-              style: TextButton.styleFrom(
-                foregroundColor: AppTheme.darkTextSecondary,
-              ),
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn().slideX(begin: -0.1);
-  }
-
-  Widget _buildNavItem(
-    String title,
-    IconData icon,
-    bool isSelected,
-    VoidCallback onTap,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? AppTheme.primary.withValues(alpha: 0.1)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-              border: isSelected
-                  ? Border.all(color: AppTheme.primary.withValues(alpha: 0.3))
-                  : null,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  icon,
-                  size: 20,
-                  color: isSelected
-                      ? AppTheme.primary
-                      : AppTheme.darkTextSecondary,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: isSelected
-                        ? AppTheme.primary
-                        : AppTheme.darkTextSecondary,
-                    fontWeight: isSelected
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAppBar() {
-    return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      decoration: BoxDecoration(
-        color: AppTheme.darkBackground,
-        border: Border(
-          bottom: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
-        ),
-      ),
-      child: Row(
-        children: [
-          Text(
-            _tabs[_selectedIndex],
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const Spacer(),
-          OutlinedButton.icon(
-            onPressed: () => context.go('/'),
-            icon: const Icon(Icons.visibility, size: 18),
-            label: const Text('View Portfolio'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContent() {
-    switch (_selectedIndex) {
-      case 0:
-        return const ProjectsTab();
-      case 1:
-        return const ExperienceTab();
-      case 2:
-        return const JobsTab();
-      case 3:
-        return const SettingsTab();
-      default:
-        return const SizedBox();
+  Future<void> _signOut() async {
+    setState(() => _signingOut = true);
+    try {
+      await context.read<AuthProvider>().signOut();
+      if (mounted) context.go('/login');
+    } catch (error) {
+      if (mounted) {
+        _notify(context, adminErrorMessage(error));
+        setState(() => _signingOut = false);
+      }
     }
   }
-}
 
-// ============== PROJECTS TAB ==============
-class ProjectsTab extends StatelessWidget {
-  const ProjectsTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final service = context.read<PortfolioService>();
-    return StreamBuilder(
-      stream: service.watchProjects(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: Text('Error loading projects: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
-          );
-        }
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final projects = snapshot.data!;
-        return _buildListWithAdd(
-          context: context,
-          items: projects,
-          emptyMessage: 'No projects yet',
-          onAdd: () => _showProjectDialog(context),
-          itemBuilder: (project) => _AdminCard(
-            title: project.title,
-            subtitle: project.category,
-            trailing: Switch(
-              value: project.isActive,
-              onChanged: (v) =>
-                  service.updateProject(project.copyWith(isActive: v)),
-              activeThumbColor: AppTheme.primary,
-            ),
-            onTap: () => _showProjectDialog(context, project: project),
-            onDelete: () => service.deleteProject(project.id),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showProjectDialog(BuildContext context, {Project? project}) {
-    showDialog(
-      context: context,
-      builder: (_) => ProjectFormDialog(project: project),
-    );
-  }
-}
-
-// ============== EXPERIENCE TAB ==============
-class ExperienceTab extends StatelessWidget {
-  const ExperienceTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final service = context.read<PortfolioService>();
-    return StreamBuilder(
-      stream: service.watchExperience(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: Text('Error loading experience: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
-          );
-        }
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final experiences = snapshot.data!;
-        return _buildListWithAdd(
-          context: context,
-          items: experiences,
-          emptyMessage: 'No experience yet',
-          onAdd: () => _showExpDialog(context),
-          itemBuilder: (exp) => _AdminCard(
-            title: exp.role,
-            subtitle: '${exp.company} • ${exp.period}',
-            trailing: Switch(
-              value: exp.isActive,
-              onChanged: (v) =>
-                  service.updateExperience(exp.copyWith(isActive: v)),
-              activeThumbColor: AppTheme.primary,
-            ),
-            onTap: () => _showExpDialog(context, experience: exp),
-            onDelete: () => service.deleteExperience(exp.id),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showExpDialog(BuildContext context, {Experience? experience}) {
-    showDialog(
-      context: context,
-      builder: (_) => ExperienceFormDialog(experience: experience),
-    );
-  }
-}
-
-// ============== JOBS TAB ==============
-class JobsTab extends StatelessWidget {
-  const JobsTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final service = context.read<PortfolioService>();
-    return StreamBuilder(
-      stream: service.watchJobs(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: Text('Error loading jobs: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
-          );
-        }
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final jobs = snapshot.data!;
-        return _buildListWithAdd(
-          context: context,
-          items: jobs,
-          emptyMessage: 'No job postings yet',
-          onAdd: () => _showJobDialog(context),
-          itemBuilder: (job) {
-            final isExpired = job.expiresAt != null &&
-                job.expiresAt!.isBefore(DateTime.now());
-            return _AdminCard(
-            title: job.title,
-            subtitle: isExpired
-                ? '${job.company} • Views: ${job.viewCount} • EXPIRED'
-                : '${job.company} • Views: ${job.viewCount}',
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
+  Widget _navigation(bool drawer) {
+    final environment = context.read<AppEnvironment?>();
+    final colors = Theme.of(context).colorScheme;
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.copy, size: 18),
-                  onPressed: () => _copyJobUrl(context, job.slug),
-                  tooltip: 'Copy URL',
+                Text('Lumen', style: Theme.of(context).textTheme.headlineSmall),
+                const SizedBox(height: 4),
+                Text(
+                  'Portfolio studio',
+                  style: TextStyle(color: colors.onSurfaceVariant),
                 ),
-                Switch(
-                  value: job.isActive,
-                  onChanged: (v) =>
-                      service.updateJob(job.copyWith(isActive: v)),
-                  activeThumbColor: AppTheme.primary,
-                ),
+                if (environment != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Chip(
+                      label: Text(environment.label),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
               ],
             ),
-            onTap: () => _showJobDialog(context, job: job),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              children: [
+                for (var i = 0; i < _tabs.length; i++)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: ListTile(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      selected: _selected == i,
+                      selectedTileColor: colors.primaryContainer,
+                      selectedColor: colors.onPrimaryContainer,
+                      leading: Icon(_icons[i]),
+                      title: Text(_tabs[i]),
+                      onTap: () {
+                        setState(() => _selected = i);
+                        if (drawer) Navigator.pop(context);
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: OutlinedButton.icon(
+              onPressed: _signingOut ? null : _signOut,
+              icon: const Icon(Icons.logout, size: 18),
+              label: Text(_signingOut ? 'Signing out…' : 'Sign out'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final wide = constraints.maxWidth >= 900;
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(_tabs[_selected]),
+          actions: [
+            IconButton(
+              tooltip: 'Switch theme',
+              onPressed: () => context.read<ThemeProvider>().toggleTheme(),
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode_outlined
+                    : Icons.dark_mode_outlined,
+              ),
+            ),
+            IconButton(
+              tooltip: 'View portfolio',
+              onPressed: () => context.go('/'),
+              icon: const Icon(Icons.open_in_new),
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
+        drawer: wide ? null : Drawer(child: _navigation(true)),
+        body: Row(
+          children: [
+            if (wide)
+              SizedBox(
+                width: 244,
+                child: Material(
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
+                  child: _navigation(false),
+                ),
+              ),
+            if (wide) const VerticalDivider(width: 1),
+            Expanded(
+              child: switch (_selected) {
+                0 => const ProjectsTab(),
+                1 => const ExperienceTab(),
+                2 => const JobsTab(),
+                _ => const SettingsTab(),
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Future<void> _edit(BuildContext context, Widget editor) async {
+  final saved = await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => editor,
+  );
+  if (saved == true && context.mounted) _notify(context, 'Changes saved.');
+}
+
+void _notify(BuildContext context, String message) => ScaffoldMessenger.of(
+  context,
+).showSnackBar(SnackBar(content: Text(message)));
+
+class ProjectsTab extends StatelessWidget {
+  const ProjectsTab({super.key});
+  @override
+  Widget build(BuildContext context) => _LiveContent<List<Project>>(
+    stream: (service) => service.watchProjects(),
+    builder: (context, projects) {
+      final service = context.read<PortfolioService>();
+      return _LibraryList<Project>(
+        items: projects,
+        title: 'Your work',
+        detail:
+            'Build a focused collection of projects and the evidence behind them.',
+        addLabel: 'Add project',
+        empty:
+            'Your project library is empty. Add your first project to get started.',
+        onAdd: () => _edit(context, const ProjectFormDialog()),
+        itemBuilder: (project) => _ContentCard(
+          key: ValueKey(project.id),
+          title: project.title,
+          subtitle: project.category,
+          status: project.isActive ? 'Published' : 'Archived',
+          onEdit: () => _edit(context, ProjectFormDialog(project: project)),
+          toggleLabel: project.isActive ? 'Archive' : 'Publish',
+          confirmation: project.isActive
+              ? 'Archive “${project.title}”? It will be hidden from public pages. Existing selections are preserved, so you can publish it again later.'
+              : null,
+          onToggle: () => project.isActive
+              ? service.deleteProject(project.id)
+              : service.updateProject(project.copyWith(isActive: true)),
+        ),
+      );
+    },
+  );
+}
+
+class ExperienceTab extends StatelessWidget {
+  const ExperienceTab({super.key});
+  @override
+  Widget build(BuildContext context) => _LiveContent<List<Experience>>(
+    stream: (service) => service.watchExperience(),
+    builder: (context, items) {
+      final service = context.read<PortfolioService>();
+      return _LibraryList<Experience>(
+        items: items,
+        title: 'Experience',
+        detail: 'Tell the story of your work, responsibilities and results.',
+        addLabel: 'Add experience',
+        empty: 'No experience has been added yet.',
+        onAdd: () => _edit(context, const ExperienceFormDialog()),
+        itemBuilder: (experience) => _ContentCard(
+          key: ValueKey(experience.id),
+          title: experience.role,
+          subtitle: '${experience.company} · ${experience.period}',
+          status: experience.isActive ? 'Published' : 'Archived',
+          onEdit: () =>
+              _edit(context, ExperienceFormDialog(experience: experience)),
+          toggleLabel: experience.isActive ? 'Archive' : 'Publish',
+          confirmation: experience.isActive
+              ? 'Archive this experience? It will be hidden publicly. Existing selections are preserved for later restoration.'
+              : null,
+          onToggle: () => experience.isActive
+              ? service.deleteExperience(experience.id)
+              : service.updateExperience(experience.copyWith(isActive: true)),
+        ),
+      );
+    },
+  );
+}
+
+class JobsTab extends StatelessWidget {
+  const JobsTab({super.key});
+  @override
+  Widget build(BuildContext context) => _LiveContent<List<JobPosting>>(
+    stream: (service) => service.watchJobs(),
+    builder: (context, jobs) {
+      final service = context.read<PortfolioService>();
+      return _LibraryList<JobPosting>(
+        items: jobs,
+        title: 'A portfolio for each opportunity',
+        detail:
+            'Keep application notes private and share a selection of relevant work.',
+        addLabel: 'Create link',
+        empty:
+            'Create a tailored link when you want to highlight specific projects for an opportunity.',
+        onAdd: () => _edit(context, const JobFormDialog()),
+        itemBuilder: (job) {
+          final expired =
+              job.expiresAt != null && job.expiresAt!.isBefore(DateTime.now());
+          return _ContentCard(
+            key: ValueKey(job.id),
+            title: job.title,
+            subtitle: job.company,
+            status: !job.isActive
+                ? 'Archived'
+                : expired
+                ? 'Expired'
+                : 'Published',
+            onEdit: () => _edit(context, JobFormDialog(job: job)),
+            toggleLabel: job.isActive ? 'Archive' : 'Publish',
+            confirmation: job.isActive
+                ? 'Archive this tailored link? Visitors will no longer be able to view it until you publish it again.'
+                : null,
+            onToggle: () async {
+              if (!job.isActive && expired) {
+                throw StateError(
+                  'Update or clear the expiry before publishing this link.',
+                );
+              }
+              await service.updateJob(job.copyWith(isActive: !job.isActive));
+            },
+            extra: [
+              OutlinedButton.icon(
+                onPressed: () => showDialog<void>(
+                  context: context,
+                  builder: (_) => _ShareLinkDialog(job: job),
+                ),
+                icon: const Icon(Icons.visibility_outlined, size: 18),
+                label: const Text('Preview & share'),
+              ),
+            ],
             onDelete: () => service.deleteJob(job.id),
           );
         },
       );
-    });
-  }
-
-  void _showJobDialog(BuildContext context, {JobPosting? job}) {
-    showDialog(
-      context: context,
-      builder: (_) => JobFormDialog(job: job),
-    );
-  }
-
-  Future<void> _copyJobUrl(BuildContext context, String slug) async {
-    final url = '${Uri.base.origin}/portfolio?job=$slug';
-    await Clipboard.setData(ClipboardData(text: url));
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Copied: $url')),
-      );
-    }
-  }
-}
-
-// ============== SETTINGS TAB ==============
-class SettingsTab extends StatelessWidget {
-  const SettingsTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final service = context.read<PortfolioService>();
-    return StreamBuilder(
-      stream: service.watchSettings(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: Text('Error loading settings: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
-          );
-        }
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final settings = snapshot.data!;
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Profile Settings',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  FilledButton.icon(
-                    onPressed: () => _showSettingsDialog(context, settings),
-                    icon: const Icon(Icons.edit),
-                    label: const Text('Edit Profile'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              _SettingsCard(settings: settings),
-              const SizedBox(height: 32),
-              Text(
-                'Default Homepage Content',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Select which projects and experience to show on the generic homepage.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 24),
-              FilledButton.icon(
-                onPressed: () => _showDefaultsDialog(context, settings),
-                icon: const Icon(Icons.edit),
-                label: const Text('Edit Defaults'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showDefaultsDialog(BuildContext context, dynamic settings) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Defaults editor coming soon!')),
-    );
-  }
-
-  void _showSettingsDialog(BuildContext context, dynamic settings) {
-    showDialog(
-      context: context,
-      builder: (_) => SettingsFormDialog(settings: settings),
-    );
-  }
-}
-
-// ============== HELPER WIDGETS ==============
-Widget _buildListWithAdd<T>({
-  required BuildContext context,
-  required List<T> items,
-  required String emptyMessage,
-  required VoidCallback onAdd,
-  required Widget Function(T) itemBuilder,
-}) {
-  return Stack(
-    children: [
-      if (items.isEmpty)
-        Center(
-          child: Text(
-            emptyMessage,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        )
-      else
-        ListView.builder(
-          padding: const EdgeInsets.all(24),
-          itemCount: items.length,
-          itemBuilder: (_, i) => itemBuilder(items[i]),
-        ),
-      Positioned(
-        right: 24,
-        bottom: 24,
-        child: FloatingActionButton.extended(
-          onPressed: onAdd,
-          icon: const Icon(Icons.add, color: Colors.black),
-          label: const Text('Add New', style: TextStyle(color: Colors.black)),
-          backgroundColor: AppTheme.primary,
-        ),
-      ),
-    ],
+    },
   );
 }
 
-class _AdminCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
-  final Widget? trailing;
-  final VoidCallback? onTap;
-  final VoidCallback? onDelete;
-
-  const _AdminCard({
-    required this.title,
-    required this.subtitle,
-    this.trailing,
-    this.onTap,
-    this.onDelete,
-  });
-
+class SettingsTab extends StatelessWidget {
+  const SettingsTab({super.key});
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(color: AppTheme.darkTextSecondary),
+  Widget build(BuildContext context) => _LiveContent<PortfolioSettings>(
+    stream: (service) => service.watchSettings(),
+    builder: (context, settings) => ListView(
+      padding: const EdgeInsets.all(24),
+      children: [
+        Text(
+          'Your public profile',
+          style: Theme.of(context).textTheme.headlineSmall,
         ),
-        trailing: trailing,
-        onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      ),
-    );
-  }
+        const SizedBox(height: 8),
+        const Text(
+          'Manage your introduction, contact details, skills and achievements in one place.',
+        ),
+        const SizedBox(height: 20),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: FilledButton.icon(
+            onPressed: () =>
+                _edit(context, SettingsFormDialog(settings: settings)),
+            icon: const Icon(Icons.edit_outlined, size: 18),
+            label: const Text('Edit profile'),
+          ),
+        ),
+        const SizedBox(height: 24),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final entry in [
+                  ('Name', settings.name),
+                  ('Introduction', settings.tagline),
+                  ('Availability', settings.availability),
+                  ('Email', settings.email),
+                  ('Location', settings.location),
+                ])
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          entry.$1,
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          entry.$2.isEmpty ? 'Not set' : entry.$2,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ],
+                    ),
+                  ),
+                Text(
+                  '${settings.certifications.length} certifications · ${settings.skillGroups.length} skill groups · ${settings.education.length} education entries',
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 28),
+        Text(
+          'Homepage selection',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Choose and reorder the work that appears on your main portfolio. An empty selection shows all published items.',
+        ),
+        const SizedBox(height: 16),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton.icon(
+            onPressed: () =>
+                _edit(context, DefaultsFormDialog(settings: settings)),
+            icon: const Icon(Icons.reorder),
+            label: const Text('Edit homepage selection'),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
-class _SettingsCard extends StatelessWidget {
-  final dynamic settings;
-  const _SettingsCard({required this.settings});
+class _LiveContent<T> extends StatefulWidget {
+  final Stream<T> Function(PortfolioService) stream;
+  final Widget Function(BuildContext, T) builder;
+  const _LiveContent({required this.stream, required this.builder});
+  @override
+  State<_LiveContent<T>> createState() => _LiveContentState<T>();
+}
+
+class _LiveContentState<T> extends State<_LiveContent<T>> {
+  late Stream<T> _stream;
+  @override
+  void initState() {
+    super.initState();
+    _stream = widget.stream(context.read<PortfolioService>());
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
+  Widget build(BuildContext context) => StreamBuilder<T>(
+    stream: _stream,
+    builder: (context, snapshot) {
+      if (snapshot.hasError) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.cloud_off_outlined, size: 32),
+                const SizedBox(height: 16),
+                Text(
+                  adminErrorMessage(snapshot.error!),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                FilledButton(
+                  onPressed: () => setState(
+                    () => _stream = widget.stream(
+                      context.read<PortfolioService>(),
+                    ),
+                  ),
+                  child: const Text('Try again'),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+      if (!snapshot.hasData) {
+        return const Center(
+          child: CircularProgressIndicator(
+            semanticsLabel: 'Loading portfolio content',
+          ),
+        );
+      }
+      return widget.builder(context, snapshot.data as T);
+    },
+  );
+}
+
+class _LibraryList<T> extends StatelessWidget {
+  final List<T> items;
+  final String title, detail, addLabel, empty;
+  final VoidCallback onAdd;
+  final Widget Function(T) itemBuilder;
+  const _LibraryList({
+    required this.items,
+    required this.title,
+    required this.detail,
+    required this.addLabel,
+    required this.empty,
+    required this.onAdd,
+    required this.itemBuilder,
+  });
+  @override
+  Widget build(BuildContext context) => ListView.builder(
+    padding: EdgeInsets.all(MediaQuery.sizeOf(context).width < 500 ? 16 : 28),
+    itemCount: items.length + 1,
+    itemBuilder: (context, index) {
+      if (index > 0) return itemBuilder(items[index - 1]);
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _row('Name', settings.name),
-            _row('Tagline', settings.tagline),
-            _row('Email', settings.email),
-            _row('GitHub', settings.github ?? 'Not set'),
-            _row('LinkedIn', settings.linkedin ?? 'Not set'),
+            Text(title, style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 8),
+            Text(detail),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: onAdd,
+              icon: const Icon(Icons.add, size: 18),
+              label: Text(addLabel),
+            ),
+            if (items.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Text(
+                  empty,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
           ],
         ),
-      ),
-    );
+      );
+    },
+  );
+}
+
+class _ContentCard extends StatefulWidget {
+  final String title, subtitle, status, toggleLabel;
+  final String? confirmation;
+  final VoidCallback onEdit;
+  final Future<void> Function() onToggle;
+  final Future<void> Function()? onDelete;
+  final List<Widget> extra;
+  const _ContentCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.status,
+    required this.toggleLabel,
+    required this.onEdit,
+    required this.onToggle,
+    this.confirmation,
+    this.onDelete,
+    this.extra = const [],
+  });
+  @override
+  State<_ContentCard> createState() => _ContentCardState();
+}
+
+class _ContentCardState extends State<_ContentCard> {
+  bool _busy = false;
+  Future<void> _run(
+    Future<void> Function() action, {
+    String? confirmation,
+    bool delete = false,
+  }) async {
+    if (_busy) return;
+    if (confirmation != null) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(
+            delete ? 'Delete tailored link?' : '${widget.toggleLabel} content?',
+          ),
+          content: Text(confirmation),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(delete ? 'Delete link' : widget.toggleLabel),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+    }
+    setState(() => _busy = true);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await action();
+      messenger.showSnackBar(
+        SnackBar(content: Text(delete ? 'Link deleted.' : 'Content updated.')),
+      );
+    } catch (error) {
+      messenger.showSnackBar(SnackBar(content: Text(adminErrorMessage(error))));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
-  Widget _row(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
+  @override
+  Widget build(BuildContext context) => Card(
+    margin: const EdgeInsets.only(bottom: 16),
+    child: Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: TextStyle(color: AppTheme.darkTextSecondary),
+          Text(widget.title, style: Theme.of(context).textTheme.titleLarge),
+          if (widget.subtitle.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                widget.subtitle,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Chip(
+              label: Text(widget.status),
+              visualDensity: VisualDensity.compact,
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+          if (_busy)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 12),
+              child: LinearProgressIndicator(semanticsLabel: 'Saving change'),
+            ),
+          AbsorbPointer(
+            absorbing: _busy,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: _busy ? null : widget.onEdit,
+                  icon: const Icon(Icons.edit_outlined, size: 18),
+                  label: const Text('Edit'),
+                ),
+                ...widget.extra,
+                TextButton.icon(
+                  onPressed: _busy
+                      ? null
+                      : () => _run(
+                          widget.onToggle,
+                          confirmation: widget.confirmation,
+                        ),
+                  icon: Icon(
+                    widget.status == 'Archived'
+                        ? Icons.publish_outlined
+                        : Icons.archive_outlined,
+                    size: 18,
+                  ),
+                  label: Text(widget.toggleLabel),
+                ),
+                if (widget.onDelete != null)
+                  TextButton.icon(
+                    onPressed: _busy
+                        ? null
+                        : () => _run(
+                            widget.onDelete!,
+                            delete: true,
+                            confirmation:
+                                'Permanently delete this application record and its public link? The URL will stop working. Your project and experience libraries will be kept.',
+                          ),
+                    icon: const Icon(Icons.delete_outline, size: 18),
+                    label: const Text('Delete'),
+                  ),
+              ],
             ),
           ),
         ],
       ),
+    ),
+  );
+}
+
+class _ShareLinkDialog extends StatefulWidget {
+  final JobPosting job;
+  const _ShareLinkDialog({required this.job});
+  @override
+  State<_ShareLinkDialog> createState() => _ShareLinkDialogState();
+}
+
+class _ShareLinkDialogState extends State<_ShareLinkDialog> {
+  String? _message;
+  late final Uri _uri = Uri.base
+      .resolve('/portfolio')
+      .replace(queryParameters: {'job': widget.job.slug});
+  Future<void> _preview() async {
+    try {
+      if (!await launchUrl(
+        _uri,
+        mode: LaunchMode.platformDefault,
+        webOnlyWindowName: '_blank',
+      )) {
+        throw StateError(
+          'The preview could not open. Allow pop-ups and try again.',
+        );
+      }
+    } catch (error) {
+      if (mounted) setState(() => _message = adminErrorMessage(error));
+    }
+  }
+
+  Future<void> _copy() async {
+    try {
+      await Clipboard.setData(ClipboardData(text: _uri.toString()));
+      if (mounted) setState(() => _message = 'Link copied.');
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _message =
+              'Could not copy automatically. Select and copy the link above.',
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final job = widget.job;
+    final live =
+        job.isActive &&
+        (job.expiresAt == null || job.expiresAt!.isAfter(DateTime.now()));
+    return AlertDialog(
+      title: const Text('Preview & share'),
+      content: SizedBox(
+        width: 520,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                live
+                    ? 'Review the public portfolio before sharing it.'
+                    : 'Publish this link and set a future expiry before sharing it.',
+              ),
+              const SizedBox(height: 16),
+              if (job.customTagline?.isNotEmpty == true)
+                Text(
+                  job.customTagline!,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              if (job.customAbout?.isNotEmpty == true)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(job.customAbout!),
+                ),
+              const SizedBox(height: 16),
+              Text(
+                '${job.projectIds.length} selected projects · ${job.experienceIds.length} selected experience entries',
+              ),
+              const SizedBox(height: 12),
+              SelectableText(_uri.toString()),
+              if (_message != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Semantics(liveRegion: true, child: Text(_message!)),
+                ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
+        OutlinedButton.icon(
+          onPressed: live ? _preview : null,
+          icon: const Icon(Icons.open_in_new, size: 18),
+          label: const Text('Preview portfolio'),
+        ),
+        FilledButton.icon(
+          onPressed: live ? _copy : null,
+          icon: const Icon(Icons.copy, size: 18),
+          label: const Text('Copy link'),
+        ),
+      ],
     );
   }
 }
-
-// Form dialogs live in form_dialogs.dart.

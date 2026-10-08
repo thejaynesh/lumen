@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">Jaynesh Bhandari — Software developer</title>
+  <desc id="description">Cobalt and apricot portfolio. Applications, APIs, and algorithms.</desc>
+  <defs><style>
+    .sans{font-family:Manrope,sans-serif;font-weight:400}
+    .serif{font-family:'DM Serif Display',Georgia,serif;font-weight:400}
+  </style></defs>
+  <rect width="1200" height="630" fill="#EDF1F8"/>
+  <text x="60" y="65" class="serif" font-size="30" fill="#17264B">Jaynesh Bhandari</text>
+  <text x="60" y="92" class="sans" font-size="11" letter-spacing="1.5" fill="#475673">SOFTWARE DEVELOPER</text>
+  <path d="M60 120H1140" stroke="#A1B1CE"/>
+  <text x="60" y="187" class="sans" font-size="12" letter-spacing="1.3" fill="#475673">BACKEND / WEB / MOBILE</text>
+  <text x="55" y="278" class="serif" font-size="75" fill="#17264B">I build apps.</text>
+  <text x="55" y="363" class="serif" font-style="italic" font-size="75" fill="#17264B">And their</text>
+  <text x="55" y="448" class="serif" font-style="italic" font-size="75" fill="#17264B">backends.</text>
+  <text x="61" y="501" class="sans" font-size="15" fill="#475673">Java / Spring Boot / React / Flutter</text>
+  <g transform="rotate(-8 993 255)">
+    <rect x="901" y="167" width="203" height="210" fill="#F1C1A0"/>
+    <text x="920" y="196" class="sans" font-size="11" fill="#4B2F23">ENGINEERING NOTES</text>
+    <text x="924" y="241" class="serif" font-style="italic" font-size="25" fill="#4B2F23">Data models.</text>
+    <text x="924" y="272" class="serif" font-style="italic" font-size="25" fill="#4B2F23">API contracts.</text>
+  </g>
+  <g transform="rotate(6 842 361)">
+    <rect x="706" y="200" width="275" height="328" rx="5" fill="#FFEBD6" stroke="#A1B1CE"/>
+    <path d="M706 252V237Q706 229 714 229H809Q817 229 817 237V252" fill="#2549CD"/>
+    <rect x="706" y="251" width="275" height="278" rx="6" fill="#2549CD"/>
+    <text x="730" y="290" class="sans" font-size="11" letter-spacing="1" fill="#FFF5E5">JB / SELECTED WORK</text>
+    <text x="730" y="351" class="serif" font-size="37" fill="#FFF5E5">Applications.</text>
+    <text x="730" y="390" class="serif" font-size="37" fill="#FFF5E5">APIs.</text>
+    <text x="730" y="429" class="serif" font-size="37" fill="#FFF5E5">Algorithms.</text>
+    <path d="M730 454H947" stroke="#FFF5E5" stroke-opacity=".5"/>
+    <text x="730" y="485" class="sans" font-size="11" fill="#FFF5E5">CLICKDROBE / ALGOVIEW</text>
+  </g>
+  <path d="M60 557H1140" stroke="#A1B1CE"/>
+  <text x="60" y="590" class="sans" font-size="12" fill="#475673">SAN JOSE, CALIFORNIA</text>
+  <text x="1140" y="590" class="sans" font-size="12" fill="#475673" text-anchor="end">SELECTED PROJECTS ↓</text>
+</svg>

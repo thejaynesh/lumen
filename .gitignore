@@ -50,3 +50,11 @@ app.*.map.json
 # Agent tooling
 .agents/
 skills-lock.json
+
+# Local credentials, migration backups and emulator data
+backups/
+emulator-data/
+config/*.local.json
+**/node_modules/
+*-debug.log
+.venv/
