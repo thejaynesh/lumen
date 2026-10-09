@@ -1,3 +1,12 @@
+Portfolio motion
+----------------
+The live Index club page now uses staggered hero entrances, scroll-driven depth
+for the folder and note, viewport-triggered section reveals, and sheet entrances
+on project/experience tab changes. Section reveals run once; normal rebuilding
+does not replay entrances. Reduced motion renders immediately without parallax.
+Widget coverage exercises scrolling, separate layer movement, reduced motion,
+and entrance completion alongside existing mobile/tab/contact navigation checks.
+
 STARTUP TRANSITION FIX — October 9, 2026 (America/Los_Angeles)
 
 The separate static HTML overview previously appeared before Flutter initialized,

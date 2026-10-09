@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../theme/broadside_theme.dart';
+import 'motion.dart';
 
 class FolderEntry {
   const FolderEntry({
@@ -208,7 +209,11 @@ class _FolderTabsState extends State<FolderTabs> with TickerProviderStateMixin {
                       duration: duration,
                       alignment: Alignment.topCenter,
                       curve: Curves.easeOutCubic,
-                      child: sheet,
+                      child: MotionEntrance(
+                        key: ValueKey(_selectedId),
+                        distance: 22,
+                        child: sheet,
+                      ),
                     ),
             ),
           ],

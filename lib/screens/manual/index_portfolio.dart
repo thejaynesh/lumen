@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/portfolio_data.dart';
 import '../../theme/broadside_theme.dart';
 import '../../widgets/broadside/primitives.dart';
+import '../../widgets/broadside/scroll_arrival.dart';
 import 'sections/hero.dart';
 import 'sections/work.dart';
 import 'sections/experience.dart';
@@ -127,6 +128,8 @@ class _IndexPortfolioState extends State<IndexPortfolio> {
               ),
             ),
           );
+          Widget arrive(Widget child) =>
+              ScrollArrival(controller: _scroll, child: child);
           final nav = <String, GlobalKey>{
             'Projects': _work,
             'Experience': _experience,
@@ -254,20 +257,28 @@ class _IndexPortfolioState extends State<IndexPortfolio> {
                                   data: data,
                                   dark: dark,
                                   ctaKey: _heroCta,
+                                  scrollController: _scroll,
                                   onViewWork: () => _navigate(_work),
                                 ),
                               ),
                               inset(
                                 KeyedSubtree(
                                   key: _work,
-                                  child: BroadsideWork(
-                                    projects: data.projects,
-                                    dark: dark,
+                                  child: arrive(
+                                    BroadsideWork(
+                                      projects: data.projects,
+                                      dark: dark,
+                                    ),
                                   ),
                                 ),
                               ),
                               inset(
-                                BroadsideStats(settings: settings, dark: dark),
+                                arrive(
+                                  BroadsideStats(
+                                    settings: settings,
+                                    dark: dark,
+                                  ),
+                                ),
                               ),
                               Container(
                                 key: _experience,
@@ -277,28 +288,30 @@ class _IndexPortfolioState extends State<IndexPortfolio> {
                                 ),
                                 color: Broadside.paperDeep(dark),
                                 child: inset(
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Kicker(
-                                        'Professional experience',
-                                        dark: dark,
-                                      ),
-                                      const SizedBox(height: 15),
-                                      Text(
-                                        'Where I’ve worked.',
-                                        style: BroadsideText.editorial(
-                                          size: wide ? 46 : 34,
-                                          color: Broadside.ink(dark),
+                                  arrive(
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Kicker(
+                                          'Professional experience',
+                                          dark: dark,
                                         ),
-                                      ),
-                                      BroadsideExperience(
-                                        experiences: data.experiences,
-                                        dark: dark,
-                                        showHeading: false,
-                                      ),
-                                    ],
+                                        const SizedBox(height: 15),
+                                        Text(
+                                          'Where I’ve worked.',
+                                          style: BroadsideText.editorial(
+                                            size: wide ? 46 : 34,
+                                            color: Broadside.ink(dark),
+                                          ),
+                                        ),
+                                        BroadsideExperience(
+                                          experiences: data.experiences,
+                                          dark: dark,
+                                          showHeading: false,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -325,22 +338,31 @@ class _IndexPortfolioState extends State<IndexPortfolio> {
                                         ),
                                       ],
                                       if (settings.skillGroups.isNotEmpty)
-                                        BroadsideSkills(
-                                          settings: settings,
-                                          dark: dark,
+                                        arrive(
+                                          BroadsideSkills(
+                                            settings: settings,
+                                            dark: dark,
+                                          ),
                                         ),
                                       if (settings.education.isNotEmpty)
-                                        BroadsideEducation(
-                                          education: settings.education,
+                                        arrive(
+                                          BroadsideEducation(
+                                            education: settings.education,
+                                            dark: dark,
+                                          ),
+                                        ),
+                                      arrive(
+                                        BroadsideCertifications(
+                                          certifications:
+                                              settings.certifications,
                                           dark: dark,
                                         ),
-                                      BroadsideCertifications(
-                                        certifications: settings.certifications,
-                                        dark: dark,
                                       ),
-                                      BroadsideAwards(
-                                        awards: settings.awards,
-                                        dark: dark,
+                                      arrive(
+                                        BroadsideAwards(
+                                          awards: settings.awards,
+                                          dark: dark,
+                                        ),
                                       ),
                                       if (settings.now.isNotEmpty) ...[
                                         SectionHead(
@@ -365,9 +387,11 @@ class _IndexPortfolioState extends State<IndexPortfolio> {
                                       ],
                                       KeyedSubtree(
                                         key: _contact,
-                                        child: BroadsideContact(
-                                          settings: settings,
-                                          dark: dark,
+                                        child: arrive(
+                                          BroadsideContact(
+                                            settings: settings,
+                                            dark: dark,
+                                          ),
                                         ),
                                       ),
                                       TextButton(
