@@ -179,7 +179,9 @@ class _ProjectFile extends StatelessWidget {
           children: [
             if (p.link?.isNotEmpty == true)
               BroadsideLink(
-                label: 'Visit project ↗',
+                label: p.sourceUrl.isNotEmpty
+                    ? 'Live demo ↗'
+                    : 'Visit project ↗',
                 href: p.link!,
                 dark: dark,
               ),
