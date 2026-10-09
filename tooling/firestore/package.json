@@ -6,7 +6,7 @@
     "test": "node --test --test-concurrency=1 rules.test.mjs setup_emulator_user.test.mjs",
     "test:emulator": "firebase emulators:exec --project demo-lumen --only firestore --config ../../firebase.json \"npm test\"",
     "test:setup": "node --test setup_emulator_user.test.mjs",
-    "test:bootstrap": "node --experimental-vm-modules --test ../../scripts/test_firebase_emulator_bootstrap.mjs",
+    "test:bootstrap": "node --experimental-vm-modules --test ../../scripts/test_firebase_emulator_bootstrap.mjs ../../scripts/test_portfolio_startup.mjs",
     "setup:emulator-user": "node setup_emulator_user.mjs"
   },
   "devDependencies": {

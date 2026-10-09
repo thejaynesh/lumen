@@ -1,3 +1,12 @@
+STARTUP TRANSITION FIX — October 9, 2026 (America/Los_Angeles)
+
+The separate static HTML overview previously appeared before Flutter initialized,
+creating a visible switch between two portfolio layouts. A synchronous startup
+controller now shows a minimal loading screen before the body is painted and
+hides it on Flutter's first frame. The static overview remains the no-JavaScript,
+timeout, and failure fallback. Startup script responses revalidate their cache.
+Eight new regression checks cover startup transitions and failure recovery.
+
 RESUME CONTENT UPDATE — October 9, 2026 (America/Los_Angeles)
 
 Replaced the bundled resume with the owner's supplied PDF without modifying it.

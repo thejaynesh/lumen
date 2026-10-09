@@ -24,12 +24,22 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="manifest" href="manifest.json">
   <title>Jaynesh Bhandari · Software Engineer</title>
+  <script src="portfolio_startup.js"></script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Jaynesh Bhandari","jobTitle":"Software Engineer","url":"https://lumen-f2e07.web.app/","sameAs":["https://github.com/thejaynesh","https://www.linkedin.com/in/thejaynesh"]}</script>
   <style>
     @font-face{font-family:Manrope;src:url('assets/assets/fonts/Manrope.ttf') format('truetype');font-style:normal;font-weight:200 800;font-display:swap}
     @font-face{font-family:DMSerifDisplay;src:url('assets/assets/fonts/DMSerifDisplay-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
     @font-face{font-family:DMSerifDisplay;src:url('assets/assets/fonts/DMSerifDisplay-Italic.ttf') format('truetype');font-style:italic;font-weight:400;font-display:swap}
     body{margin:0;background:#EDF1F8;color:#17264B;font:400 16px/1.75 Manrope,system-ui,sans-serif}
+    #startup-shell{display:none;position:fixed;inset:0;z-index:9999;place-content:center;justify-items:center;gap:20px;background:#EDF1F8;color:#17264B}
+    #startup-shell .startup-mark{font:400 32px/1 Georgia,serif;letter-spacing:-.04em}
+    #startup-shell p{margin:0;font:400 13px/1.5 system-ui,sans-serif;color:#475673}
+    #startup-shell .startup-progress{width:28px;height:28px;border:2px solid #DCE4F2;border-top-color:#2549CD;border-radius:50%;animation:startup-spin .9s linear infinite}
+    html[data-portfolio-state="loading"] #startup-shell{display:grid}
+    html[data-portfolio-state="loading"] body{overflow:hidden}
+    html[data-portfolio-state="loading"] #portfolio-fallback,html[data-portfolio-state="ready"] #portfolio-fallback{display:none}
+    @keyframes startup-spin{to{transform:rotate(360deg)}}
+    @media(prefers-reduced-motion:reduce){#startup-shell .startup-progress{animation:none}}
     #portfolio-fallback{max-width:960px;margin:auto;padding:48px 24px}
     #portfolio-fallback .brand-seal{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border:1px solid #17264B;border-radius:50%;font:400 24px/1 DMSerifDisplay,Georgia,serif;transform:rotate(-8deg);margin-bottom:28px}
     #portfolio-fallback>p{color:#475673}
@@ -48,13 +58,18 @@
   </style>
 </head>
 <body>
+  <div id="startup-shell" role="status" aria-live="polite">
+    <span class="startup-mark" aria-hidden="true">jb.</span>
+    <span class="startup-progress" aria-hidden="true"></span>
+    <p>Loading portfolio</p>
+  </div>
   <main id="portfolio-fallback">
     <span class="brand-seal" aria-hidden="true">jb.</span>
     <p>SOFTWARE ENGINEER · SAN JOSE, CA</p>
     <h1>Jaynesh Bhandari</h1>
     <p>Back-end systems, full-stack products, and AI features built for real data.</p>
     <nav aria-label="Portfolio links"><a href="mailto:thejaynesh@gmail.com">Email me</a><a href="Jaynesh-Bhandari-Resume.pdf">Résumé</a><a href="https://github.com/thejaynesh">GitHub</a><a href="https://www.linkedin.com/in/thejaynesh">LinkedIn</a></nav>
-    <p class="status" id="startup-status" role="status">Loading the interactive portfolio. You can browse this overview while it starts.</p>
+    <p class="status" id="startup-status" role="status">Portfolio overview and contact links.</p>
     <noscript><p>The interactive portfolio needs JavaScript. These projects and contact links remain available.</p></noscript>
     <h2>Selected work</h2>
     <article><h3><a href="https://clickdrobe.com">ClickDrobe</a></h3><p>An AI wardrobe and styling application built with Flutter, PostgreSQL, Supabase, and Gemini. Photo-based ingestion reduced processing-function calls by 73% in a measured workload; image optimization cut a 109-item wardrobe grid from 110 MB to 1 MB. A streaming styling assistant uses 11 callable tools.</p></article>
