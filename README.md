@@ -6,6 +6,8 @@ The public interface pairs cobalt, apricot, and blue-gray with Manrope and DM Se
 
 The introduction groups location, availability, email, projects, and résumé actions. Email becomes a floating action only after the original button scrolls above the viewport, and hides when the contact section is reached. The page then presents projects and outcomes, professional experience, background and skills, credentials, and contact details. Project explanations lead the case studies; ClickDrobe uses a simplified ingestion diagram and AlgoView uses an illustrative sorting demo, with uploaded screenshots taking precedence when available.
 
+Portfolio content was aligned with the owner's latest résumé on October 9, 2026: updated ClickDrobe results, LinkFlow and RAG Document Search, skills, education dates, and experience details. AlgoView remains as additional work. The bundled résumé is the supplied PDF unchanged; PDF responses revalidate their cache so replacements stay current. Live content is stored in Firestore; `scripts/seed_data.json` mirrors the résumé updates for local setup.
+
 The normal development target is **local emulators using `demo-lumen`**. Production requires `APP_ENV=production`. These repository changes do not imply that a Firebase project, production rules, account, or website has been deployed.
 
 ## What is included

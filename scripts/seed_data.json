@@ -8,79 +8,222 @@
     "about": "",
     "summary": "Software engineer with a back-end core — Java and Spring Boot services at Tata Consultancy Services, Flutter and PostgreSQL products of my own, and an M.S. in Computer Science from Northeastern. Lately most of the work is AI-adjacent: retrieval, vector search, and tool calling that has to hold up on real data.",
     "email": "thejaynesh@gmail.com",
-    "phone": "+1 207·313·7210",
+    "phone": "+1 207 313 7210",
     "github": "github.com/thejaynesh",
     "linkedin": "linkedin.com/in/thejaynesh",
     "twitter": "",
     "instagram": "",
     "resumeUrl": "/Jaynesh-Bhandari-Resume.pdf",
     "highlights": [
-      { "label": "Hackathon podiums", "value": "2×", "note": "1st Start Summit · 2nd Roux Institute" },
-      { "label": "Students supported", "value": "200+", "note": "Graduate TA, two semesters" },
-      { "label": "API latency cut", "value": "−20%", "note": "500ms → 400ms · 5,000+ daily requests" },
-      { "label": "Worker invocations cut", "value": "−73%", "note": "ClickDrobe ingestion pipeline" }
+      {
+        "label": "Hackathon podiums",
+        "value": "2×",
+        "note": "1st Start Summit · 2nd Roux Institute"
+      },
+      {
+        "label": "Students supported",
+        "value": "200+",
+        "note": "Graduate TA, two semesters"
+      },
+      {
+        "label": "API latency cut",
+        "value": "−20%",
+        "note": "500ms → 400ms · up to 5,000 requests/min"
+      },
+      {
+        "label": "Processing calls cut",
+        "value": "−73%",
+        "note": "ClickDrobe · measured ingestion workload"
+      }
     ],
     "skillGroups": [
-      { "category": "Languages", "items": ["Java", "TypeScript", "JavaScript", "Dart", "Python", "SQL"] },
-      { "category": "Frameworks & Libraries", "items": ["Spring Boot", "React", "Next.js", "Flutter"] },
-      { "category": "Databases", "items": ["PostgreSQL", "MySQL", "MongoDB", "Firestore", "Redis", "pgvector"] },
-      { "category": "Cloud & DevOps", "items": ["Google Cloud Platform", "AWS", "Firebase", "Docker", "GitHub Actions", "Jenkins"] },
-      { "category": "AI / ML", "items": ["RAG", "Vector Embeddings", "LLM Tool Calling", "Gemini API", "OpenAI API", "Claude API"] },
-      { "category": "Tools", "items": ["Git", "Linux", "Postman", "Jira"] }
+      {
+        "category": "Languages",
+        "items": [
+          "Java",
+          "JavaScript",
+          "TypeScript",
+          "Dart",
+          "Python",
+          "SQL"
+        ]
+      },
+      {
+        "category": "Frameworks & Libraries",
+        "items": [
+          "Spring Boot",
+          "React",
+          "Flutter",
+          "Next.js",
+          "Node.js",
+          "Express",
+          "FastAPI"
+        ]
+      },
+      {
+        "category": "Databases",
+        "items": [
+          "PostgreSQL",
+          "MySQL",
+          "MongoDB",
+          "Firestore",
+          "Redis",
+          "pgvector"
+        ]
+      },
+      {
+        "category": "Cloud & DevOps",
+        "items": [
+          "Google Cloud Platform",
+          "AWS",
+          "Firebase",
+          "Docker",
+          "GitHub Actions",
+          "Supabase"
+        ]
+      },
+      {
+        "category": "AI / ML",
+        "items": [
+          "RAG",
+          "Vector Embeddings",
+          "LLM Tool Calling",
+          "OpenCV",
+          "Gemini API",
+          "OpenAI API",
+          "Claude API",
+          "LangChain"
+        ]
+      },
+      {
+        "category": "Tools",
+        "items": [
+          "Git",
+          "Linux",
+          "Postman",
+          "Jira",
+          "Claude Code"
+        ]
+      }
     ],
     "awards": [
       "1st Place — Start Summit Hackathon, Northeastern University",
       "2nd Place — Roux Institute Hackathon, Northeastern University"
     ],
     "education": [
-      { "when": "2024–25", "where": "Northeastern University", "what": "M.S. Computer Science · GPA 3.7/4.0 · Boston, MA" },
-      { "when": "2018–22", "where": "Medicaps University", "what": "B.Tech. Computer Science · Indore, India" }
+      {
+        "when": "Jan 2024 – Dec 2025",
+        "where": "Northeastern University",
+        "what": "M.S. Computer Science · GPA 3.7/4.0 · Boston, MA"
+      },
+      {
+        "when": "Aug 2018 – May 2022",
+        "where": "Medicaps University",
+        "what": "B.Tech. Computer Science · Indore, India"
+      }
     ],
     "quiz": [
       {
         "q": "What's Jaynesh's go-to stack for a new product?",
-        "options": ["Java + Spring Boot", "Flutter + PostgreSQL", "COBOL + hope", "A pile of Bash scripts"],
+        "options": [
+          "Java + Spring Boot",
+          "Flutter + PostgreSQL",
+          "COBOL + hope",
+          "A pile of Bash scripts"
+        ],
         "answer": 1,
         "funFact": "Flutter on the front, PostgreSQL underneath. ClickDrobe runs on exactly that."
       },
       {
         "q": "Where did Jaynesh place at the Start Summit Hackathon?",
-        "options": ["1st", "2nd", "3rd", "Did not finish"],
+        "options": [
+          "1st",
+          "2nd",
+          "3rd",
+          "Did not finish"
+        ],
         "answer": 0,
         "funFact": "1st at Start Summit, 2nd at the Roux Institute hackathon — both at Northeastern."
       },
       {
         "q": "How much did he cut API response times at TCS?",
-        "options": ["5%", "20%", "50%", "It got slower"],
+        "options": [
+          "5%",
+          "20%",
+          "50%",
+          "It got slower"
+        ],
         "answer": 1,
-        "funFact": "500ms → 400ms on a telecom backend handling 5,000+ requests a day."
+        "funFact": "500ms → 400ms on Spring Boot microservices serving up to 5,000 requests per minute."
       },
       {
         "q": "What did a Flutter + Firestore app replace at a soap factory?",
-        "options": ["The accountant", "Paper-based stock logging", "The forklift", "A fax machine"],
+        "options": [
+          "The accountant",
+          "Paper-based stock logging",
+          "The forklift",
+          "A fax machine"
+        ],
         "answer": 1,
         "funFact": "Paper logs. Processing errors dropped 50% and material wastage 42% — about $15K a year."
       },
       {
         "q": "How many algorithms does AlgoView visualize?",
-        "options": ["5", "12", "19", "All of them"],
+        "options": [
+          "5",
+          "12",
+          "19",
+          "All of them"
+        ],
         "answer": 2,
         "funFact": "19 across five categories, each one scrubbable frame by frame."
       }
     ],
     "personality": [
-      { "label": "Debugging style", "value": "Print statements first, debugger never" },
-      { "label": "Favorite error", "value": "NullPointerException — an old friend" },
-      { "label": "Coffee order", "value": "Black, no sugar, no patience" },
-      { "label": "IDE", "value": "VS Code, but IntelliJ when Java gets serious" },
-      { "label": "Unpopular opinion", "value": "Spreadsheets are underrated databases" },
-      { "label": "Superpower", "value": "Making a working MVP before the pitch deck is done" },
-      { "label": "Biggest flex", "value": "1st place at Start Summit — Northeastern" },
-      { "label": "Currently learning", "value": "Retrieval that actually retrieves the right thing" }
+      {
+        "label": "Debugging style",
+        "value": "Print statements first, debugger never"
+      },
+      {
+        "label": "Favorite error",
+        "value": "NullPointerException — an old friend"
+      },
+      {
+        "label": "Coffee order",
+        "value": "Black, no sugar, no patience"
+      },
+      {
+        "label": "IDE",
+        "value": "VS Code, but IntelliJ when Java gets serious"
+      },
+      {
+        "label": "Unpopular opinion",
+        "value": "Spreadsheets are underrated databases"
+      },
+      {
+        "label": "Superpower",
+        "value": "Making a working MVP before the pitch deck is done"
+      },
+      {
+        "label": "Biggest flex",
+        "value": "1st place at Start Summit — Northeastern"
+      },
+      {
+        "label": "Currently learning",
+        "value": "Retrieval that actually retrieves the right thing"
+      }
     ],
     "certifications": [
-      { "name": "Professional Cloud Developer", "issuer": "Google Cloud", "year": "" },
-      { "name": "GitHub Foundations", "issuer": "GitHub", "year": "" }
+      {
+        "name": "Professional Cloud Developer",
+        "issuer": "Google Cloud",
+        "year": ""
+      },
+      {
+        "name": "GitHub Foundations",
+        "issuer": "GitHub",
+        "year": ""
+      }
     ],
     "now": [
       "Building ClickDrobe — an AI wardrobe & styling app (Flutter, PostgreSQL, Gemini)",
@@ -94,29 +237,108 @@
     {
       "title": "ClickDrobe",
       "category": "AI Wardrobe & Styling Application",
-      "description": "A cross-platform Flutter app that turns clothing photos and share-sheet imports into structured wardrobe items using Gemini vision, then handles outfit planning, wear tracking, and personalized styling. Underneath it runs an asynchronous PostgreSQL ingestion pipeline — row-level locking, event-driven workers, recovery sweeps — processing roughly 15–30 garments a minute with 73% fewer worker invocations. Invalid outfit combinations turned out to trace back to free-text garment labels, so the whole system now shares one canonical taxonomy across ingestion, recommendations, backfills, and evaluation tooling.",
-      "techStack": ["Flutter", "PostgreSQL", "Supabase", "Gemini", "pgvector"],
+      "description": "A cross-platform Flutter app that turns clothing photos into structured wardrobe items using Gemini vision, enabling outfit planning, wear tracking, and personalized styling. An asynchronous PostgreSQL ingestion pipeline uses row-level locking and recovery sweeps, with garment processing consolidated by source photo. A Gemini-powered styling assistant provides 11 callable tools, parallel tool execution, and Server-Sent Events streaming for wardrobe search, weather-aware recommendations, and trip planning.",
+      "techStack": [
+        "Flutter",
+        "PostgreSQL",
+        "Supabase",
+        "Gemini API"
+      ],
       "link": "https://clickdrobe.com",
-      "tag": "Product · 2026 – Present",
-      "kpi": "−73% worker invocations",
-      "tags": ["flutter", "postgresql", "ai", "supabase"],
+      "tag": "Product · Feb 2026 – Present",
+      "kpi": "−73% processing-function calls",
+      "tags": [
+        "flutter",
+        "postgresql",
+        "ai",
+        "supabase"
+      ],
       "imageUrl": null,
       "colorHex": 16737845,
       "order": 0,
+      "isActive": true,
+      "outcome": "73% fewer processing-function calls in a measured workload. Thumbnail generation, JPEG compression, and migration of existing images reduced the payload for a 109-item wardrobe grid by approximately 99%, from 110 MB to 1 MB."
+    },
+    {
+      "title": "LinkFlow",
+      "category": "Full-Stack Link Management & URL Shortener",
+      "description": "A full-stack URL shortening platform built with TypeScript, Express, MongoDB, and React. It combines HTTP 302 redirects, click telemetry, real-time search filtering, and dynamic QR code generation. The multi-tier architecture uses multi-stage Docker builds, Docker Compose, and an Nginx reverse proxy, with automated testing and build verification in GitHub Actions.",
+      "techStack": [
+        "React",
+        "TypeScript",
+        "Node.js",
+        "Express",
+        "MongoDB",
+        "Vite",
+        "Docker",
+        "Nginx",
+        "GitHub Actions"
+      ],
+      "link": null,
+      "sourceUrl": "https://github.com/thejaynesh/Url-Shortner-App",
+      "tag": "Sep 2025 – Nov 2025",
+      "kpi": "HTTP 302 redirects benchmarked below 50 ms",
+      "tags": [
+        "react",
+        "typescript",
+        "node",
+        "mongodb"
+      ],
+      "imageUrl": null,
+      "colorHex": 16737845,
+      "order": 1,
+      "isActive": true
+    },
+    {
+      "title": "RAG Document Search",
+      "category": "AI System for Document Understanding & Search",
+      "description": "A Retrieval-Augmented Generation system for contextual document search, combining FAISS vector retrieval with Gemini Pro for answer generation. LangChain and Hugging Face models support semantic search, with backend APIs deployed through FastAPI for scalable access.",
+      "techStack": [
+        "Google Gemini Pro",
+        "LangChain",
+        "FAISS",
+        "FastAPI",
+        "NLTK",
+        "Hugging Face"
+      ],
+      "link": null,
+      "sourceUrl": "",
+      "tag": "Feb 2025 – May 2025",
+      "kpi": "40% improvement in semantic search precision",
+      "tags": [
+        "rag",
+        "ai",
+        "python",
+        "fastapi"
+      ],
+      "imageUrl": null,
+      "colorHex": 16737845,
+      "order": 2,
       "isActive": true
     },
     {
       "title": "AlgoView",
       "category": "Algorithm Visualizer",
       "description": "A browser-based teaching platform that visualizes 19 algorithms across five categories. Execution-state snapshots make a run fully scrubbable — play, pause, step backward — with pseudocode and complexity analysis staying in sync. A separate benchmarking engine runs the real sorting implementations in background workers across varying input sizes and plots the empirical runtime curve against the theoretical Big-O, all without blocking the interface.",
-      "techStack": ["React", "TypeScript", "Zustand", "Web Workers", "Vitest", "Firebase"],
+      "techStack": [
+        "React",
+        "TypeScript",
+        "Zustand",
+        "Web Workers",
+        "Vitest",
+        "Firebase"
+      ],
       "link": "https://algoview.jaynesh.dev",
       "tag": "Teaching tool",
       "kpi": "19 algorithms · 5 categories",
-      "tags": ["react", "typescript", "web"],
+      "tags": [
+        "react",
+        "typescript",
+        "web"
+      ],
       "imageUrl": null,
       "colorHex": 16737845,
-      "order": 1,
+      "order": 3,
       "isActive": true
     }
   ],
@@ -125,10 +347,14 @@
       "role": "Graduate Teaching Assistant",
       "company": "Northeastern University",
       "period": "Sep 2024 – Apr 2025",
-      "description": "Supported 200+ graduate students across two semesters of Programming Design Paradigm and Algorithms — office hours, technical activities, code reviews, grading, and one-on-one debugging. Most of the mentoring landed on Java, data structures, algorithm design, and software architecture.",
+      "description": "Mentored and supported 200+ graduate students across two semesters in Java, data structures, algorithms, and software architecture through code reviews, grading, and one-on-one debugging sessions.",
       "city": "Boston, MA",
       "highlights": [],
-      "tags": ["Java", "Algorithms", "Mentoring"],
+      "tags": [
+        "Java",
+        "Algorithms",
+        "Mentoring"
+      ],
       "order": 0,
       "isActive": true
     },
@@ -136,21 +362,30 @@
       "role": "Software Engineer",
       "company": "Tata Consultancy Services",
       "period": "Jun 2022 – Jan 2024",
-      "description": "Optimized Java/Spring Boot microservices for a telecom client's backend handling 5,000+ daily requests — query caching and load balancing cut API response times 20% (500ms → 400ms). Automated build and deployment workflows with Docker and Jenkins, pulling the release cycle from four weeks to three across three microservices. Restructured queries and added targeted indexes on internal simulation tools for a 30% drop in execution time (1,000ms → 700ms).",
+      "description": "Cut API latency by 20% (500ms → 400ms) on Spring Boot microservices serving up to 5,000 requests per minute through caching and load balancing. Automated build and deployment workflows with Docker and Jenkins, reducing the release cycle from four weeks to three across three microservices. Restructured SQL queries and added targeted indexes for enterprise simulation tools, cutting query execution time by 30% (1,000ms → 700ms).",
       "city": "Mumbai, India",
       "highlights": [],
-      "tags": ["Java", "Spring Boot", "Docker", "Jenkins"],
+      "tags": [
+        "Java",
+        "Spring Boot",
+        "Docker",
+        "Jenkins"
+      ],
       "order": 1,
       "isActive": true
     },
     {
-      "role": "Freelance Software Developer",
+      "role": "Freelance Software Engineer",
       "company": "Rawat Soap and Chemicals",
       "period": "Jan 2022 – Apr 2022",
       "description": "Built and shipped a cross-platform inventory app (Flutter, Firestore) onto shop-floor devices, replacing paper-based stock logging and cutting processing errors by 50%. Real-time raw-materials tracking with Firestore sync reduced material wastage 42% — an estimated $15K a year. Automated reporting (Cloud Scheduler → Cloud Functions) produced daily consumption, wastage, and stock-valuation summaries as PDF/CSV, saving five hours a week of manual reconciliation.",
       "city": "Indore, India",
       "highlights": [],
-      "tags": ["Flutter", "Firestore", "Cloud Functions"],
+      "tags": [
+        "Flutter",
+        "Firestore",
+        "Cloud Functions"
+      ],
       "order": 2,
       "isActive": true
     },
@@ -161,7 +396,10 @@
       "description": "Led a student organization serving 80+ developers and organized three workshops on AI-assisted development, AI agents, and cloud technologies.",
       "city": "Boston, MA",
       "highlights": [],
-      "tags": ["Community", "Workshops"],
+      "tags": [
+        "Community",
+        "Workshops"
+      ],
       "order": 3,
       "isActive": true
     }

@@ -1,3 +1,14 @@
+RESUME CONTENT UPDATE — October 9, 2026 (America/Los_Angeles)
+
+Replaced the bundled resume with the owner's supplied PDF without modifying it.
+Updated ClickDrobe metrics, TCS traffic to up to 5K requests/min, the freelance
+role title, education dates and skills. Added LinkFlow and RAG Document Search;
+retained AlgoView. Updated the static HTML overview and local seed content.
+Production updates preserve existing document IDs and unrelated studio edits,
+use the maintenance validators, and back up changed documents before committing.
+PDFs now revalidate their Hosting cache. The source PDF's ClickDrobe hyperlink
+has an httpe:// typo; the portfolio uses the correct https://clickdrobe.com URL.
+
 CURRENT UI — October 8, 2026 (America/Los_Angeles)
 
 Release correction: pushes to main trigger Hosting-only deployment after checks
